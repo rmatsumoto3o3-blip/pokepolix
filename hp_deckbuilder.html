@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>デッキビルダー — PokePoLix</title>
+<link href="https://fonts.googleapis.com/css2?family=Lavishly+Yours&family=Zen+Antique+Soft&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060612;--surface:#0c0c1e;--surface2:#111128;
+  --border:#1c1c38;--border-hover:#c8941a;
+  --gold:#c8941a;--gold-dim:#7a5a0a;
+  --text-primary:#f0f0ff;--text-secondary:#8888aa;--text-muted:#48486a;
+  --font-logo:'Lavishly Yours',cursive;
+}
+body{font-family:'Zen Antique Soft',-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh}
+.app{max-width:1400px;margin:0 auto;padding:0 1rem 2rem}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.tab{padding:9px 20px;background:none;border:none;border-bottom:2px solid transparent;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;font-family:'Zen Antique Soft',inherit}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab:hover{color:var(--text-primary)}
+.two-col{display:grid;grid-template-columns:1fr 256px;gap:12px;align-items:start}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.card-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0;cursor:pointer;transition:border-color .12s;overflow:hidden;display:flex;flex-direction:column}
+.card-item:hover{border-color:#444}
+.card-item.in-deck{border-color:var(--gold)}
+.card-item.maxed{opacity:.38;cursor:not-allowed}
+.card-img-wrap{width:100%;aspect-ratio:63/88;overflow:hidden;background:var(--surface2);position:relative;flex-shrink:0}
+.card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.card-img-wrap .img-fallback{display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:var(--text-muted)}
+.card-info{padding:7px 8px;flex:1;display:flex;flex-direction:column;background:#fff;color:#1a1a1a}
+.badge{display:inline-block;font-size:9px;padding:2px 4px;border-radius:3px;font-weight:500}
+.type-Character{background:#0d2240;color:#5ab0ff}
+.type-Location{background:#0d2010;color:#5acc88}
+.type-Magic{background:#1a1040;color:#9080ff}
+.type-Event{background:#301508;color:#ff8060}
+.type-Item{background:#251800;color:#ffaa44}
+.rar-UR{background:#2a1800;color:#ffaa44}
+.rar-SR{background:#0a1828;color:#5ab0ff}
+.rar-R{background:#0a1808;color:#5acc88}
+.rar-N{background:var(--surface2);color:var(--text-muted)}
+.rar-ST{background:#1e0818;color:#ff80b0}
+.rar-Pt{background:#14082a;color:#b090ff}
+.num{font-size:10px;font-family:monospace;color:#888}
+.cname{font-size:12px;font-weight:600;color:#1a1a1a;margin:3px 0;line-height:1.3}
+.stat-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:4px 0}
+.stat{font-size:9px;padding:1px 4px;border-radius:3px;background:#f0f0f0;color:#555}
+.stat.ap{background:#0d2240;color:#5ab0ff}
+.stat.cost{background:var(--gold);color:#0a0808;font-weight:700}
+.stat.magicico{background:#1a1040;color:#9080ff}
+.stat.mp{background:#0d2010;color:#5acc88}
+.tag-row{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0}
+.tag{display:inline-block;font-size:8px;padding:1px 5px;border-radius:99px;background:#f0f0f0;color:#555}
+.effect-text{font-size:9px;color:#555;line-height:1.55;margin-top:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.in-deck-badge{font-size:10px;font-weight:600;color:#a07010;margin-top:4px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;position:sticky;top:16px;max-height:calc(100vh - 100px);overflow-y:auto}
+.filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.filter-bar input,.filter-bar select{border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;outline:none;font-family:'Zen Antique Soft',inherit;background:var(--surface2);color:var(--text-primary)}
+.filter-bar input{flex:1;min-width:100px}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--gold)}
+.deck-row{display:flex;align-items:center;gap:4px;padding:5px 0;border-bottom:1px solid var(--border)}
+.count-btn{background:none;border:1px solid var(--border);border-radius:4px;width:20px;height:20px;font-size:13px;cursor:pointer;color:var(--text-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.count-btn:hover{background:var(--surface2)}
+.valid{background:#0d2010;color:#5acc88;font-size:12px;padding:7px 10px;border-radius:8px;margin-top:8px;border:1px solid #1a4020}
+.invalid{background:#200808;color:#ff6060;font-size:12px;padding:7px 10px;border-radius:8px;margin-top:8px;border:1px solid #3a1010}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'Zen Antique Soft',inherit;transition:opacity .12s}
+.btn:hover{opacity:.85}
+.btn-primary{background:var(--gold);color:#0a0808}
+.btn-outline{background:var(--surface2);color:var(--text-primary);border:1px solid var(--border)}
+.btn-blue{background:#0d2240;color:#5ab0ff;border:1px solid #1a3a5a}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text-primary)}
+.modal input{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:'Zen Antique Soft',inherit;background:var(--surface2);color:var(--text-primary);margin-bottom:14px}
+.modal input:focus{border-color:var(--gold)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.saved-list{display:flex;flex-direction:column;gap:10px}
+.saved-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px}
+.saved-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.saved-card-title{font-size:15px;font-weight:700;color:var(--text-primary)}
+.saved-card-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+.deck-preview-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:3px 0;border-bottom:1px solid var(--border)}
+.deck-preview-num{font-family:monospace;color:var(--text-muted);font-size:10px;min-width:46px}
+.deck-preview-name{color:var(--text-primary);flex:1}
+.deck-preview-cnt{font-weight:600;color:var(--gold);min-width:20px;text-align:right}
+.stat-pills{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+.pill{background:var(--surface2);border-radius:99px;padding:2px 8px;font-size:11px;color:var(--text-secondary)}
+.pill b{color:var(--text-primary)}
+.pt-grid{display:grid;grid-template-columns:repeat(7,120px);gap:6px;margin-bottom:12px}
+.pt-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;overflow:hidden;transition:border-color .12s}
+.pt-item:hover{border-color:#444}
+.pt-item.sel{border-color:var(--gold)}
+.slot-box{padding:7px 9px;background:var(--surface2);border-radius:8px;font-size:12px;min-height:34px;margin-bottom:10px;border:1px solid var(--border)}
+.section{margin-bottom:8px}
+.sec-hd{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;font-weight:600;font-size:13px;color:var(--text-primary)}
+.sec-hd:hover{background:var(--surface)}
+.sec-bd{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:14px;font-size:12px;line-height:1.85;color:var(--text-secondary);white-space:pre-wrap}
+.sec-bd.hide{display:none}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted)}
+@media(max-width:800px){.two-col{grid-template-columns:1fr}.panel{position:static;max-height:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding:16px 0 12px;border-bottom:1px solid var(--border)">
+  <a href="index.html" style="text-decoration:none;display:flex;flex-direction:column;gap:2px">
+    <span style="font-family:var(--font-logo);font-size:26px;color:var(--text-primary);line-height:1">Poke<span style="color:var(--gold)">Po</span>Lix</span>
+    <span style="font-size:10px;color:var(--text-muted);letter-spacing:.8px">ポケポタ / デッキビルダー</span>
+  </a>
+  <span style="font-size:11px;padding:3px 10px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted)">非公式ファンツール</span>
+</div>
+  <span style="font-size:11px;padding:3px 10px;border-radius:4px;background:#f2f2f7;border:1px solid #e5e5ea;color:#aaa">非公式ファンツール</span>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('build')">デッキビルダー</button>
+  <button class="tab" onclick="showTab('saved')">保存済みデッキ <span id="saved-count-badge" style="background:#BA7517;color:#fff;border-radius:99px;padding:1px 7px;font-size:10px;margin-left:4px">0</span></button>
+  <button class="tab" onclick="showTab('rules')">ルール参照</button>
+</div>
+
+<!-- デッキビルダー -->
+<div id="t-build">
+  <div style="font-size:12px;font-weight:600;color:#6e6e73;margin-bottom:6px;">パートナーを選択</div>
+  <div class="pt-grid" id="pt-grid"></div>
+  <div class="filter-bar">
+    <input id="search" placeholder="カード名・番号で検索..." oninput="render()"/>
+    <select id="ftype" onchange="render()">
+      <option value="">すべてのタイプ</option>
+      <option value="Character">キャラクター</option>
+      <option value="Location">ロケーション</option>
+      <option value="Magic">マジック</option>
+      <option value="Event">イベント</option>
+      <option value="Item">アイテム</option>
+    </select>
+    <select id="ftag" onchange="render()">
+      <option value="">すべての寮・タグ</option>
+      <option value="グリフィンドール">グリフィンドール</option>
+      <option value="スリザリン">スリザリン</option>
+      <option value="レイブンクロー">レイブンクロー</option>
+      <option value="ハッフルパフ">ハッフルパフ</option>
+      <option value="ダーズリー家">ダーズリー家</option>
+      <option value="教師">教師</option>
+      <option value="魔法使い">魔法使い</option>
+      <option value="魔女">魔女</option>
+      <option value="ゴースト">ゴースト</option>
+      <option value="魔法生物">魔法生物</option>
+      <option value="マグル">マグル</option>
+    </select>
+  </div>
+  <div class="two-col">
+    <div id="card-grid" class="card-grid"></div>
+    <div class="panel">
+      <div style="font-size:14px;font-weight:700;margin-bottom:10px;">デッキ</div>
+      <div style="font-size:11px;color:#6e6e73;margin-bottom:3px;">パートナー</div>
+      <div class="slot-box" id="p-slot"><span style="color:#aaa">未選択</span></div>
+      <div class="stat-pills" id="stats"></div>
+      <div id="deck-list" style="max-height:280px;overflow-y:auto;"></div>
+      <div id="validation" class="invalid">カードを追加してください</div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="btn btn-primary" style="flex:1" onclick="openSaveModal()">💾 デッキを保存</button>
+        <button class="btn btn-outline" onclick="clearDeck()">リセット</button>
+      </div>
+      <button class="btn btn-outline" style="width:100%;margin-top:6px;color:#185FA5;border-color:#185FA5" onclick="openDeckImage()">🖼 デッキを画像で出力</button>
+    </div>
+  </div>
+</div>
+
+<!-- デッキ画像出力モーダル -->
+<div id="img-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;flex-direction:column;align-items:center;overflow-y:auto;padding:16px">
+  <div id="img-toolbar" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;justify-content:center;flex-shrink:0">
+    <button onclick="downloadPng()" style="background:#BA7517;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Zen Antique Soft',inherit">⬇️ PNG 保存</button>
+    <button onclick="printDeck()" style="background:#185FA5;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Zen Antique Soft',inherit">🖨 印刷 / PDF保存</button>
+    <button onclick="document.getElementById('img-modal').style.display='none'" style="background:#444;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;cursor:pointer;font-family:'Zen Antique Soft',inherit">✕ 閉じる</button>
+  </div>
+  <div id="deck-preview-board" style="background:#1a1a2e;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;flex-wrap:nowrap">
+    <!-- JS で中身を描画 -->
+  </div>
+</div>
+
+<style>
+@media print {
+  body > *:not(#print-deck-root){ display:none !important; }
+  #print-deck-root{ display:block !important; }
+}
+</style>
+<div id="print-deck-root" style="display:none"></div>
+
+<!-- 保存済みデッキ一覧 -->
+<div id="t-saved" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:600;color:#6e6e73" id="saved-header">保存済みデッキ</div>
+  </div>
+  <div id="saved-list" class="saved-list"></div>
+</div>
+
+<!-- ルール参照 -->
+<div id="t-rules" style="display:none"></div>
+
+<!-- 保存モーダル -->
+<div id="modal" class="modal-overlay" style="display:none" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>💾 デッキを保存</h3>
+    <input id="deck-name-input" type="text" placeholder="デッキ名を入力..." maxlength="30" onkeydown="if(event.key==='Enter')saveDeck()"/>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveDeck()">保存する</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const TL={Character:'キャラ',Location:'ロケーション',Magic:'マジック',Event:'イベント',Item:'アイテム'};
+const STORAGE_KEY='hp_saved_decks';
+
+const PARTNERS=[
+['Pt001','ハリー・ポッター','ST','グリフィンドール,ホグワーツ,魔法使い','〔アシスト〕①⤵ 味方キャラ1枚まで+1/±0。〔宣言〕〔相手のターン〕〔決闘中〕〔ゲーム中1回〕 味方の【グリフィンドール】カード2枚まで活動状態にする。'],
+['Pt002','ドラコ・マルフォイ','ST','スリザリン,ホグワーツ,魔法使い','〔アシスト〕①⤵ 味方キャラ1枚まで+1/±0。〔宣言〕〔相手のターン〕〔決闘中〕〔ゲーム中1回〕 味方の【スリザリン】カード2枚まで活動状態にする。'],
+['Pt003','ハリー・ポッター','Pt','グリフィンドール,ホグワーツ,魔法使い','〔アシスト〕①⤵ 味方キャラ1枚まで+1/±0。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 味方の【グリフィンドール】カード1枚まで活動状態にする。'],
+['Pt004','ハーマイオニー・グレンジャー','Pt','グリフィンドール,ホグワーツ,魔女','〔アシスト〕①⤵ 味方キャラ1枚まで+1/±0。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 捨て札のMagicカード2枚をデッキ下に移し、サポートの味方キャラ1枚をメインに移す。'],
+['Pt005','ドラコ・マルフォイ','Pt','スリザリン,ホグワーツ,魔法使い','〔アシスト〕①⤵ 味方キャラ1枚まで+1/±0。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 相手キャラ1枚まで、ターン終了時まで、コスト-3する。'],
+['Pt006','アルバス・ダンブルドア','Pt','ホグワーツ,教師,魔法使い','〔アシスト〕① 味方キャラ1枚まで、この決闘中、+1/±0する。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 自分が次にプレイする【教師】のカード1枚は、コスト-1を得る。'],
+['Pt007','ハリー・ポッター','Pt','ダーズリー家,魔法使い','〔アシスト〕① 味方キャラ1枚まで、この決闘中、+1/±0する。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 自分のメインフィールドに【マグル】のカードが3枚いる場合、カードを2枚引く。'],
+];
+
+const CARDS=[
+['01-001','アルバス・ダンブルドア','Character','UR',10,10,10,null,1,'ホグワーツ,教師,魔法使い','〔常時〕 自分がMagicカードをプレイした場合、活動状態になる。'],
+['01-002','ルビウス・ハグリッド','Character','UR',9,9,9,null,1,'ホグワーツ,魔法使い','〔自動〕〔エントリー〕 味方「ハリー・ポッター」のカード全てを、活動状態にする。'],
+['01-003','ハリー・ポッター','Character','SR',5,6,6,null,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕 サポートのコスト4以下の味方キャラ1枚をメインフィールドに移す。'],
+['01-004','ロン・ウィーズリー＆ハーマイオニー・グレンジャー','Character','SR',4,5,5,null,1,'グリフィンドール,ホグワーツ,魔女,魔法使い','〔Pリンク【グリフィンドール】〕〔常時〕 〔速攻〕を得る。'],
+['01-005','ネビル・ロングボトム','Character','SR',3,3,3,1,1,'グリフィンドール,ホグワーツ,魔法使い','≪サポーター≫ 〔Pリンク【グリフィンドール】〕〔宣言〕〔自分のメインフェイズ〕⤵ 味方キャラ1枚まで、ターン終了時まで、+2/+2する。'],
+['01-006','ドラコ・マルフォイ','Character','SR',5,6,6,null,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕 相手メインフィールドのコスト4以下キャラ1枚をダウンさせる。'],
+['01-007','ドラコ・マルフォイ','Character','SR',3,3,3,1,1,'スリザリン,ホグワーツ,魔法使い','≪サポーター≫ 〔Pリンク【スリザリン】〕〔宣言〕〔自分のメインフェイズ〕⤵ 相手キャラ2枚まで、ターン終了時まで、-1/-1する。'],
+['01-008','アルバス・ダンブルドア','Character','SR',7,7,7,null,1,'ホグワーツ,教師,魔法使い','〔Pリンク「アルバス・ダンブルドア」〕〔常時〕〔ターン1回〕 自分がMagicカードをプレイした場合、カードを1枚引く。'],
+['01-009','ミネルバ・マクゴナガル','Character','SR',5,6,6,1,1,'グリフィンドール,ホグワーツ,教師,魔女','〔自動〕〔エントリー〕 相手メインの元々のAP4以下キャラ1枚をダウンさせる。'],
+['01-010','セブルス・スネイプ','Character','SR',5,6,6,1,1,'スリザリン,ホグワーツ,教師,魔法使い','〔自動〕〔エントリー〕〔アタック〕 相手サポートのコスト2以下キャラ1枚を捨て札にする。'],
+['01-011','セブルス・スネイプ','Character','SR',3,4,4,1,1,'スリザリン,ホグワーツ,教師,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕 【スリザリン】以外の相手キャラ1枚まで、ターン終了時まで、-3/-3する。'],
+['01-012','ハリー・ポッター','Character','SR',5,6,6,1,0,'ダーズリー家,魔法使い','〔自動〕〔アタック〕〔ターン1回〕 味方の【マグル】カード1枚を休息にし、このカードを活動状態にする。'],
+['01-013','ハリー・ポッター','Character','R',5,5,6,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔自動〕〔自分のターン終了時〕 コスト4以下の味方【グリフィンドール】カード2枚まで活動状態にする。'],
+['01-014','ロン・ウィーズリー','Character','R',4,5,5,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕 味方キャラ2枚まで、ターン終了時まで、+1/+1する。'],
+['01-015','ロン・ウィーズリー','Character','R',3,4,4,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔連携〕：【グリフィンドール】'],
+['01-016','ハーマイオニー・グレンジャー','Character','R',2,2,2,1,1,'グリフィンドール,ホグワーツ,魔女','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕 カードを1枚引く。 ≪ブレイク≫カードを2枚引き、手札1枚を捨て。'],
+['01-017','ハーマイオニー・グレンジャー','Character','R',4,4,4,1,1,'グリフィンドール,ホグワーツ,魔女','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕 相手メインの元々のAP2以下キャラ1枚をダウンさせる。'],
+['01-018','ネビル・ロングボトム','Character','R',3,3,4,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔ダウン〕 味方キャラ1枚まで活動状態にする。'],
+['01-019','ドラコ・マルフォイ','Character','R',4,5,4,1,1,'スリザリン,ホグワーツ,魔法使い','〔自動〕〔エントリー〕 サポートの相手キャラ1枚まで捨て札にする。'],
+['01-020','ドラコ・マルフォイ','Character','R',3,4,4,1,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔常時〕〔自分のターン〕 決闘中の相手キャラを-2/-2する。 ≪ブレイク≫相手キャラ1枚まで休息。'],
+['01-021','ビンセント・クラッブ','Character','R',2,2,2,1,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕 カードを1枚引く。 ≪ブレイク≫カード2枚引き、手札1枚捨て。'],
+['01-022','グレゴリー・ゴイル','Character','R',2,3,3,1,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔ダウン〕 相手キャラ1枚まで、ターン終了時まで、-2/-2する。'],
+['01-023','アルバス・ダンブルドア','Character','R',5,6,6,1,1,'ホグワーツ,教師,魔法使い','〔Pリンク「アルバス・ダンブルドア」〕〔自動〕〔自分のターン終了時〕 このカードを活動状態にする。 ≪ブレイク≫味方キャラ1枚まで活動状態にする。'],
+['01-024','ミネルバ・マクゴナガル','Character','R',5,4,7,1,1,'グリフィンドール,ホグワーツ,教師,魔女','〔自動〕〔ブロック〕 〔反撃〕を得る。 ≪ブレイク≫味方キャラ1枚はターン終了時まで〔反撃〕を得る。'],
+['01-025','ミネルバ・マクゴナガル','Character','R',2,2,2,1,1,'グリフィンドール,ホグワーツ,教師,魔女','〔Pリンク「アルバス・ダンブルドア」〕〔自動〕〔エントリー〕 カードを1枚引く。 ≪ブレイク≫カード2枚引き、手札1枚捨て。'],
+['01-026','セブルス・スネイプ','Character','R',4,4,4,1,1,'スリザリン,ホグワーツ,教師,魔法使い','〔自動〕〔エントリー〕 コスト2以下の相手キャラ1枚までをダウンさせる。'],
+['01-027','クィリナス・クィレル','Character','R',3,4,4,1,1,'ホグワーツ,教師,魔法使い','〔自動〕〔エントリー〕 相手のMPフィールドのカード1枚を休息状態にする。 ≪ブレイク≫同上。'],
+['01-028','ミセス・ノリス','Character','R',1,0,2,1,0,'ホグワーツ,魔法生物','〔自動〕〔エントリー〕 コスト2以下の相手キャラ1枚まで休息状態にする。'],
+['01-029','バーノン・ダーズリー','Character','R',3,3,3,null,0,'ダーズリー家,マグル','〔Pリンク【ダーズリー家】〕〔自動〕〔エントリー〕 相手【魔法使い】or【魔女】カード1枚まで休息状態にする。'],
+['01-030','ペチュニア・ダーズリー','Character','R',2,2,2,1,0,'ダーズリー家,マグル','〔Pリンク【ダーズリー家】〕〔常時〕 全プレイヤーの手札Magicカードはコスト+1。 ≪ブレイク≫相手【魔法使い】or【魔女】カード1枚まで休息。'],
+['01-031','ダドリー・ダーズリー','Character','R',1,1,1,1,0,'ダーズリー家,マグル','〔Pリンク【ダーズリー家】〕〔自動〕〔エントリー〕 相手【魔法使い】or【魔女】カード1枚まで、ターン終了時まで-2/-2する。'],
+['01-032','ウィンガーディアム・レヴィオーサ','Magic','R',2,null,null,1,0,'','〔使用〕〔決闘中〕 決闘中の相手キャラ1枚まで、この決闘中、-3/-3する。 ≪ブレイク≫相手キャラ1枚まで休息状態にする。'],
+['01-033','入学許可証','Item','R',1,null,null,1,0,'手紙','〔使用〕〔自分のメインフェイズ〕 デッキ上から2枚を見て、【魔法使い】or【魔女】カード1枚を手札に。残りデッキ下へ。 ≪ブレイク≫カードを1枚引く。'],
+['01-034','ホグワーツ特急','Item','R',4,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 サポートの味方【ホグワーツ】カード1枚をメインに移す。 ≪ブレイク≫このカードを無償で使用できる。'],
+['01-035','談話室','Location','R',1,null,null,1,0,'','〔自動〕〔自分のターン終了時〕 自分のパートナーと同じ寮のキャラ1枚まで活動状態にする。'],
+['01-036','階段下の物置部屋','Location','R',1,null,null,1,0,'','〔常時〕 味方【マグル】カードがメインにいる場合、味方「ハリー・ポッター」全てに±0/+2する。'],
+['01-037','ハリー・ポッター','Character','N',3,4,4,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔アタック〕 味方キャラ1枚まで、ターン終了時まで+2/+2する。 ≪ブレイク≫味方キャラ1枚まで活動状態にする。'],
+['01-038','ロン・ウィーズリー','Character','N',3,4,4,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔アタック〕 味方キャラ1枚まで、ターン終了時まで〔突進〕を得る。 ≪ブレイク≫味方キャラ1枚まで活動状態にする。'],
+['01-039','ハーマイオニー・グレンジャー','Character','N',3,4,4,1,1,'グリフィンドール,ホグワーツ,魔女','〔Pリンク【グリフィンドール】〕〔自動〕〔アタック〕 次にプレイするMagicカード1枚をコスト-2する。 ≪ブレイク≫味方キャラ1枚まで活動状態にする。'],
+['01-040','パーシー・ウィーズリー','Character','N',2,3,3,1,1,'グリフィンドール,ホグワーツ,魔法使い','≪ブレイク≫味方キャラ1枚まで活動状態にし、このカードを手札に移す。'],
+['01-041','フレッド・ウィーズリー','Character','N',4,5,5,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔常時〕 手札にあり、メインに「ジョージ・ウィーズリー」がいる場合、コスト-2。'],
+['01-042','ジョージ・ウィーズリー','Character','N',4,5,5,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔常時〕 手札にあり、メインに「フレッド・ウィーズリー」がいる場合、コスト-2。'],
+['01-043','ドラコ・マルフォイ','Character','N',3,4,4,1,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔アタック〕 相手キャラ1枚まで、ターン終了時まで、コスト-2する。'],
+['01-044','ドラコ・マルフォイ','Character','N',1,2,2,1,1,'スリザリン,ホグワーツ,魔法使い','〔挑発〕 ≪ブレイク≫相手キャラ1枚まで休息状態にする。'],
+['01-045','スーザン・ボーンズ','Character','N',3,4,4,1,1,'ハッフルパフ,ホグワーツ,魔女','≪ブレイク≫サポートの味方キャラ1枚をメインに移し、このカードを手札に移す。'],
+['01-046','アルバス・ダンブルドア','Character','N',5,6,6,1,1,'ホグワーツ,教師,魔法使い','〔常時〕 Magicカードがプレイされた場合、このカードを、ターン終了時まで+2/+2する。'],
+['01-047','アルバス・ダンブルドア','Character','N',4,4,4,1,1,'ホグワーツ,教師,魔法使い','〔常時〕〔自分のターン〕 味方の【教師】カード全てを+1/+1する。'],
+['01-048','ミネルバ・マクゴナガル','Character','N',3,4,4,1,1,'グリフィンドール,ホグワーツ,教師,魔女','〔自動〕〔エントリー〕 手札1枚まで、MPフィールドに置く。'],
+['01-049','セブルス・スネイプ','Character','N',4,5,5,1,1,'スリザリン,ホグワーツ,教師,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕 相手は休息状態の自分のキャラ1枚を手札に移す。'],
+['01-050','ロランダ・フーチ','Character','N',3,4,4,1,1,'ホグワーツ,教師,魔女','≪サポーター≫ 〔Pリンク「アルバス・ダンブルドア」〕〔宣言〕〔決闘中〕⤵ 味方【教師】カード1枚まで、ターン終了時まで+1/+1する。'],
+['01-051','フィリウス・フリットウィック','Character','N',3,3,3,1,1,'ホグワーツ,レイブンクロー,教師,魔法使い','〔Pリンク「アルバス・ダンブルドア」〕〔自動〕〔自分のターン終了時〕 味方キャラ1枚まで活動状態にする。 ≪ブレイク≫味方【教師】カード1枚まで活動状態にする。'],
+['01-052','クィリナス・クィレル','Character','N',3,4,4,1,1,'ホグワーツ,教師,魔法使い','≪ブレイク≫相手キャラ1枚まで休息状態にし、このカードを手札に移す。'],
+['01-053','ルビウス・ハグリッド','Character','N',3,6,6,1,1,'ホグワーツ,魔法使い','〔常時〕 このカードは、パートナーにアタックできない。'],
+['01-054','アーガス・フィルチ','Character','N',2,4,4,1,0,'ホグワーツ','〔常時〕 このカードの決闘中、自分はMagicカードをプレイできない。'],
+['01-055','ほとんど首無しニック','Character','N',0,null,null,1,0,'グリフィンドール,ゴースト,ホグワーツ','≪サポーター≫ 〔宣言〕〔相手のターン〕〔決闘中〕〈捨て札にする〉 味方【グリフィンドール】カード1枚まで活動状態にする。'],
+['01-056','血みどろ男爵','Character','N',0,null,null,1,0,'ゴースト,スリザリン,ホグワーツ','≪サポーター≫ 〔宣言〕〔相手のターン〕〔決闘中〕〈捨て札にする〉 味方【スリザリン】カード1枚まで活動状態にする。'],
+['01-057','灰色のレディ','Character','N',0,null,null,1,0,'ゴースト,ホグワーツ,レイブンクロー','≪サポーター≫ 〔宣言〕〔相手のターン〕〔決闘中〕〈捨て札にする〉 味方【レイブンクロー】カード1枚まで活動状態にする。'],
+['01-058','太った修道士','Character','N',0,null,null,1,0,'ゴースト,ハッフルパフ,ホグワーツ','≪サポーター≫ 〔宣言〕〔相手のターン〕〔決闘中〕〈捨て札にする〉 味方【ハッフルパフ】カード1枚まで活動状態にする。'],
+['01-059','太った婦人','Character','N',0,null,null,1,0,'ホグワーツ,肖像画','≪サポーター≫ 〔宣言〕〔相手のターン〕〔決闘中〕〈捨て札にする〉 自分のMPフィールドのカード1枚まで活動状態にする。'],
+['01-060','ハリー・ポッター','Character','N',5,6,6,1,0,'ダーズリー家,魔法使い','〔Pリンク【ダーズリー家】〕〔常時〕 手札にある場合、サポートの味方【マグル】カード1枚につきコスト-1。'],
+['01-061','ハリー・ポッター','Character','N',4,6,6,1,0,'ダーズリー家,魔法使い','〔常時〕 このカードは休息状態でフィールドに出る。〔自動〕〔エントリー〕 味方【マグル】カード1枚を手札に移し、このカードを活動状態にする。'],
+['01-062','ハリー・ポッター','Character','N',2,2,2,1,0,'ダーズリー家,魔法使い','〔Pリンク【ダーズリー家】〕〔常時〕〔ターン1回〕 味方【マグル】カードがダウンした場合、カードを1枚引く。'],
+['01-063','バーノン・ダーズリー','Character','N',3,3,3,1,0,'ダーズリー家,マグル','〔自動〕〔アタック〕 手札からコスト2以下の【マグル】カード1枚をメインに出す。'],
+['01-064','バーノン・ダーズリー','Character','N',3,3,3,1,0,'ダーズリー家,マグル','〔自動〕〔エントリー〕 手札から【手紙】カード1枚を捨て。その後、相手は手札1枚を捨て。'],
+['01-065','ペチュニア・ダーズリー','Character','N',2,2,2,1,0,'ダーズリー家,マグル','〔自動〕〔エントリー〕 相手のデッキ上から1枚を表向きにする。Magicカードなら相手は手札1枚を捨て。'],
+['01-066','ペチュニア・ダーズリー','Character','N',2,2,2,1,0,'ダーズリー家,マグル','〔自動〕〔ブロック〕 他の味方【マグル】カード1枚を活動状態にする。'],
+['01-067','ダドリー・ダーズリー','Character','N',1,2,2,1,0,'ダーズリー家,マグル','〔常時〕〔自分のターン〕 相手「ハリー・ポッター」と決闘中、このカードを+3/+3する。'],
+['01-068','ダドリー・ダーズリー','Character','N',1,3,3,1,0,'ダーズリー家,マグル','〔自動〕〔自分のターン開始時〕〔自分のターン終了時〕 メインに「ハリー・ポッター」のカードがいる場合、ダウンする。'],
+['01-069','グリップフック','Character','N',1,1,1,1,1,'小鬼,魔法生物','〔自動〕〔エントリー〕〔ダウン〕 カードを1枚引き、手札1枚を捨て札にする。'],
+['01-070','ギャリック・オリバンダー','Character','N',1,0,3,1,1,'魔法使い','〔自動〕〔エントリー〕 捨て札の名称に「杖」を含むカード1枚まで手札に移す。'],
+['01-071','トロール','Character','N',3,6,2,1,0,'トロール,魔法生物',''],
+['01-072','ヘドウィグ','Character','N',0,null,null,1,0,'魔法生物','≪サポーター≫〔常時〕 自分が使用する【手紙】カードはコスト-1。 ≪ブレイク≫捨て札の【手紙】カード1枚まで手札に移す。'],
+['01-073','フラッフィー','Character','N',2,3,3,1,0,'魔法生物','〔常時〕 Magicカードの効果でデッキから手札に移る場合、相手に見せるとメインに出せる。'],
+['01-074','ウィンガード・レビオーサ','Magic','N',2,null,null,1,0,'','〔使用〕〔決闘中〕〔自分のターン中〕 決闘中の全キャラを、次の相手のターン終了時まで、±0/-5する。'],
+['01-075','お陽さま　ヒナ菊　とろけたバター','Magic','N',0,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 【ねずみ】のカード0枚まで黄色にする。 ≪ブレイク≫このカードを無償で使用できる。'],
+['01-076','アロホモラ','Magic','N',2,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 カードを2枚引き、手札1枚を捨て。 ≪ブレイク≫このカードを無償で使用できる。'],
+['01-077','思い出し玉','Item','N',1,null,null,1,0,'','〔自動〕〔エントリー〕 デッキ下から1枚をこのカードの下に裏向きで重ねる。〔自動〕〔自分のターン終了時〕 下のカードを手札に移し、このカードを捨て。'],
+['01-078','校長先生のカード','Item','N',3,null,null,1,0,'','〔自動〕〔エントリー〕 このカードを捨て、手札の「アルバス・ダンブルドア」1枚をメインに出す。次の自分のターン開始時に手札に戻す。'],
+['01-079','動く階段','Location','N',0,null,null,1,0,'','〔宣言〕〔決闘中〕⑤〈手札1枚を捨て〉 相手のアタック対象を味方キャラ1枚に変更する。'],
+['01-080','9と3/4番線','Location','N',5,null,null,1,0,'','〔自動〕〔自分のターン終了時〕 手札1枚を捨て、味方【ホグワーツ】カード1枚をメインに移す。'],
+['01-081','オリバンダーの店','Location','N',0,null,null,1,0,'','〔宣言〕〔自分のメインフェイズ〕①⤵ デッキ上から10枚を見て、「杖」カード1枚を抜き出し味方キャラ1枚に装備。その後デッキをシャッフル。'],
+];
+
+const RULES=[
+  {t:'ゲーム概要・勝利条件',c:`2人用対戦型TCG。以下のどちらかで勝利：\n• 相手のライフが0枚のときに相手パートナーへダメージを与える\n• 相手のデッキが0枚になる`},
+  {t:'デッキ構成',c:`• メインデッキ：ちょうど50枚\n• パートナーカード：1枚（デッキに含まない）\n• MPカード：1枚（後攻プレイヤーのみ）\n• 同じカード番号はデッキに4枚まで\n• Itemカードは同一カード番号を何枚でも入れられる`},
+  {t:'ゲームの準備',c:`① パートナーを表向きでパートナー置き場に置く\n② 50枚のデッキをシャッフルしてデッキ置き場に置く\n③ 先攻/後攻をじゃんけん等で決める\n④ 後攻プレイヤーはMPカード1枚をMPフィールドに置く\n⑤ デッキから7枚引き、手札にする\n⑥ 先攻→後攻の順に引き直しを決める\n⑦ デッキ上から3枚をライフ置き場に裏向きで置く\n⑧ 決闘開始`},
+  {t:'ターンの流れ',c:`【スタンバイフェイズ】\n① ターン開始時の効果を解決\n② デッキから1枚ドロー（先攻1ターン目は引いた後に1枚捨て）\n③ 自分のカードを全て活動状態にする\n④ 手札を1枚MPフィールドに置ける（任意）\n\n【メインフェイズ】（自由順・何回でも）\n• コストを支払って手札のカードをプレイ\n• 宣言の効果を使用\n• 相手キャラかパートナーに決闘（アタック）\n• キャラの復帰\n\n【エンドフェイズ】\n① ターン終了時の効果を解決\n② 手札が7枚超なら7枚になるよう捨て札`},
+  {t:'決闘（アタック）の流れ',c:`1. アタック宣言（活動状態キャラを休息にして宣言）\n   対象：相手パートナー or 相手の休息状態キャラ\n2. パートナーのアシスト効果タイミング\n3. アタック効果タイミング\n4. 決闘中効果①（手番側→双方パスで次へ）\n5. ブロック宣言\n6. ブロック効果タイミング\n7. 決闘中効果②\n8. 勝敗判定：攻撃AP ≧ 防御DP → 攻撃側勝利・防御キャラダウン\n9. ダウン処理（サポートか捨て札へ）\n10. ダウン効果タイミング\n11. 決闘終了`},
+  {t:'ライフダメージ処理',c:`パートナーがアタックを受けたらライフを1枚公開して選択：\n1. 公開したカードを手札に加える\n2. 公開したカードを活動状態でMPフィールドに移す\n3. ブレイク持ちの場合、ブレイク効果を使用し捨て札へ`},
+  {t:'キャラの復帰',c:`サポートフィールドのキャラと同じカード番号のカードを\n手札から捨て札にすることでメインフィールドに移せる。\n復帰したキャラはそのターン決闘場に出ていなければ即アタック可。\n復帰の回数制限はない。`},
+  {t:'カードの種類',c:`Partner：デッキ外。パートナー置き場に1枚。\nCharacter：メイン/サポートフィールドで決闘・効果。AP/DPなしはサポートのみ。\nLocation：サポートフィールドのみ。効果はサポートでも使用可。\nMagic：使い捨て。Magicアイコンキャラ休息で無償プレイも可。\nEvent：使い捨て。\nItem：装備/使用/配置の3種。同一番号を何枚でも配置可。\nMP：後攻のみ。取り除きで1コスト取得。`},
+  {t:'キーワード効果',c:`突進　　：出たターンから相手キャラへアタック可\n速攻　　：出たターンからアタック可\nサポーター：サポートフィールドでも宣言効果を使用可\n挑発　　：相手キャラアタック時、必ずこのカードを対象に\n反撃　　：アタックされた時、このキャラも勝敗判定\n連携〇〇：サポートのキャラを休息にしてAPを加算\nブレイク：ライフから公開時にブレイク効果使用可\n\n※「魔法」アイコンはキャラ固有の能力で、\n  そのキャラを休息にするとMagicカードを無償プレイできます。\n  タグの「魔法使い」とは別物です。`},
+  {t:'よくある質問',c:`Q: 宣言効果は出たターンから使えますか？\nA: 使えます。\n\nQ: アタックキャラがブロックされ敗北したら？\nA: 両方そのままです。\n\nQ: ブロックは2枚以上でできますか？\nA: できません。\n\nQ: 復帰の回数制限は？\nA: ありません。`},
+];
+
+// ====== 状態 ======
+let deck={}, partner=null;
+function getDeckTotal(){return Object.values(deck).reduce((a,b)=>a+b,0);}
+function addCard(n){if(getDeckTotal()>=50||(deck[n]||0)>=4)return;deck[n]=(deck[n]||0)+1;renderDeck();render();}
+function removeCard(n){if(!deck[n])return;if(--deck[n]===0)delete deck[n];renderDeck();render();}
+function clearDeck(){deck={};partner=null;renderPartners();renderDeck();render();}
+function setPartner(n){partner=partner===n?null:n;renderDeck();renderPartners();}
+
+// ====== LocalStorage ======
+function loadSaved(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch{return[];}}
+function writeSaved(arr){localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}
+
+// ====== モーダル ======
+function openSaveModal(){
+  const total=getDeckTotal();
+  if(total===0){alert('デッキにカードが入っていません。');return;}
+  document.getElementById('modal').style.display='flex';
+  const inp=document.getElementById('deck-name-input');
+  inp.value='';
+  setTimeout(()=>inp.focus(),50);
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('modal'))
+    document.getElementById('modal').style.display='none';
+}
+
+function saveDeck(){
+  const name=document.getElementById('deck-name-input').value.trim();
+  if(!name){alert('デッキ名を入力してください。');return;}
+  const saved=loadSaved();
+  const entry={
+    id:Date.now(),
+    name,
+    partner,
+    deck:{...deck},
+    total:getDeckTotal(),
+    savedAt:new Date().toLocaleString('ja-JP')
+  };
+  saved.unshift(entry);
+  writeSaved(saved);
+  document.getElementById('modal').style.display='none';
+  updateSavedBadge();
+  alert(`「${name}」を保存しました！`);
+}
+
+function deleteSaved(id){
+  if(!confirm('このデッキを削除しますか？'))return;
+  const arr=loadSaved().filter(d=>d.id!==id);
+  writeSaved(arr);
+  renderSaved();
+  updateSavedBadge();
+}
+
+function loadDeck(id){
+  const d=loadSaved().find(x=>x.id===id);
+  if(!d)return;
+  deck={...d.deck};
+  partner=d.partner||null;
+  showTab('build');
+  renderPartners();renderDeck();render();
+}
+
+function updateSavedBadge(){
+  const n=loadSaved().length;
+  document.getElementById('saved-count-badge').textContent=n;
+}
+
+// ====== 保存済み一覧 ======
+function renderSaved(){
+  const saved=loadSaved();
+  const el=document.getElementById('saved-list');
+  document.getElementById('saved-header').textContent=`保存済みデッキ（${saved.length}件）`;
+  if(saved.length===0){
+    el.innerHTML=`<div class="empty-state"><div class="icon">📦</div><p>保存されたデッキはありません。<br>デッキを組んで「デッキを保存」ボタンで保存できます。</p></div>`;
+    return;
+  }
+  el.innerHTML=saved.map(d=>{
+    const pt=PARTNERS.find(p=>p[0]===d.partner);
+    const tc={};
+    Object.entries(d.deck).forEach(([n,cnt])=>{
+      const c=CARDS.find(x=>x[0]===n);
+      if(c){tc[c[2]]=(tc[c[2]]||0)+cnt;}
+    });
+    const rows=Object.entries(d.deck).map(([n,cnt])=>{
+      const c=CARDS.find(x=>x[0]===n);
+      return `<div class="deck-preview-row">
+        <span class="deck-preview-num">${n}</span>
+        <span class="deck-preview-name">${c?c[1]:n}</span>
+        <span class="deck-preview-cnt">×${cnt}</span>
+      </div>`;
+    }).join('');
+    return `<div class="saved-card">
+      <div class="saved-card-header">
+        <div>
+          <div class="saved-card-title">📋 ${d.name}</div>
+          <div class="saved-card-meta">保存日時：${d.savedAt} ／ ${d.total}枚</div>
+        </div>
+        <div class="saved-card-actions">
+          <button class="btn btn-outline btn-sm" onclick="loadDeck(${d.id})">✏️ 読み込む</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSaved(${d.id})">🗑 削除</button>
+        </div>
+      </div>
+      <div class="deck-stats-bar">
+        ${pt?`<span class="badge rar-${pt[2]}" style="margin-right:2px">${pt[2]}</span><span style="font-size:12px;font-weight:600;margin-right:8px">${pt[1]}</span>`:'<span style="font-size:11px;color:#aaa">パートナー未設定</span>'}
+        ${Object.entries(tc).map(([t,n])=>`<span class="pill">${TL[t]||t} <b>${n}</b></span>`).join('')}
+      </div>
+      <details>
+        <summary style="font-size:12px;color:#6e6e73;cursor:pointer;user-select:none;padding:4px 0">▶ カード一覧を表示</summary>
+        <div style="margin-top:8px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px 16px">${rows}</div>
+      </details>
+    </div>`;
+  }).join('');
+}
+
+// ====== パートナー ======
+function renderPartners(){
+  document.getElementById('pt-grid').innerHTML=PARTNERS.map(([n,name,rar,tags,text])=>{
+    const imgUrl=`https://tcg.movic.jp/harrypotter/card-management/storage/cards/${n}`;
+    return `<div class="pt-item${partner===n?' sel':''}" onclick="setPartner('${n}')" style="padding:0;overflow:hidden;display:flex;flex-direction:column">
+      <div style="width:100%;aspect-ratio:63/88;overflow:hidden;background:var(--surface2);position:relative;flex-shrink:0">
+        <img src="${imgUrl}" alt="${name}" style="width:100%;height:100%;object-fit:contain;display:block"
+          onerror="this.style.display='none'">
+        <span class="badge rar-${rar}" style="position:absolute;top:5px;right:5px">${rar}</span>
+      </div>
+      <div style="padding:7px 8px;flex:1;background:#fff;color:#1a1a1a">
+        <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:3px;line-height:1.3">${name}</div>
+        <div class="tag-row" style="margin-bottom:3px">${tags.split(',').slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        ${text?`<div style="font-size:9px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${text}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ====== カードグリッド ======
+function render(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const ft=document.getElementById('ftype').value;
+  const ftag=document.getElementById('ftag').value;
+  const list=CARDS.filter(([n,name,type,,,,,,,tags])=>{
+    if(q&&!name.toLowerCase().includes(q)&&!n.toLowerCase().includes(q))return false;
+    if(ft&&type!==ft)return false;
+    if(ftag&&!tags.includes(ftag))return false;
+    return true;
+  });
+  document.getElementById('card-grid').innerHTML=list.map(([n,name,type,rar,cost,ap,dp,mp,magicIcon,tags,text])=>{
+    const cnt=deck[n]||0;
+    const full=cnt>=4||getDeckTotal()>=50;
+    const cls='card-item'+(cnt>0?' in-deck':'')+(full&&!cnt?' maxed':'');
+    const tagList=tags?tags.split(',').filter(t=>t):[];
+    const imgUrl=`https://tcg.movic.jp/harrypotter/card-management/storage/cards/${n}`;
+    return `<div class="${cls}" onclick="addCard('${n}')">
+      <div class="card-img-wrap">
+        <img src="${imgUrl}" alt="${name}" loading="lazy"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="img-fallback" style="display:none">${name}</div>
+        ${cnt>0?`<div style="position:absolute;top:4px;right:4px;background:#BA7517;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px">${cnt}枚</div>`:''}
+        ${full&&!cnt?`<div style="position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:600">上限</div>`:''}
+      </div>
+      <div class="card-info">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px">
+          <span class="badge type-${type}">${TL[type]||type}</span>
+          <span class="badge rar-${rar}">${rar}</span>
+        </div>
+        <div class="num">${n}</div>
+        <div class="cname">${name}</div>
+        <div class="stat-row">
+          ${cost!==null?`<span class="stat cost">コスト ${cost}</span>`:''}
+          ${ap!==null?`<span class="stat ap">AP ${ap}</span>`:''}
+          ${dp!==null?`<span class="stat dp">DP ${dp}</span>`:''}
+          ${mp!==null?`<span class="stat mp">MP ${mp}</span>`:''}
+          ${magicIcon?`<span class="stat magicico">魔法</span>`:''}
+        </div>
+        ${tagList.length?`<div class="tag-row">${tagList.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`:''}
+        ${text?`<div class="effect-text">${text}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ====== デッキパネル ======
+function renderDeck(){
+  const total=getDeckTotal();
+  const p=PARTNERS.find(x=>x[0]===partner);
+  document.getElementById('p-slot').innerHTML=p
+    ?`<span class="badge rar-${p[2]}" style="margin-right:5px">${p[2]}</span><span style="font-size:13px;font-weight:600;color:#1d1d1f">${p[1]}</span> <span style="font-size:10px;color:#aaa">${p[0]}</span>`
+    :'<span style="color:#aaa">未選択</span>';
+  const tc={};
+  Object.entries(deck).forEach(([n,cnt])=>{const c=CARDS.find(x=>x[0]===n);if(c){tc[c[2]]=(tc[c[2]]||0)+cnt;}});
+  document.getElementById('stats').innerHTML=
+    `<div class="pill">合計 <b>${total}/50</b></div>`+
+    Object.entries(tc).map(([t,n])=>`<div class="pill">${TL[t]||t} <b>${n}</b></div>`).join('');
+  document.getElementById('deck-list').innerHTML=Object.entries(deck).map(([n,cnt])=>{
+    const c=CARDS.find(x=>x[0]===n);
+    const imgUrl=`https://tcg.movic.jp/harrypotter/card-management/storage/cards/${n}`;
+    return `<div class="deck-row">
+      <img src="${imgUrl}" alt="${n}" style="width:24px;height:34px;object-fit:cover;border-radius:3px;flex-shrink:0"
+        onerror="this.style.display='none'">
+      <span style="font-family:monospace;font-size:9px;color:#aaa;min-width:46px;flex-shrink:0">${n}</span>
+      <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1d1d1f">${c?c[1]:n}</span>
+      <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
+        <button class="count-btn" onclick="removeCard('${n}')">-</button>
+        <span style="font-size:12px;min-width:16px;text-align:center">${cnt}</span>
+        <button class="count-btn" onclick="addCard('${n}')">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  const v=document.getElementById('validation');
+  if(total===50){v.className='valid';v.textContent='✅ デッキ完成！（50枚）';}
+  else if(total<50){v.className='invalid';v.textContent=`あと${50-total}枚必要`;}
+  else{v.className='invalid';v.textContent=`${total-50}枚多すぎます`;}
+}
+
+// ====== ルール ======
+function renderRules(){
+  const c=document.getElementById('t-rules');
+  if(c.innerHTML)return;
+  c.innerHTML=RULES.map((r,i)=>`
+    <div class="section">
+      <div class="sec-hd" onclick="toggleSec(${i})"><span>${r.t}</span><span id="ar${i}">▼</span></div>
+      <div class="sec-bd${i>0?' hide':''}" id="sec${i}">${r.c}</div>
+    </div>`).join('');
+}
+function toggleSec(i){const el=document.getElementById('sec'+i);const ar=document.getElementById('ar'+i);ar.textContent=el.classList.toggle('hide')?'▼':'▲';}
+
+// ====== タブ切替 ======
+function showTab(t){
+  document.getElementById('t-build').style.display=t==='build'?'':'none';
+  document.getElementById('t-saved').style.display=t==='saved'?'':'none';
+  document.getElementById('t-rules').style.display=t==='rules'?'':'none';
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',
+      (i===0&&t==='build')||(i===1&&t==='saved')||(i===2&&t==='rules'));
+  });
+  if(t==='rules')renderRules();
+  if(t==='saved')renderSaved();
+}
+
+// ====== デッキ画像出力 ======
+const BASE_IMG = 'https://tcg.movic.jp/harrypotter/card-management/storage/cards/';
+
+function openDeckImage(){
+  if(getDeckTotal() === 0){ alert('デッキにカードが入っていません。'); return; }
+  document.getElementById('img-modal').style.display = 'flex';
+  buildPreviewBoard();
+}
+
+function buildPreviewBoard(){
+  const board = document.getElementById('deck-preview-board');
+  const pt = PARTNERS.find(p => p[0] === partner);
+
+  const deckList = [];
+  Object.entries(deck).forEach(([n, cnt]) => {
+    for(let i = 0; i < cnt; i++) deckList.push(n);
+  });
+  while(deckList.length < 50) deckList.push(null);
+
+  const ptHtml = `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0">
+    <div style="font-size:10px;color:#BA7517;font-weight:700;letter-spacing:1px">PARTNER</div>
+    ${pt
+      ? `<img src="${BASE_IMG}${pt[0]}" style="width:140px;height:196px;object-fit:cover;border-radius:8px;border:3px solid #BA7517" alt="${pt[1]}">`
+      : `<div style="width:140px;height:196px;background:#2a2a4e;border-radius:8px;border:2px dashed #444;display:flex;align-items:center;justify-content:center;color:#666;font-size:11px">未設定</div>`
+    }
+    ${pt?`<div style="font-size:11px;color:#f0d060;text-align:center;max-width:140px;font-weight:600">${pt[1]}</div>`:''}
+  </div>`;
+
+  const cells = deckList.map(n => n
+    ? `<img src="${BASE_IMG}${n}" style="width:76px;height:107px;object-fit:cover;border-radius:5px;display:block" alt="${n}">`
+    : `<div style="width:76px;height:107px;background:#111118;border-radius:5px;border:1px dashed #222"></div>`
+  ).join('');
+
+  const gridHtml = `<div style="display:flex;flex-direction:column;gap:4px">
+    <div style="font-size:10px;color:#888;letter-spacing:1px;margin-bottom:2px">DECK — ${getDeckTotal()}枚</div>
+    <div style="display:grid;grid-template-columns:repeat(10,76px);gap:4px">${cells}</div>
+  </div>`;
+
+  const watermark = `<div style="position:absolute;bottom:12px;left:16px;font-family:'Lavishly Yours',cursive;font-size:22px;color:rgba(200,148,26,0.7);pointer-events:none;line-height:1">PokePoLix</div>`;
+  board.style.position = 'relative';
+  board.innerHTML = ptHtml + gridHtml + watermark;
+}
+
+function printDeck(){
+  const board = document.getElementById('deck-preview-board');
+  const root = document.getElementById('print-deck-root');
+  root.innerHTML = `<div style="background:#1a1a2e;padding:16px;display:inline-flex;gap:14px;align-items:flex-start">${board.innerHTML}</div>`;
+  root.style.display = 'block';
+  window.print();
+  setTimeout(()=>{ root.style.display='none'; root.innerHTML=''; }, 1000);
+}
+
+function downloadPng(){
+  if(window.html2canvas){
+    _runHtml2Canvas();
+  } else {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = _runHtml2Canvas;
+    s.onerror = () => alert('html2canvas のロードに失敗しました。\n「印刷 / PDF保存」またはOSのスクリーンショット機能をお使いください。\nMac: Cmd+Shift+4　Win: Win+Shift+S');
+    document.head.appendChild(s);
+  }
+}
+
+function _runHtml2Canvas(){
+  const el = document.getElementById('deck-preview-board');
+  html2canvas(el, {
+    backgroundColor: '#1a1a2e',
+    useCORS: true,
+    allowTaint: true,
+    scale: 2,
+    logging: false,
+  }).then(canvas => {
+    try {
+      const link = document.createElement('a');
+      link.download = 'deck.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch(e) {
+      alert('CORSの制限でPNG保存できませんでした。\n「印刷 / PDF保存」またはOSのスクリーンショット機能をお使いください。\nMac: Cmd+Shift+4　Win: Win+Shift+S');
+    }
+  }).catch(() => {
+    alert('PNG生成に失敗しました。\n「印刷 / PDF保存」またはOSのスクリーンショット機能をお使いください。');
+  });
+}
+
+// ====== 初期化 ======
+renderPartners();render();renderDeck();updateSavedBadge();
+</script>
+
+<footer style="background:var(--surface);border-top:1px solid var(--border);margin-top:40px;padding:20px 24px;text-align:center">
+  <nav style="display:flex;gap:20px;justify-content:center;margin-bottom:12px;flex-wrap:wrap">
+    <a href="index.html" style="font-size:12px;color:var(--text-muted);text-decoration:none">トップ</a>
+    <a href="terms.html" style="font-size:12px;color:var(--text-muted);text-decoration:none">利用規約</a>
+    <a href="privacy.html" style="font-size:12px;color:var(--text-muted);text-decoration:none">プライバシーポリシー</a>
+  </nav>
+  <p style="font-size:11px;color:var(--text-muted);line-height:2">本ツールはハリー・ポッター カードゲームの非公式ファンツールです。公式サービスではありません。<br>All Harry Potter characters and elements &copy; &amp; &trade; Warner Bros. Entertainment Inc. &nbsp;Publishing Rights &copy; JKR.&nbsp;&nbsp;発売・販売元：株式会社ムービック</p>
+</footer>
+
+<!-- Cookie 同意バナー -->
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:var(--surface);border-top:1px solid var(--border);padding:16px 24px;box-shadow:0 -4px 24px rgba(0,0,0,.6)">
+  <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div style="flex:1;min-width:260px">
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin:0">本サービスはGoogle AdSense・Google Analytics等のサービスを使用しており、広告配信および利用状況の分析のためにCookieを使用します。詳しくは<a href="privacy.html" style="color:var(--gold)">プライバシーポリシー</a>をご確認ください。</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button onclick="setCookieConsent(false)" style="padding:8px 18px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:'Zen Antique Soft',inherit;white-space:nowrap">必要なものだけ</button>
+      <button onclick="setCookieConsent(true)" style="padding:8px 18px;border-radius:7px;border:none;background:var(--gold);color:#0a0808;font-size:13px;font-weight:600;cursor:pointer;font-family:'Zen Antique Soft',inherit;white-space:nowrap">すべて同意する</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var c = localStorage.getItem("ppx_cookie_consent");
+  if(!c){ document.getElementById("cookie-banner").style.display="block"; }
+  else if(c==="true"){ loadThirdParty(); }
+})();
+function setCookieConsent(val){
+  localStorage.setItem("ppx_cookie_consent", String(val));
+  document.getElementById("cookie-banner").style.display="none";
+  if(val) loadThirdParty();
+}
+function loadThirdParty(){
+  // Google AdSense / Analytics の ID が決まったらここに追記
+  // var s=document.createElement("script");
+  // s.src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX";
+  // s.async=true; document.head.appendChild(s);
+}
+</script>
+
+</body>
+</html>
