@@ -4,89 +4,419 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PokePoLix — ハリー・ポッター カードゲーム ファンツール</title>
-<meta name="description" content="PokePoLix（ポケポタ）は、ハリー・ポッター カードゲームの非公式ファンツールです。デッキビルダーでデッキを構築・保存できます。">
+<meta name="description" content="PokePoLix（ポケポタ）は、ハリー・ポッター カードゲームの非公式ファンツールです。">
 <link href="https://fonts.googleapis.com/css2?family=Lavishly+Yours&family=Zen+Antique+Soft&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#060612;--surface:#0c0c1e;--surface2:#111128;
-  --border:#1c1c38;--border-hover:#c8941a;
-  --gold:#c8941a;--gold-dim:#9a6f10;
-  --text-primary:#f0f0ff;--text-secondary:#8888aa;--text-muted:#48486a;
-  --font-logo:'Lavishly Yours',cursive;
+
+body{
+  min-height:100vh;
+  background-color:#c9a45a;
+  background-image:
+    radial-gradient(ellipse at 15% 20%, rgba(80,40,10,0.18) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 75%, rgba(80,40,10,0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 60% 10%, rgba(120,70,20,0.1) 0%, transparent 35%),
+    radial-gradient(ellipse at 30% 90%, rgba(90,50,15,0.12) 0%, transparent 38%),
+    radial-gradient(ellipse at 50% 50%, #e2bf82 0%, #c49850 60%, #a87a38 100%);
+  color:#1e0e06;
+  font-family:'Zen Antique Soft',serif;
+  overflow-x:hidden;
+  position:relative;
 }
-body{font-family:'Zen Antique Soft',-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column}
-header{border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--surface)}
-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;gap:52px}
-.hero{text-align:center;max-width:480px}
-.hero-eyebrow{font-family:var(--font-logo);font-size:14px;letter-spacing:1px;color:var(--gold);margin-bottom:20px;font-weight:400}
-.hero-title{font-size:30px;font-weight:700;line-height:1.3;color:var(--text-primary);margin-bottom:14px;letter-spacing:-.3px}
-.hero-sub{font-size:14px;color:var(--text-secondary);line-height:1.8}
-.tools{display:flex;flex-direction:column;gap:10px;width:100%;max-width:420px}
-.tool-card{display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;text-decoration:none;color:inherit;transition:border-color .15s,background .15s}
-.tool-card:hover{border-color:var(--border-hover);background:var(--surface2)}
-.tool-card-title{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:4px}
-.tool-card-desc{font-size:12px;color:var(--text-secondary);line-height:1.6}
-.tool-card-arrow{color:var(--text-muted);font-size:18px;flex-shrink:0;transition:color .15s,transform .15s}
-.tool-card:hover .tool-card-arrow{color:var(--gold);transform:translateX(3px)}
-footer{border-top:1px solid var(--border);padding:24px 32px;text-align:center;flex-shrink:0;background:var(--surface)}
-@media(max-width:480px){header{padding:14px 20px}main{padding:40px 20px;gap:36px}.hero-title{font-size:24px}.tool-card{padding:16px 18px}footer{padding:18px 20px}}
+
+/* 紙の端の焦げ・シミ */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    radial-gradient(ellipse at 0% 0%, rgba(40,15,5,0.35) 0%, transparent 30%),
+    radial-gradient(ellipse at 100% 0%, rgba(40,15,5,0.3) 0%, transparent 25%),
+    radial-gradient(ellipse at 0% 100%, rgba(40,15,5,0.3) 0%, transparent 28%),
+    radial-gradient(ellipse at 100% 100%, rgba(40,15,5,0.35) 0%, transparent 30%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* 羊皮紙の線 */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 28px,
+    rgba(140,90,30,0.08) 28px,
+    rgba(140,90,30,0.08) 29px
+  );
+  pointer-events:none;
+  z-index:0;
+}
+
+.page{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:40px 24px 60px;
+}
+
+/* 装飾ボーダー枠 */
+.map-border{
+  position:fixed;
+  inset:16px;
+  border:2px solid rgba(90,50,15,0.5);
+  pointer-events:none;
+  z-index:10;
+}
+.map-border::before{
+  content:'';
+  position:absolute;
+  inset:6px;
+  border:1px solid rgba(90,50,15,0.3);
+}
+
+/* 四隅の装飾 */
+.corner{
+  position:fixed;
+  width:40px;
+  height:40px;
+  z-index:11;
+  pointer-events:none;
+}
+.corner svg{stroke:rgba(80,45,12,0.6);fill:none;stroke-width:1.5;}
+.corner-tl{top:8px;left:8px;}
+.corner-tr{top:8px;right:8px;transform:scaleX(-1);}
+.corner-bl{bottom:8px;left:8px;transform:scaleY(-1);}
+.corner-br{bottom:8px;right:8px;transform:scale(-1);}
+
+/* タイトルエリア */
+.title-area{
+  text-align:center;
+  margin:60px 0 20px;
+}
+
+.map-eyebrow{
+  font-family:'Zen Antique Soft',serif;
+  font-size:13px;
+  letter-spacing:4px;
+  color:rgba(60,30,8,0.65);
+  margin-bottom:12px;
+  text-transform:uppercase;
+}
+
+.map-title{
+  font-family:'Lavishly Yours',cursive;
+  font-size:clamp(64px,10vw,100px);
+  color:#1e0e06;
+  line-height:1;
+  text-shadow:2px 3px 0 rgba(80,40,10,0.2);
+  position:relative;
+}
+.map-title span{color:#6b3a10;}
+
+/* 装飾的な横線 */
+.divider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  max-width:560px;
+  margin:20px auto;
+}
+.divider-line{
+  flex:1;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(80,45,12,0.5),transparent);
+}
+.divider-diamond{
+  width:8px;height:8px;
+  background:rgba(80,45,12,0.5);
+  transform:rotate(45deg);
+  flex-shrink:0;
+}
+
+.map-subtitle{
+  font-family:'Zen Antique Soft',serif;
+  font-size:15px;
+  color:rgba(40,20,5,0.7);
+  text-align:center;
+  line-height:2;
+  margin-bottom:8px;
+  letter-spacing:.5px;
+}
+
+/* 手書き風の注釈テキスト */
+.map-note{
+  font-family:'Lavishly Yours',cursive;
+  font-size:18px;
+  color:rgba(60,30,8,0.55);
+  text-align:center;
+  margin:4px 0 32px;
+}
+
+/* ツールカード（地図の場所スタイル） */
+.locations{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  width:100%;
+  max-width:440px;
+  margin:8px 0 48px;
+}
+
+.location-card{
+  position:relative;
+  background:rgba(200,160,80,0.25);
+  border:1px solid rgba(90,50,15,0.45);
+  padding:18px 24px;
+  text-decoration:none;
+  color:inherit;
+  transition:background .2s;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.location-card::before{
+  content:'';
+  position:absolute;
+  inset:3px;
+  border:1px solid rgba(90,50,15,0.2);
+  pointer-events:none;
+}
+.location-card:hover{
+  background:rgba(180,130,50,0.3);
+}
+
+.location-title{
+  font-family:'Zen Antique Soft',serif;
+  font-size:17px;
+  color:#1e0e06;
+  margin-bottom:4px;
+  letter-spacing:.5px;
+}
+.location-desc{
+  font-family:'Zen Antique Soft',serif;
+  font-size:12px;
+  color:rgba(40,20,5,0.6);
+  line-height:1.6;
+}
+.location-mark{
+  font-family:'Lavishly Yours',cursive;
+  font-size:28px;
+  color:rgba(80,45,12,0.5);
+  flex-shrink:0;
+}
+
+/* 足跡アニメーション */
+.footsteps{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:2;
+  overflow:hidden;
+}
+.step{
+  position:absolute;
+  opacity:0;
+}
+.step-l,.step-r{
+  width:12px;height:18px;
+  border-radius:40% 40% 50% 50%;
+  background:rgba(80,45,12,0.18);
+}
+.step-l{transform:rotate(-10deg);}
+.step-r{transform:rotate(10deg);}
+
+@keyframes stepAppear{
+  0%{opacity:0}
+  10%{opacity:.7}
+  60%{opacity:.5}
+  100%{opacity:0}
+}
+
+/* フッター */
+.map-footer{
+  text-align:center;
+  max-width:600px;
+  margin-top:auto;
+}
+.footer-nav{
+  display:flex;
+  gap:20px;
+  justify-content:center;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+}
+.footer-nav a{
+  font-family:'Zen Antique Soft',serif;
+  font-size:12px;
+  color:rgba(40,20,5,0.55);
+  text-decoration:none;
+  letter-spacing:.3px;
+}
+.footer-nav a:hover{color:rgba(40,20,5,0.85);}
+.footer-copy{
+  font-family:'Zen Antique Soft',serif;
+  font-size:11px;
+  color:rgba(40,20,5,0.45);
+  line-height:2;
+}
+.badge-unofficial{
+  display:inline-block;
+  font-family:'Zen Antique Soft',serif;
+  font-size:10px;
+  padding:2px 10px;
+  border:1px solid rgba(80,45,12,0.35);
+  color:rgba(40,20,5,0.55);
+  letter-spacing:1px;
+}
 </style>
 </head>
 <body>
-<header>
-  <div style="display:flex;flex-direction:column;gap:2px">
-    <span style="font-family:var(--font-logo);font-size:28px;color:var(--text-primary);line-height:1">Poke<span style="color:var(--gold)">Po</span>Lix</span>
-    <span style="font-size:10px;color:var(--text-muted);letter-spacing:.8px">ポケポタ</span>
-  </div>
-  <span style="font-size:11px;padding:3px 10px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted)">非公式ファンツール</span>
-</header>
 
-<main>
-  <div class="hero">
-    <div class="hero-eyebrow">Harry Potter Card Game</div>
-    <h1 class="hero-title">デッキを組んで、<br>動きを確認しよう。</h1>
-    <p class="hero-sub">ハリー・ポッター カードゲームの非公式ファンツールです。<br>全カードからデッキを構築し、保存・管理できます。</p>
+<!-- 装飾ボーダー -->
+<div class="map-border"></div>
+<div class="corner corner-tl">
+  <svg viewBox="0 0 40 40"><path d="M2 38 L2 2 L38 2"/><path d="M8 32 L8 8 L32 8"/><circle cx="2" cy="2" r="2" fill="rgba(80,45,12,0.5)"/></svg>
+</div>
+<div class="corner corner-tr">
+  <svg viewBox="0 0 40 40"><path d="M2 38 L2 2 L38 2"/><path d="M8 32 L8 8 L32 8"/><circle cx="2" cy="2" r="2" fill="rgba(80,45,12,0.5)"/></svg>
+</div>
+<div class="corner corner-bl">
+  <svg viewBox="0 0 40 40"><path d="M2 38 L2 2 L38 2"/><path d="M8 32 L8 8 L32 8"/><circle cx="2" cy="2" r="2" fill="rgba(80,45,12,0.5)"/></svg>
+</div>
+<div class="corner corner-br">
+  <svg viewBox="0 0 40 40"><path d="M2 38 L2 2 L38 2"/><path d="M8 32 L8 8 L32 8"/><circle cx="2" cy="2" r="2" fill="rgba(80,45,12,0.5)"/></svg>
+</div>
+
+<!-- 足跡 -->
+<div class="footsteps" id="footsteps"></div>
+
+<div class="page">
+  <div class="title-area">
+    <div class="map-eyebrow">非公式ファンツール</div>
+    <h1 class="map-title">Poke<span>Po</span>Lix</h1>
+    <div class="map-note">ポケポタ</div>
   </div>
-  <div class="tools">
-    <a href="hp_deckbuilder.html" class="tool-card">
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-diamond"></div>
+    <div class="divider-line"></div>
+    <div class="divider-diamond"></div>
+    <div class="divider-line"></div>
+  </div>
+
+  <p class="map-subtitle">
+    ハリー・ポッター カードゲームを、もっと楽しもう。<br>
+    デッキを組んで、動きを確かめよう。
+  </p>
+
+  <div class="locations">
+    <a href="hp_deckbuilder.html" class="location-card">
       <div>
-        <div class="tool-card-title">デッキビルダー</div>
-        <div class="tool-card-desc">全カードからデッキを構築・保存。<br>画像付きでカードを確認できます。</div>
+        <div class="location-title">デッキビルダー</div>
+        <div class="location-desc">全カードから構築・保存。画像付きで確認。</div>
       </div>
-      <div class="tool-card-arrow">&#8594;</div>
+      <div class="location-mark">&#8594;</div>
     </a>
   </div>
-</main>
 
-<footer>
-  <nav style="display:flex;gap:20px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
-    <a href="terms.html" style="font-size:12px;color:var(--text-muted);text-decoration:none">利用規約</a>
-    <a href="privacy.html" style="font-size:12px;color:var(--text-muted);text-decoration:none">プライバシーポリシー</a>
-  </nav>
-  <p style="font-size:11px;color:var(--text-muted);line-height:2">
-    本サービスはハリー・ポッター カードゲームの非公式ファンツールです。公式サービスではありません。<br>
-    All Harry Potter characters and elements &copy; &amp; &trade; Warner Bros. Entertainment Inc.
-    &nbsp;Publishing Rights &copy; JKR.&nbsp;&nbsp;発売・販売元：株式会社ムービック
-  </p>
-</footer>
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-diamond"></div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="map-footer">
+    <div style="margin-bottom:16px">
+      <span class="badge-unofficial">非公式・無公認</span>
+    </div>
+    <nav class="footer-nav">
+      <a href="terms.html">利用規約</a>
+      <a href="privacy.html">プライバシーポリシー</a>
+    </nav>
+    <p class="footer-copy">
+      本サービスはハリー・ポッター カードゲームの非公式ファンツールです。公式サービスではありません。<br>
+      All Harry Potter characters and elements &copy; &amp; &trade; Warner Bros. Entertainment Inc.<br>
+      Publishing Rights &copy; JKR &nbsp;&nbsp;発売・販売元：株式会社ムービック
+    </p>
+  </div>
+</div>
 
 <!-- Cookie 同意バナー -->
-<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0c0c1e;border-top:1px solid #1c1c38;padding:16px 24px;box-shadow:0 -4px 24px rgba(0,0,0,.6)">
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(180,135,60,0.97);border-top:1px solid rgba(90,50,15,0.5);padding:14px 24px;font-family:'Zen Antique Soft',serif">
   <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-    <div style="flex:1;min-width:260px">
-      <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin:0">本サービスはGoogle AdSense・Google Analytics等のサービスを使用しており、広告配信および利用状況の分析のためにCookieを使用します。詳しくは<a href="privacy.html">プライバシーポリシー</a>をご確認ください。</p>
-    </div>
+    <p style="flex:1;min-width:260px;font-size:12px;color:rgba(30,14,6,0.8);line-height:1.7;margin:0">
+      本サービスはGoogle AdSense・Google Analytics等のサービスを使用しており、広告配信および利用状況の分析のためにCookieを使用します。
+      詳しくは<a href="privacy.html" style="color:rgba(30,14,6,0.9);text-underline-offset:3px">プライバシーポリシー</a>をご確認ください。
+    </p>
     <div style="display:flex;gap:8px;flex-shrink:0">
-      <button onclick="setCookieConsent(false)" style="padding:8px 18px;border-radius:7px;border:1px solid #2a2a4a;background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:'Zen Antique Soft',inherit;white-space:nowrap">必要なものだけ</button>
-      <button onclick="setCookieConsent(true)" style="padding:8px 18px;border-radius:7px;border:none;background:var(--gold);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'Zen Antique Soft',inherit;white-space:nowrap">すべて同意する</button>
+      <button onclick="setCookieConsent(false)" style="padding:7px 16px;border:1px solid rgba(80,45,12,0.5);background:transparent;color:rgba(30,14,6,0.7);font-size:12px;cursor:pointer;font-family:'Zen Antique Soft',serif;white-space:nowrap">必要なものだけ</button>
+      <button onclick="setCookieConsent(true)" style="padding:7px 16px;border:none;background:rgba(80,45,12,0.8);color:#e8d5a0;font-size:12px;font-weight:600;cursor:pointer;font-family:'Zen Antique Soft',serif;white-space:nowrap">すべて同意する</button>
     </div>
   </div>
 </div>
+
 <script>
-(function(){var c=localStorage.getItem("ppx_cookie_consent");if(!c){document.getElementById("cookie-banner").style.display="block";}else if(c==="true"){loadThirdParty();}})();
-function setCookieConsent(val){localStorage.setItem("ppx_cookie_consent",String(val));document.getElementById("cookie-banner").style.display="none";if(val)loadThirdParty();}
+(function(){
+  var c=localStorage.getItem("ppx_cookie_consent");
+  if(!c){document.getElementById("cookie-banner").style.display="block";}
+  else if(c==="true"){loadThirdParty();}
+})();
+function setCookieConsent(val){
+  localStorage.setItem("ppx_cookie_consent",String(val));
+  document.getElementById("cookie-banner").style.display="none";
+  if(val)loadThirdParty();
+}
 function loadThirdParty(){}
+
+/* 足跡アニメーション */
+(function(){
+  const container = document.getElementById('footsteps');
+  const paths = [
+    {startX:10,startY:30,endX:90,endY:70,angle:25},
+    {startX:70,startY:15,endX:20,endY:60,angle:-20},
+    {startX:50,startY:80,endX:80,endY:30,angle:15},
+  ];
+
+  function createStep(x, y, isRight, angle){
+    const el = document.createElement('div');
+    el.className = 'step ' + (isRight ? 'step-r' : 'step-l');
+    el.style.left = x + 'vw';
+    el.style.top = y + 'vh';
+    el.style.transform = `rotate(${angle}deg)`;
+    el.style.animation = `stepAppear ${2 + Math.random()}s ease forwards`;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  function walkPath(path){
+    const steps = 7;
+    for(let i = 0; i < steps; i++){
+      const t = i / (steps - 1);
+      const x = path.startX + (path.endX - path.startX) * t + (Math.random()-0.5)*3;
+      const y = path.startY + (path.endY - path.startY) * t + (Math.random()-0.5)*3;
+      const offset = (i % 2 === 0) ? -2 : 2;
+      setTimeout(()=>{
+        createStep(x + offset, y, i%2===0, path.angle + (Math.random()-0.5)*10);
+      }, i * 320);
+    }
+  }
+
+  function startWalking(){
+    const path = paths[Math.floor(Math.random() * paths.length)];
+    walkPath(path);
+    setTimeout(startWalking, 4000 + Math.random() * 3000);
+  }
+
+  setTimeout(startWalking, 800);
+})();
 </script>
 </body>
 </html>

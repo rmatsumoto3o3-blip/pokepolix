@@ -7,42 +7,88 @@
 <link href="https://fonts.googleapis.com/css2?family=Lavishly+Yours&family=Zen+Antique+Soft&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#060612;--surface:#0c0c1e;--surface2:#111128;--border:#1c1c38;--gold:#c8941a;--text-primary:#f0f0ff;--text-secondary:#8888aa;--text-muted:#48486a;--font-logo:'Lavishly Yours',cursive;}
-body{font-family:'Zen Antique Soft',-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:var(--bg);color:var(--text-primary);min-height:100vh;display:flex;flex-direction:column}
-header{border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--surface)}
-main{flex:1;max-width:720px;width:100%;margin:0 auto;padding:48px 24px 80px}
-h1{font-size:26px;font-weight:700;color:var(--text-primary);margin-bottom:8px}
-.meta{font-size:12px;color:var(--text-muted);margin-bottom:48px}
-h2{font-size:15px;font-weight:600;color:var(--text-primary);margin:40px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-h3{font-size:13px;font-weight:600;color:var(--text-secondary);margin:18px 0 8px}
-p{font-size:14px;color:var(--text-secondary);line-height:1.9;margin-bottom:12px}
-ul{padding-left:20px;margin-bottom:12px}
-li{font-size:14px;color:var(--text-secondary);line-height:1.9;margin-bottom:4px}
-.info-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin:16px 0}
-.info-box p{margin-bottom:0}
-table{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0}
-th{background:var(--surface2);color:var(--text-secondary);font-weight:600;padding:10px 14px;text-align:left;border:1px solid var(--border)}
-td{color:var(--text-secondary);padding:10px 14px;border:1px solid var(--border);vertical-align:top;line-height:1.7}
-footer{border-top:1px solid var(--border);padding:20px 32px;text-align:center;flex-shrink:0;background:var(--surface)}
-a{color:var(--gold);text-underline-offset:3px}
+body{
+  min-height:100vh;background-color:#c9a45a;
+  background-image:
+    radial-gradient(ellipse at 15% 20%,rgba(80,40,10,.18) 0%,transparent 45%),
+    radial-gradient(ellipse at 85% 75%,rgba(80,40,10,.15) 0%,transparent 40%),
+    radial-gradient(ellipse at 50% 50%,#e2bf82 0%,#c49850 60%,#a87a38 100%);
+  color:#1e0e06;font-family:'Zen Antique Soft',serif;
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(ellipse at 0% 0%,rgba(40,15,5,.35) 0%,transparent 30%),
+    radial-gradient(ellipse at 100% 0%,rgba(40,15,5,.3) 0%,transparent 25%),
+    radial-gradient(ellipse at 0% 100%,rgba(40,15,5,.3) 0%,transparent 28%),
+    radial-gradient(ellipse at 100% 100%,rgba(40,15,5,.35) 0%,transparent 30%);
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(140,90,30,.07) 28px,rgba(140,90,30,.07) 29px);
+}
+.map-border{position:fixed;inset:16px;border:2px solid rgba(90,50,15,.5);pointer-events:none;z-index:10;}
+.map-border::before{content:'';position:absolute;inset:6px;border:1px solid rgba(90,50,15,.3);}
+.corner{position:fixed;width:40px;height:40px;z-index:11;pointer-events:none;}
+.corner svg{stroke:rgba(80,45,12,.6);fill:none;stroke-width:1.5;}
+.corner-tl{top:8px;left:8px;}.corner-tr{top:8px;right:8px;transform:scaleX(-1);}
+.corner-bl{bottom:8px;left:8px;transform:scaleY(-1);}.corner-br{bottom:8px;right:8px;transform:scale(-1);}
+.page{position:relative;z-index:1;max-width:740px;margin:0 auto;padding:60px 32px 80px;}
+header{text-align:center;margin-bottom:48px;padding-bottom:24px;border-bottom:1px solid rgba(90,50,15,.3);}
+.logo-en{font-family:'Lavishly Yours',cursive;font-size:42px;color:#1e0e06;line-height:1;text-shadow:1px 2px 0 rgba(80,40,10,.15);}
+.logo-en span{color:#6b3a10;}
+.logo-ja{font-size:11px;color:rgba(40,20,5,.55);letter-spacing:1px;margin-top:4px;}
+.back-link{display:inline-block;margin-top:12px;font-size:12px;color:rgba(40,20,5,.55);text-decoration:none;letter-spacing:.5px;}
+.back-link:hover{color:rgba(40,20,5,.85);}
+h1{font-family:'Lavishly Yours',cursive;font-size:36px;color:#1e0e06;text-align:center;margin-bottom:6px;text-shadow:1px 2px 0 rgba(80,40,10,.12);}
+.meta{font-size:12px;color:rgba(40,20,5,.5);text-align:center;margin-bottom:48px;letter-spacing:.5px;}
+.divider{display:flex;align-items:center;gap:10px;margin:40px 0 18px;}
+.divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(80,45,12,.4),transparent);}
+.divider-diamond{width:7px;height:7px;background:rgba(80,45,12,.4);transform:rotate(45deg);flex-shrink:0;}
+h2{font-family:'Lavishly Yours',cursive;font-size:22px;color:#2c1408;margin-bottom:14px;text-indent:-2px;}
+h3{font-family:'Zen Antique Soft',serif;font-size:14px;color:rgba(40,20,5,.75);margin:18px 0 8px;letter-spacing:.5px;}
+p{font-size:14px;color:rgba(30,14,6,.8);line-height:2;margin-bottom:14px;}
+ul{padding-left:20px;margin-bottom:14px;}
+li{font-size:14px;color:rgba(30,14,6,.8);line-height:2;margin-bottom:4px;}
+.info-box{background:rgba(200,170,90,.2);border:1px solid rgba(90,50,15,.3);padding:18px 22px;margin:16px 0;position:relative;}
+.info-box::before{content:'';position:absolute;inset:4px;border:1px solid rgba(90,50,15,.12);pointer-events:none;}
+.info-box p{margin-bottom:0;color:rgba(40,20,5,.8);}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0;}
+th{background:rgba(160,110,40,.2);color:rgba(40,20,5,.8);font-weight:600;padding:10px 14px;text-align:left;border:1px solid rgba(90,50,15,.3);}
+td{color:rgba(30,14,6,.75);padding:10px 14px;border:1px solid rgba(90,50,15,.2);vertical-align:top;line-height:1.8;}
+a{color:#5a2e08;text-underline-offset:3px;}
+footer{position:relative;z-index:1;text-align:center;padding:24px 32px 40px;border-top:1px solid rgba(90,50,15,.3);}
+.footer-nav{display:flex;gap:20px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;}
+.footer-nav a{font-size:12px;color:rgba(40,20,5,.5);text-decoration:none;letter-spacing:.3px;}
+.footer-nav a:hover{color:rgba(40,20,5,.85);}
+.footer-copy{font-size:11px;color:rgba(40,20,5,.4);line-height:2;}
 </style>
 </head>
 <body>
-<header>
-  <a href="index.html" style="text-decoration:none;display:flex;flex-direction:column;gap:2px">
-    <span style="font-family:var(--font-logo);font-size:28px;color:var(--text-primary);line-height:1">Poke<span style="color:var(--gold)">Po</span>Lix</span>
-    <span style="font-size:10px;color:var(--text-muted);letter-spacing:.8px">ポケポタ</span>
-  </a>
-  <a href="index.html" style="font-size:13px;color:var(--text-muted);text-decoration:none">← トップに戻る</a>
-</header>
-<main>
+<div class="map-border"></div>
+<div class="corner corner-tl"><svg viewBox="0 0 40 40"><path d="M2 38 L2 2 L38 2"/><path d="M8 32 L8 8 L32 8"/><circle cx="2" cy="2" r="2" fill="rgba(80,45,12,0.5)"/></svg></div>
+<div class="corner corner-tr"><svg viewBox="0 0 40 40"><path d="M2 38 L2 2 L38 2"/><path d="M8 32 L8 8 L32 8"/><circle cx="2" cy="2" r="2" fill="rgba(80,45,12,0.5)"/></svg></div>
+<div class="corner corner-bl"><svg viewBox="0 0 40 40"><path d="M2 38 L2 2 L38 2"/><path d="M8 32 L8 8 L32 8"/><circle cx="2" cy="2" r="2" fill="rgba(80,45,12,0.5)"/></svg></div>
+<div class="corner corner-br"><svg viewBox="0 0 40 40"><path d="M2 38 L2 2 L38 2"/><path d="M8 32 L8 8 L32 8"/><circle cx="2" cy="2" r="2" fill="rgba(80,45,12,0.5)"/></svg></div>
+
+<div class="page">
+  <header>
+    <a href="index.html" style="text-decoration:none;color:inherit;">
+      <div class="logo-en">Poke<span>Po</span>Lix</div>
+      <div class="logo-ja">ポケポタ</div>
+    </a>
+    <a href="index.html" class="back-link">← トップに戻る</a>
+  </header>
+
   <h1>プライバシーポリシー</h1>
   <p class="meta">最終更新日：2026年5月</p>
+
   <p>PokePoLix（ポケポタ、以下「本サービス」）における個人情報および利用者情報の取り扱いについて説明します。本サービスを利用することで、本ポリシーに同意したものとみなします。</p>
+
   <div class="info-box">
-    <p><strong style="color:var(--text-primary)">本サービス自体はサーバーを持たない静的サイトです。</strong><br>デッキデータは利用者の端末内（ブラウザのローカルストレージ）にのみ保存され、運営者を含む外部サーバーへ送信・収集されることはありません。ただし、広告配信・アクセス解析のために第三者サービスがCookieを使用します。</p>
+    <p><strong>本サービス自体はサーバーを持たない静的サイトです。</strong><br>デッキデータは利用者の端末内（ブラウザのローカルストレージ）にのみ保存され、運営者を含む外部サーバーへ送信・収集されることはありません。ただし、広告配信・アクセス解析のために第三者サービスがCookieを使用します。</p>
   </div>
-  <h2>第1条　取得する情報と目的</h2>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
+  <h2>第一条　取得する情報と目的</h2>
   <div style="overflow-x:auto">
     <table>
       <tr><th>情報の種類</th><th>取得元</th><th>利用目的</th></tr>
@@ -51,8 +97,10 @@ a{color:var(--gold);text-underline-offset:3px}
       <tr><td>広告関連情報（Cookie・デバイス情報・行動履歴等）</td><td>第三者広告配信サービス（Google等）</td><td>利用者の関心に合わせた広告の表示</td></tr>
     </table>
   </div>
-  <h2>第2条　広告配信サービスについて</h2>
-  <p>本サービスは<strong style="color:var(--text-primary)">Google AdSense</strong>を利用して広告を表示しています。Google AdSenseは利用者への広告配信のためにCookieを使用します。</p>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
+  <h2>第二条　広告配信サービスについて</h2>
+  <p>本サービスは<strong>Google AdSense</strong>を利用して広告を表示しています。Google AdSenseは利用者への広告配信のためにCookieを使用します。</p>
   <h3>Googleによる情報の利用</h3>
   <ul>
     <li>Googleは、本サービスおよびその他のウェブサイトへのアクセス情報に基づき、利用者の関心に合わせた広告を表示する場合があります。</li>
@@ -62,29 +110,39 @@ a{color:var(--gold);text-underline-offset:3px}
   <p>Googleのプライバシーポリシーについては<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">こちら</a>をご参照ください。</p>
   <h3>アクセス解析（Google Analytics）</h3>
   <p>本サービスはGoogle Analyticsを使用してアクセス状況を分析する場合があります。匿名のトラフィックデータを収集しますが、個人を特定する情報は収集しません。</p>
-  <h2>第3条　Cookieについて</h2>
-  <p>本サービスでは以下の目的でCookieが使用されます。</p>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
+  <h2>第三条　Cookieについて</h2>
   <ul>
-    <li><strong style="color:var(--text-primary)">広告配信：</strong>Google AdSenseによる関心連動型広告の表示</li>
-    <li><strong style="color:var(--text-primary)">アクセス解析：</strong>Google Analyticsによる利用状況の把握</li>
-    <li><strong style="color:var(--text-primary)">Cookie同意状態の記録：</strong>同意バナーの表示管理</li>
+    <li><strong>広告配信：</strong>Google AdSenseによる関心連動型広告の表示</li>
+    <li><strong>アクセス解析：</strong>Google Analyticsによる利用状況の把握</li>
+    <li><strong>Cookie同意状態の記録：</strong>同意バナーの表示管理</li>
   </ul>
-  <h2>第4条　カード画像の参照について</h2>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
+  <h2>第四条　カード画像の参照について</h2>
   <p>本サービスは、カード画像の表示にあたり株式会社ムービックが運営する公式カードリスト（tcg.movic.jp）のサーバーから直接参照しています。本サービスはカード画像データを自サーバーに保存・複製していません。</p>
-  <h2>第5条　第三者への情報提供</h2>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
+  <h2>第五条　第三者への情報提供</h2>
   <p>運営者は、法令に基づく場合を除き、利用者を識別できる個人情報を第三者に提供しません。</p>
-  <h2>第6条　ポリシーの変更</h2>
-  <p>本ポリシーは必要に応じて変更することがあります。変更後の内容は本ページへの掲載をもって効力を生じます。</p>
-  <h2>第7条　お問い合わせ・削除要請</h2>
+
+  <div class="divider"><div class="divider-line"></div><div class="divider-diamond"></div><div class="divider-line"></div></div>
+  <h2>第六条　お問い合わせ・削除要請</h2>
   <p>本ポリシーに関するご質問、または権利者による削除・修正のご要望は、X（旧 Twitter）等のSNSアカウント宛にご連絡ください。権利者からのご連絡には速やかに対応いたします。</p>
-</main>
+</div>
+
 <footer>
-  <nav style="display:flex;gap:20px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
-    <a href="index.html" style="font-size:12px;color:var(--text-muted);text-decoration:none">トップ</a>
-    <a href="terms.html" style="font-size:12px;color:var(--text-muted);text-decoration:none">利用規約</a>
-    <a href="privacy.html" style="font-size:12px;color:var(--text-muted);text-decoration:none">プライバシーポリシー</a>
+  <nav class="footer-nav">
+    <a href="index.html">トップ</a>
+    <a href="terms.html">利用規約</a>
+    <a href="privacy.html">プライバシーポリシー</a>
   </nav>
-  <p style="font-size:11px;color:var(--text-muted);line-height:2">本サービスはハリー・ポッター カードゲームの非公式ファンツールです。公式サービスではありません。<br>All Harry Potter characters and elements &copy; &amp; &trade; Warner Bros. Entertainment Inc. &nbsp;Publishing Rights &copy; JKR.&nbsp;&nbsp;発売・販売元：株式会社ムービック</p>
+  <p class="footer-copy">
+    本サービスはハリー・ポッター カードゲームの非公式ファンツールです。公式サービスではありません。<br>
+    All Harry Potter characters and elements &copy; &amp; &trade; Warner Bros. Entertainment Inc.
+    &nbsp;Publishing Rights &copy; JKR.&nbsp;&nbsp;発売・販売元：株式会社ムービック
+  </p>
 </footer>
 </body>
 </html>
