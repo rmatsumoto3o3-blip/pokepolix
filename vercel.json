@@ -2,6 +2,10 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    {
+      "source": "/card-images/:path*",
+      "destination": "https://tcg.movic.jp/harrypotter/card-management/storage/cards/:path*"
+    },
     { "source": "/deck", "destination": "/hp_deckbuilder.html" }
   ],
   "headers": [
