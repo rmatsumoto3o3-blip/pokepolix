@@ -275,6 +275,19 @@ body::after{
   color:rgba(40,20,5,0.55);
   letter-spacing:1px;
 }
+
+@media(max-width:600px){
+  .map-border,.corner{display:none}
+  .page{padding:28px 16px 48px}
+  .title-area{margin:24px 0 16px}
+  .map-title{font-size:clamp(48px,14vw,80px)}
+  .map-note{font-size:15px}
+  .map-subtitle{font-size:13px}
+  .locations{max-width:100%}
+  .location-card{padding:14px 16px}
+  .location-title{font-size:15px}
+  .divider{max-width:100%}
+}
 </style>
 </head>
 <body>
@@ -374,7 +387,18 @@ function setCookieConsent(val){
   document.getElementById("cookie-banner").style.display="none";
   if(val)loadThirdParty();
 }
-function loadThirdParty(){}
+function loadThirdParty(){
+  var s=document.createElement('script');
+  s.async=true;
+  s.src='https://www.googletagmanager.com/gtag/js?id=G-NWQMVLN2K2';
+  document.head.appendChild(s);
+  s.onload=function(){
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());
+    gtag('config','G-NWQMVLN2K2');
+  };
+}
 
 /* 足跡アニメーション */
 (function(){

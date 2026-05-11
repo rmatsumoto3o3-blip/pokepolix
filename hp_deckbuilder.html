@@ -972,5 +972,29 @@ document.getElementById('card-modal').addEventListener('click', function(e){
 renderPartners();render();renderDeck();updateSavedBadge();
 
 </script>
+<script>
+(function(){
+  var c=localStorage.getItem("ppx_cookie_consent");
+  if(!c){document.getElementById("cookie-banner").style.display="block";}
+  else if(c==="true"){loadThirdParty();}
+})();
+function setCookieConsent(val){
+  localStorage.setItem("ppx_cookie_consent",String(val));
+  document.getElementById("cookie-banner").style.display="none";
+  if(val)loadThirdParty();
+}
+function loadThirdParty(){
+  var s=document.createElement('script');
+  s.async=true;
+  s.src='https://www.googletagmanager.com/gtag/js?id=G-NWQMVLN2K2';
+  document.head.appendChild(s);
+  s.onload=function(){
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());
+    gtag('config','G-NWQMVLN2K2');
+  };
+}
+</script>
 </body>
 </html>
