@@ -1696,6 +1696,199 @@ function trAct(pi,idx,dest){
 }
 
 // ===== チュートリアル補助 =====
+
+// ===== モバイルビュー描画 =====
+const MOB_MW=70,MOB_MH=98,MOB_SW=56,MOB_SH=78,MOB_PW=70,MOB_PH=98;
+const MOB_OMW=48,MOB_OMH=68,MOB_OSW=40,MOB_OSH=56,MOB_OPW=48,MOB_OPH=68;
+const MOB_HW=68,MOB_HH=96;
+
+function mobEmptySlot(w,h){
+  return `<div style="width:${w}px;height:${h}px;background:rgba(200,170,90,.15);border:1px dashed rgba(90,50,15,.2);flex-shrink:0;"></div>`;
+}
+
+function mobCard(card,w,h,pi,zone,idx){
+  if(!card)return mobEmptySlot(w,h);
+  const [num,nm,,,cost]=card.data;
+  return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;"
+    onclick="mobCardClick(${pi},'${zone}',${idx})"
+    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,G.players[${pi}].${'main'===zone?'main':'sup'}[${idx}],'${zone}',${idx},${pi})">
+    <img src="${IM}${num}" style="width:100%;height:100%;object-fit:cover;display:block;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
+    ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:rgba(240,208,150,.7);">休</div>'}
+    ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:14px;height:14px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cost}</div>`:''}
+  </div>`;
+}
+
+function mobPartner(p,w,h){
+  const pt=p.partner;
+  return `<div style="width:${w}px;height:${h}px;flex-shrink:0;overflow:hidden;border:2px solid rgba(90,50,15,.45);background:rgba(180,140,60,.2);">
+    ${pt?`<img src="${IM}${pt[0]}" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-light);">?</div>'}
+  </div>`;
+}
+
+function renderMobSide(pi,row1Id,row2Id,isOpp){
+  const p=G.players[pi];
+  const mw=isOpp?MOB_OMW:MOB_MW,mh=isOpp?MOB_OMH:MOB_MH;
+  const sw=isOpp?MOB_OSW:MOB_SW,sh=isOpp?MOB_OSH:MOB_SH;
+  const pw=isOpp?MOB_OPW:MOB_PW,ph=isOpp?MOB_OPH:MOB_PH;
+  const r1=document.getElementById(row1Id);
+  if(r1){
+    let h='';
+    for(let i=0;i<3;i++)h+=mobCard(p.main[i],mw,mh,pi,'main',i);
+    h+=mobPartner(p,pw,ph);
+    r1.innerHTML=h;
+  }
+  const r2=document.getElementById(row2Id);
+  if(r2){
+    let h='';
+    for(let i=0;i<4;i++)h+=mobCard(p.sup[i],sw,sh,pi,'sup',i);
+    r2.innerHTML=h;
+  }
+}
+
+function renderMobHeader(pi,lifeId,deckId,trashId,handCntId){
+  const p=G.players[pi];
+  const hearts=[0,1,2].map(i=>i<p.life.length?'❤️':'🖤').join('');
+  const lel=document.getElementById(lifeId);if(lel)lel.onclick=()=>trigLife(pi);
+  if(lel)lel.textContent=hearts+' '+p.life.length;
+  const del=document.getElementById(deckId);if(del)del.textContent='DECK:'+p.deck.length;
+  const tel=document.getElementById(trashId);if(tel){tel.textContent='TRASH:'+p.trash.length;tel.onclick=()=>showTrash(pi);}
+  const hel=document.getElementById(handCntId);if(hel)hel.textContent='手札:'+p.hand.length+'枚';
+}
+
+function renderMobHand(pi,handId){
+  const p=G.players[pi];
+  const el=document.getElementById(handId);if(!el)return;
+  const over=p.hand.length>7;
+  el.innerHTML=p.hand.map((card,i)=>`
+    <div style="width:${MOB_HW}px;height:${MOB_HH}px;flex-shrink:0;overflow:hidden;border:${over&&i>=7?'2px solid rgba(180,40,20,.7)':'1px solid var(--border)'};cursor:pointer;transition:transform .12s;"
+      onclick="selH(${i})"
+      oncontextmenu="event.preventDefault();event.stopPropagation();ctxH(event,${pi},${i})">
+      <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.opacity='.3'">
+    </div>`).join('');
+}
+
+function renderMobile(){
+  if(!isMob()||!G)return;
+  renderMobHeader(1,'mob-life-p2','mob-deck-p2','mob-trash-p2','mob-hand-cnt-p2');
+  renderMobSide(1,'mob-row1-p2','mob-row2-p2',true);
+  renderMobHeader(0,'mob-life-p1','mob-deck-p1','mob-trash-p1',null);
+  renderMobSide(0,'mob-row1-p1','mob-row2-p1',false);
+  renderMobHand(0,'mob-hand-p1');
+  const vl=document.getElementById('mob-vs-label');
+  if(vl)vl.textContent=G.cur===0?'1Pのターン':'2Pのターン';
+}
+
+function mobCardClick(pi,zone,idx){
+  const p=G.players[pi];
+  const arr=zone==='main'?p.main:p.sup;
+  const card=arr[idx];if(!card)return;
+  card.active=!card.active;
+  log('「'+card.data[1]+'」を'+(card.active?'活動':'休息')+'状態に。');
+  renderAll();
+}
+
+// ===== モバイル判定 =====
+function isMob(){return window.innerWidth<=700;}
+
+// ===== チュートリアル =====
+function showTut(i){
+  clearHighlight();
+  tutStep=i;
+  const t=TUT[i];
+  document.getElementById('tut-title').textContent=t.title;
+  // スマホ時はmobmsgを使用
+  document.getElementById('tut-msg').textContent=(isMob()&&t.mobmsg)?t.mobmsg:t.msg;
+  document.getElementById('tut-step').textContent=(i+1)+' / '+TUT.length;
+  const box=document.getElementById('tut-box');
+  box.style.display='flex';
+
+  // スマホ時はモバイルビューIDに変換
+  const MOB_MAP={
+    'pt-p1':'mob-row1-p1',
+    'lp-p1':'mob-life-p1',
+    'main-p1':'mob-row1-p1',
+    'hand-p1':'mob-hand-p1',
+    'sup-p1':'mob-row2-p1',
+  };
+  const targetId=t.target?(isMob()&&MOB_MAP[t.target]?MOB_MAP[t.target]:t.target):null;
+
+  setTimeout(()=>{
+    const BW=360,MARGIN=10;
+    const VW=window.innerWidth,VH=window.innerHeight;
+    const bh=box.offsetHeight||200;
+
+    if(!targetId){
+      if(isMob()){
+        box.style.left=MARGIN+'px';
+        box.style.right=MARGIN+'px';
+        box.style.bottom='48px';
+        box.style.top='';
+        box.style.width='auto';
+      } else {
+        box.style.left=Math.max(MARGIN,(VW-BW)/2)+'px';
+        box.style.top=Math.max(MARGIN,(VH-bh)/2)+'px';
+        box.style.bottom='';
+        box.style.right='';
+        box.style.width=BW+'px';
+      }
+      return;
+    }
+
+    const el=document.getElementById(targetId);
+    if(!el){
+      box.style.left=(VW-BW-MARGIN)+'px';
+      box.style.bottom=MARGIN+'px';
+      box.style.top='';
+      return;
+    }
+
+    el.classList.add('tut-highlight');
+    const rect=el.getBoundingClientRect();
+    const arrow=document.getElementById('tut-arrow');
+
+    box.style.width=BW+'px';
+    box.style.right='';
+    let boxTop,boxLeft,arrowTxt,arrowTop;
+    const arrowLeft=Math.min(Math.max(rect.left+rect.width/2-12,MARGIN),VW-30);
+
+    if(t.arrow==='bottom'){
+      boxTop=rect.top-bh-36;
+      if(boxTop<MARGIN)boxTop=rect.bottom+36;
+      arrowTxt=boxTop<rect.top?'▼':'▲';
+      arrowTop=boxTop<rect.top?rect.top-28:rect.bottom+8;
+    } else {
+      boxTop=rect.bottom+36;
+      if(boxTop+bh>VH-MARGIN)boxTop=rect.top-bh-36;
+      arrowTxt=boxTop>rect.bottom?'▲':'▼';
+      arrowTop=boxTop>rect.bottom?rect.bottom+8:rect.top-28;
+    }
+
+    boxLeft=rect.left+rect.width/2-BW/2;
+    boxLeft=Math.max(MARGIN,Math.min(boxLeft,VW-BW-MARGIN));
+    box.style.left=boxLeft+'px';
+    box.style.top=boxTop+'px';
+    box.style.bottom='';
+    if(arrow){
+      arrow.textContent=arrowTxt;
+      arrow.style.left=arrowLeft+'px';
+      arrow.style.top=arrowTop+'px';
+      arrow.style.display='block';
+    }
+  },50);
+}
+
+function clearHighlight(){
+  document.querySelectorAll('.tut-highlight').forEach(el=>el.classList.remove('tut-highlight'));
+  const arrow=document.getElementById('tut-arrow');
+  if(arrow)arrow.style.display='none';
+}
+
+function closeTut(){
+  clearHighlight();
+  const box=document.getElementById('tut-box');
+  if(box)box.style.display='none';
+}
+
 function nextTut(){if(tutStep<TUT.length-1)showTut(tutStep+1);else closeTut();}
 function prevTut(){if(tutStep>0)showTut(tutStep-1);}
 function reopenTut(){showTut(tutStep);}
