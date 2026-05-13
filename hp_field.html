@@ -572,50 +572,39 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <!-- ===== モバイルビュー（〜700px専用） ===== -->
   <div id="mob-view" style="display:none;flex-direction:column;flex:1;overflow:hidden;font-family:var(--font-ja);">
 
-    <!-- 2P（上・相手） -->
-    <div id="mob-p2" style="flex:none;background:rgba(106,26,26,.08);border-bottom:2px solid rgba(106,26,26,.25);">
-      <!-- ヘッダー -->
-      <div id="mob-hdr-p2" style="display:flex;align-items:center;gap:6px;padding:3px 8px;background:rgba(106,26,26,.15);font-size:10px;font-weight:700;color:rgba(106,26,26,.9);">
-        <span>2P（後攻）</span>
-        <span id="mob-life-p2" style="margin-left:4px;font-size:11px;">❤️ 3</span>
-        <span id="mob-deck-p2" style="font-size:9px;color:var(--ink-light);">DECK:50</span>
-        <span id="mob-trash-p2" style="font-size:9px;color:var(--ink-light);">TRASH:0</span>
-        <span id="mob-hand-cnt-p2" style="margin-left:auto;font-size:9px;color:var(--ink-light);">手札:7枚</span>
-      </div>
-      <!-- フィールド -->
-      <div style="padding:4px 6px;display:flex;flex-direction:column;gap:3px;">
-        <!-- Row1: MAIN×3 + PARTNER -->
-        <div id="mob-row1-p2" style="display:flex;gap:3px;align-items:flex-end;"></div>
-        <!-- Row2: SUPPORT×4 -->
-        <div id="mob-row2-p2" style="display:flex;gap:3px;"></div>
+    <!-- 相手サイド（上・renderMobileで毎回更新） -->
+    <div id="mob-opp" style="flex:none;overflow:hidden;">
+      <div id="mob-hdr-opp" style="display:flex;align-items:center;gap:5px;padding:2px 8px;font-size:9px;font-weight:700;"></div>
+      <div style="padding:3px 5px;display:flex;flex-direction:column;gap:2px;">
+        <div id="mob-row1-opp" style="display:flex;gap:3px;align-items:flex-end;"></div>
+        <div id="mob-row2-opp" style="display:flex;gap:3px;"></div>
+        <div style="display:flex;gap:3px;align-items:center;">
+          <span style="font-size:6px;color:var(--ink-light);writing-mode:horizontal-tb;">MP</span>
+          <div id="mob-mp-opp" style="display:flex;gap:2px;overflow-x:auto;padding:1px;"></div>
+        </div>
       </div>
     </div>
 
     <!-- 分割線 -->
-    <div style="flex:none;height:3px;background:linear-gradient(90deg,transparent,rgba(90,50,15,.7) 50%,transparent);position:relative;">
+    <div style="flex:none;height:3px;background:linear-gradient(90deg,transparent,rgba(90,50,15,.7) 50%,transparent);position:relative;flex-shrink:0;">
       <div id="mob-vs-label" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#d4a84a;border:1px solid rgba(90,50,15,.4);font-size:9px;font-family:var(--font-logo);color:var(--ink);padding:0 10px;white-space:nowrap;">vs</div>
     </div>
 
-    <!-- 1P（下・自分） -->
-    <div id="mob-p1" style="flex:1;display:flex;flex-direction:column;min-height:0;background:rgba(26,58,106,.06);">
-      <!-- ヘッダー -->
-      <div id="mob-hdr-p1" style="display:flex;align-items:center;gap:6px;padding:3px 8px;background:rgba(26,58,106,.15);font-size:10px;font-weight:700;color:rgba(26,58,106,.9);flex-shrink:0;">
-        <span>1P（先攻）</span>
-        <span id="mob-life-p1" style="margin-left:4px;font-size:11px;">❤️ 3</span>
-        <span id="mob-deck-p1" style="font-size:9px;color:var(--ink-light);">DECK:50</span>
-        <span id="mob-trash-p1" style="font-size:9px;color:var(--ink-light);">TRASH:0</span>
+    <!-- 自分サイド（下・renderMobileで毎回更新） -->
+    <div id="mob-act" style="flex:1;display:flex;flex-direction:column;min-height:0;">
+      <div id="mob-hdr-act" style="display:flex;align-items:center;gap:5px;padding:3px 8px;font-size:10px;font-weight:700;flex-shrink:0;"></div>
+      <div style="padding:3px 5px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
+        <div id="mob-row1-act" style="display:flex;gap:3px;align-items:flex-end;"></div>
+        <div id="mob-row2-act" style="display:flex;gap:3px;"></div>
+        <div style="display:flex;gap:3px;align-items:center;">
+          <span style="font-size:6px;color:var(--ink-light);">MP</span>
+          <div id="mob-mp-act" style="display:flex;gap:2px;overflow-x:auto;padding:1px;"></div>
+        </div>
       </div>
-      <!-- フィールド -->
-      <div style="padding:4px 6px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
-        <!-- Row1: MAIN×3 + PARTNER -->
-        <div id="mob-row1-p1" style="display:flex;gap:3px;align-items:flex-end;"></div>
-        <!-- Row2: SUPPORT×4 -->
-        <div id="mob-row2-p1" style="display:flex;gap:3px;"></div>
-      </div>
-      <!-- 手札（1P） -->
-      <div style="flex:1;min-height:0;padding:3px 6px 4px;border-top:1px solid var(--border);background:rgba(180,135,55,.15);overflow-y:hidden;">
-        <div style="font-size:8px;color:var(--ink-light);margin-bottom:3px;">HAND — 右クリックでアクション</div>
-        <div id="mob-hand-p1" class="hcards" style="gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;"></div>
+      <!-- 手札（自分） -->
+      <div style="flex:1;min-height:0;padding:3px 5px 4px;border-top:1px solid var(--border);background:rgba(180,135,55,.15);overflow:hidden;">
+        <div style="font-size:8px;color:var(--ink-light);margin-bottom:2px;">HAND — 右クリックでアクション</div>
+        <div id="mob-hand-act" style="display:flex;gap:3px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;"></div>
       </div>
     </div>
 
@@ -1729,89 +1718,114 @@ const MOB_HW=68,MOB_HH=96;
 function mobEmptySlot(w,h){
   return `<div style="width:${w}px;height:${h}px;background:rgba(200,170,90,.15);border:1px dashed rgba(90,50,15,.2);flex-shrink:0;"></div>`;
 }
-
 function mobCard(card,w,h,pi,zone,idx){
   if(!card)return mobEmptySlot(w,h);
   const [num,nm,,,cost]=card.data;
   return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;"
     onclick="mobCardClick(${pi},'${zone}',${idx})"
-    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,G.players[${pi}].${'main'===zone?'main':'sup'}[${idx}],'${zone}',${idx},${pi})">
+    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,G.players[${pi}].${zone==='main'?'main':'sup'}[${idx}],'${zone}',${idx},${pi})">
     <img src="${IM}${num}" style="width:100%;height:100%;object-fit:cover;display:block;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
-    ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:rgba(240,208,150,.7);">休</div>'}
-    ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:14px;height:14px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cost}</div>`:''}
+    ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(240,208,150,.8);">休</div>'}
+    ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:13px;height:13px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cost}</div>`:''}
   </div>`;
 }
-
 function mobPartner(p,w,h){
   const pt=p.partner;
   return `<div style="width:${w}px;height:${h}px;flex-shrink:0;overflow:hidden;border:2px solid rgba(90,50,15,.45);background:rgba(180,140,60,.2);">
-    ${pt?`<img src="${IM}${pt[0]}" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-light);">?</div>'}
+    ${pt?`<img src="${IM}${pt[0]}" style="width:100%;height:100%;object-fit:contain;display:block;">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-light);">?</div>'}
   </div>`;
 }
-
-function renderMobSide(pi,row1Id,row2Id,isOpp){
-  const p=G.players[pi];
-  const mw=isOpp?MOB_OMW:MOB_MW,mh=isOpp?MOB_OMH:MOB_MH;
-  const sw=isOpp?MOB_OSW:MOB_SW,sh=isOpp?MOB_OSH:MOB_SH;
-  const pw=isOpp?MOB_OPW:MOB_PW,ph=isOpp?MOB_OPH:MOB_PH;
-  const r1=document.getElementById(row1Id);
-  if(r1){
-    let h='';
-    for(let i=0;i<3;i++)h+=mobCard(p.main[i],mw,mh,pi,'main',i);
-    h+=mobPartner(p,pw,ph);
-    r1.innerHTML=h;
-  }
-  const r2=document.getElementById(row2Id);
-  if(r2){
-    let h='';
-    for(let i=0;i<4;i++)h+=mobCard(p.sup[i],sw,sh,pi,'sup',i);
-    r2.innerHTML=h;
-  }
+function mobMpCard(card,pi,i){
+  if(!card)return'';
+  return `<div style="width:32px;height:44px;flex-shrink:0;overflow:hidden;border:1px solid rgba(90,50,15,.4);cursor:pointer;${card.active?'':'filter:brightness(.55);'}"
+    onclick="togMP(${pi},${i})"
+    oncontextmenu="event.preventDefault();ctxMP(event,${pi},${i})">
+    <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;">
+  </div>`;
 }
-
-function renderMobHeader(pi,lifeId,deckId,trashId,handCntId){
-  const p=G.players[pi];
-  const hearts=[0,1,2].map(i=>i<p.life.length?'❤️':'🖤').join('');
-  const lel=document.getElementById(lifeId);if(lel)lel.onclick=()=>trigLife(pi);
-  if(lel)lel.textContent=hearts+' '+p.life.length;
-  const del=document.getElementById(deckId);if(del)del.textContent='DECK:'+p.deck.length;
-  const tel=document.getElementById(trashId);if(tel){tel.textContent='TRASH:'+p.trash.length;tel.onclick=()=>showTrash(pi);}
-  const hel=document.getElementById(handCntId);if(hel)hel.textContent='手札:'+p.hand.length+'枚';
-}
-
-function renderMobHand(pi,handId){
-  const p=G.players[pi];
-  const el=document.getElementById(handId);if(!el)return;
-  const over=p.hand.length>7;
-  el.innerHTML=p.hand.map((card,i)=>`
-    <div style="width:${MOB_HW}px;height:${MOB_HH}px;flex-shrink:0;overflow:hidden;border:${over&&i>=7?'2px solid rgba(180,40,20,.7)':'1px solid var(--border)'};cursor:pointer;transition:transform .12s;"
-      onclick="selH(${i})"
-      oncontextmenu="event.preventDefault();event.stopPropagation();ctxH(event,${pi},${i})">
-      <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.opacity='.3'">
-    </div>`).join('');
-}
-
 function renderMobile(){
   if(!isMob()||!G)return;
-  renderMobHeader(1,'mob-life-p2','mob-deck-p2','mob-trash-p2','mob-hand-cnt-p2');
-  renderMobSide(1,'mob-row1-p2','mob-row2-p2',true);
-  renderMobHeader(0,'mob-life-p1','mob-deck-p1','mob-trash-p1',null);
-  renderMobSide(0,'mob-row1-p1','mob-row2-p1',false);
-  renderMobHand(0,'mob-hand-p1');
+  const actPi=G.va, oppPi=1-G.va;
+  const ap=G.players[actPi], op=G.players[oppPi];
+  const isP1act=actPi===0;
+
+  // ヘッダー色・ラベル
+  const actColor=isP1act?'rgba(26,58,106,.15)':'rgba(106,26,26,.15)';
+  const oppColor=isP1act?'rgba(106,26,26,.1)':'rgba(26,58,106,.1)';
+  const actTxtColor=isP1act?'rgba(26,58,106,.9)':'rgba(106,26,26,.9)';
+  const oppTxtColor=isP1act?'rgba(106,26,26,.7)':'rgba(26,58,106,.7)';
+
+  // 相手ヘッダー
+  const oppHdr=document.getElementById('mob-hdr-opp');
+  if(oppHdr){
+    const hearts=[0,1,2].map(i=>i<op.life.length?'❤️':'🖤').join('');
+    oppHdr.style.background=oppColor;
+    oppHdr.style.color=oppTxtColor;
+    oppHdr.innerHTML=`<span>${oppPi===0?'1P':'2P'}（${oppPi===0?'先攻':'後攻'}）</span>
+      <span style="font-size:10px;cursor:pointer;" onclick="trigLife(${oppPi})">${hearts} ${op.life.length}</span>
+      <span style="font-size:8px;color:var(--ink-light);cursor:pointer;" onclick="drawCard(${oppPi})">DECK:${op.deck.length}</span>
+      <span style="font-size:8px;color:var(--ink-light);cursor:pointer;" onclick="showTrash(${oppPi})">TRASH:${op.trash.length}</span>
+      <span style="margin-left:auto;font-size:8px;color:var(--ink-light);">手札:${op.hand.length}枚</span>`;
+  }
+
+  // 相手フィールド（小）
+  const OW=44,OH=62,OSW=36,OSH=50,OPW=44,OPH=62;
+  const r1o=document.getElementById('mob-row1-opp');
+  if(r1o){let h='';for(let i=0;i<3;i++)h+=mobCard(op.main[i],OW,OH,oppPi,'main',i);h+=mobPartner(op,OPW,OPH);r1o.innerHTML=h;}
+  const r2o=document.getElementById('mob-row2-opp');
+  if(r2o){let h='';for(let i=0;i<4;i++)h+=mobCard(op.sup[i],OSW,OSH,oppPi,'sup',i);r2o.innerHTML=h;}
+  const mpo=document.getElementById('mob-mp-opp');
+  if(mpo){mpo.innerHTML=op.mp.length?op.mp.map((c,i)=>mobMpCard(c,oppPi,i)).join(''):'<span style="font-size:8px;color:rgba(30,14,6,.25);">空</span>';}
+
+  // 自分ヘッダー
+  const actHdr=document.getElementById('mob-hdr-act');
+  if(actHdr){
+    const hearts=[0,1,2].map(i=>i<ap.life.length?'❤️':'🖤').join('');
+    actHdr.style.background=actColor;
+    actHdr.style.color=actTxtColor;
+    actHdr.innerHTML=`<span>${actPi===0?'1P':'2P'}（${actPi===0?'先攻':'後攻'}）</span>
+      <span style="font-size:10px;cursor:pointer;" onclick="trigLife(${actPi})">${hearts} ${ap.life.length}</span>
+      <span style="font-size:8px;color:var(--ink-light);cursor:pointer;" onclick="drawCard(${actPi})">DECK:${ap.deck.length}</span>
+      <span style="font-size:8px;color:var(--ink-light);cursor:pointer;" onclick="showTrash(${actPi})">TRASH:${ap.trash.length}</span>`;
+  }
+
+  // 自分フィールド（大）
+  const AW=68,AH=96,ASW=54,ASH=76,APW=68,APH=96;
+  const r1a=document.getElementById('mob-row1-act');
+  if(r1a){let h='';for(let i=0;i<3;i++)h+=mobCard(ap.main[i],AW,AH,actPi,'main',i);h+=mobPartner(ap,APW,APH);r1a.innerHTML=h;}
+  const r2a=document.getElementById('mob-row2-act');
+  if(r2a){let h='';for(let i=0;i<4;i++)h+=mobCard(ap.sup[i],ASW,ASH,actPi,'sup',i);r2a.innerHTML=h;}
+  const mpa=document.getElementById('mob-mp-act');
+  if(mpa){mpa.innerHTML=ap.mp.length?ap.mp.map((c,i)=>mobMpCard(c,actPi,i)).join(''):'<span style="font-size:8px;color:rgba(30,14,6,.25);">手札右クリック→MP</span>';}
+
+  // 自分手札（表向き）
+  const handEl=document.getElementById('mob-hand-act');
+  if(handEl){
+    const over=ap.hand.length>7;
+    handEl.innerHTML=ap.hand.map((card,i)=>`
+      <div style="width:60px;height:86px;flex-shrink:0;overflow:hidden;border:${over&&i>=7?'2px solid rgba(180,40,20,.7)':'1px solid var(--border)'};cursor:pointer;"
+        onclick="selH(${i})"
+        oncontextmenu="event.preventDefault();event.stopPropagation();ctxH(event,${actPi},${i})">
+        <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>`).join('');
+  }
+
+  // vsラベル
   const vl=document.getElementById('mob-vs-label');
   if(vl)vl.textContent=G.cur===0?'1Pのターン':'2Pのターン';
-}
 
+  // mob-opp の背景色
+  const oppDiv=document.getElementById('mob-opp');
+  if(oppDiv)oppDiv.style.background=oppColor.replace('.1)',',.08)');
+  const actDiv=document.getElementById('mob-act');
+  if(actDiv)actDiv.style.background=actColor.replace('.15)',',.06)');
+}
 function mobCardClick(pi,zone,idx){
-  const p=G.players[pi];
-  const arr=zone==='main'?p.main:p.sup;
-  const card=arr[idx];if(!card)return;
-  card.active=!card.active;
-  log('「'+card.data[1]+'」を'+(card.active?'活動':'休息')+'状態に。');
-  renderAll();
+  const p=G.players[pi];const arr=zone==='main'?p.main:p.sup;const card=arr[idx];
+  if(!card)return;card.active=!card.active;
+  log(`「${card.data[1]}」を${card.active?'活動':'休息'}状態に。`);renderAll();
 }
 
-// ===== モバイル判定 =====
 function isMob(){return window.innerWidth<=700;}
 
 // ===== チュートリアル =====
@@ -1827,12 +1841,14 @@ function showTut(i){
   box.style.display='flex';
 
   // スマホ時はモバイルビューIDに変換
+  // スマホ時: actPi(=G.va)が自分サイド
   const MOB_MAP={
-    'pt-p1':'mob-row1-p1',
-    'lp-p1':'mob-life-p1',
-    'main-p1':'mob-row1-p1',
-    'hand-p1':'mob-hand-p1',
-    'sup-p1':'mob-row2-p1',
+    'pt-p1':'mob-row1-act',
+    'lp-p1':'mob-hdr-act',
+    'main-p1':'mob-row1-act',
+    'hand-p1':'mob-hand-act',
+    'sup-p1':'mob-row2-act',
+    'lp-p2':'mob-hdr-opp',
   };
   const targetId=t.target?(isMob()&&MOB_MAP[t.target]?MOB_MAP[t.target]:t.target):null;
 
@@ -1843,11 +1859,14 @@ function showTut(i){
 
     if(!targetId){
       if(isMob()){
-        box.style.left=MARGIN+'px';
-        box.style.right=MARGIN+'px';
-        box.style.bottom='48px';
-        box.style.top='';
+        box.style.left='4px';
+        box.style.right='4px';
+        box.style.bottom='4px';
+        box.style.top='auto';
         box.style.width='auto';
+        box.style.maxHeight='45vh';
+        box.style.overflowY='auto';
+        box.style.zIndex='400';
       } else {
         box.style.left=Math.max(MARGIN,(VW-BW)/2)+'px';
         box.style.top=Math.max(MARGIN,(VH-bh)/2)+'px';
