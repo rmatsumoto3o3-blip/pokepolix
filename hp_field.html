@@ -86,12 +86,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .pside{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;}
 
 /* サイドヘッダー */
-.side-hdr{font-size:10px;font-weight:700;padding:3px 8px;flex-shrink:0;display:flex;align-items:center;gap:6px;}
+.side-hdr{font-size:10px;font-weight:700;padding:2px 8px;flex-shrink:0;display:flex;align-items:center;gap:6px;}
 .shdr-p1{background:var(--p1bg);border-bottom:1px solid rgba(26,58,106,.2);color:var(--p1c);}
 .shdr-p2{background:var(--p2bg);border-bottom:1px solid rgba(106,26,26,.2);color:var(--p2c);}
 
 /* サイドの内部レイアウト */
-.side-body{display:flex;flex:1;min-height:0;padding:4px 6px;gap:4px;overflow:hidden;}
+.side-body{display:flex;flex:1;min-height:0;padding:2px 4px;gap:3px;overflow:hidden;}
 
 /* 左カラム：LIFE */
 .col-life{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:44px;gap:2px;}
@@ -102,10 +102,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .lcnt{font-size:8px;color:var(--ink-light);}
 
 /* 中央カラム：フィールドゾーン */
-.col-center{display:flex;flex-direction:column;flex:1;min-width:0;gap:3px;overflow:hidden;}
+.col-center{display:flex;flex-direction:column;flex:1;min-width:0;gap:2px;overflow:hidden;}
 
 /* 情報バー：PARTNER + DECK + TRASH */
-.info-row{display:flex;gap:4px;align-items:stretch;flex-shrink:0;height:64px;}
+.info-row{display:flex;gap:4px;align-items:stretch;flex-shrink:0;height:54px;}
 .iz{background:rgba(210,175,100,.45);border:1px solid var(--border);padding:2px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;min-width:40px;}
 .iz:hover{border-color:var(--bd);}
 .iz-lbl{font-size:7px;color:var(--ink-light);}
@@ -117,7 +117,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .pt-nm{font-size:8px;font-weight:700;color:var(--ink);text-align:center;line-height:1.2;}
 
 /* ゾーン行 */
-.zrow{display:flex;align-items:center;gap:3px;flex-shrink:0;}
+.zrow{display:flex;align-items:center;gap:2px;flex-shrink:0;}
 .zlbl{font-size:7px;font-weight:600;color:var(--ink-light);writing-mode:vertical-rl;letter-spacing:.3px;flex-shrink:0;padding:1px;}
 .slots{display:flex;gap:3px;}
 .mpscroll{display:flex;gap:3px;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:1px;}
@@ -147,16 +147,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .mp-fc.rest{filter:brightness(.55);}
 
 /* 手札エリア */
-.hand-area{flex-shrink:0;padding:2px 4px 3px;border-top:1px solid var(--border);background:rgba(180,135,55,.2);}
+.hand-area{flex-shrink:0;padding:1px 4px 2px;border-top:1px solid var(--border);background:rgba(180,135,55,.2);}
 .hand-warn{background:rgba(150,50,20,.2);border:1px solid rgba(150,50,20,.4);padding:2px 6px;font-size:10px;color:rgba(150,50,20,.9);display:none;margin-bottom:2px;}
 .hlbl{font-size:8px;color:var(--ink-light);margin-bottom:2px;}
 .hcards{display:flex;gap:3px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
-.hc{width:72px;height:102px;border:1px solid var(--border);cursor:pointer;flex-shrink:0;overflow:hidden;transition:transform .12s,border-color .12s;}
+.hc{width:88px;height:124px;border:1px solid var(--border);cursor:pointer;flex-shrink:0;overflow:hidden;transition:transform .12s,border-color .12s;}
 .hc img{width:100%;height:100%;object-fit:cover;display:block;}
 .hc:hover{transform:translateY(-8px);border-color:var(--bd);}
 .hc.sel{transform:translateY(-14px);border-color:rgba(80,45,12,.8);}
 .hc.over{border:2px solid rgba(180,40,20,.7);}
-.hc-back{width:72px;height:102px;flex-shrink:0;background:linear-gradient(135deg,rgba(40,20,80,.65),rgba(80,40,20,.5));border:1px solid rgba(90,50,15,.3);display:flex;align-items:center;justify-content:center;font-size:13px;}
+.hc-back{width:88px;height:124px;flex-shrink:0;background:linear-gradient(135deg,rgba(40,20,80,.65),rgba(80,40,20,.5));border:1px solid rgba(90,50,15,.3);display:flex;align-items:center;justify-content:center;font-size:13px;}
 
 /* 右カラム：DECK + TRASH */
 .col-right{display:flex;flex-direction:column;gap:3px;flex-shrink:0;width:80px;align-items:center;}
@@ -192,6 +192,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   display:none;
 }
 @keyframes arrowBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+
+/* 装備カード */
+.equip-badge{
+  position:absolute;bottom:18px;left:0;right:0;
+  display:flex;justify-content:center;gap:1px;pointer-events:none;
+}
+.equip-icon{
+  width:22px;height:30px;overflow:hidden;
+  border:1px solid rgba(255,200,50,.7);
+  box-shadow:0 0 4px rgba(255,200,50,.4);
+  flex-shrink:0;
+}
+.equip-icon img{width:100%;height:100%;object-fit:cover;display:block;}
 /* コンテキストメニュー */
 #ctx{position:fixed;background:#e2c882;border:1px solid rgba(90,50,15,.5);z-index:1000;display:none;min-width:165px;box-shadow:3px 3px 0 rgba(80,45,12,.2);}
 .ctx-info{padding:6px 10px;border-bottom:1px solid var(--border);}
@@ -440,6 +453,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <button class="cb2" id="cx-rst" onclick="ca('rst')">↩ メインに復帰</button>
   <button class="cb2" id="cx-dwn" onclick="ca('dwn')">⬇ ダウン（サポートへ）</button>
   <div class="csep"></div>
+  <button class="cb2" id="cx-equip" onclick="ca('equip')">⚔ キャラに装備する</button>
   <button class="cb2" id="cx-toh" onclick="ca('toh')">👋 手札に戻す</button>
   <button class="cb2" id="cx-bot" onclick="ca('bot')">⬇ デッキの下に戻す</button>
   <button class="cb2 dng" onclick="ca('tr')">🗑 捨て札にする</button>
@@ -873,10 +887,12 @@ function renderFieldSlots(p,mId,sId,pi){
     if(p.main[i]){
       const c=p.main[i];s._cardRef=c;
       const [n,nm,,,cost,ap,dp]=c.data;
+      const equipHtml=c.equips&&c.equips.length?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'main',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
       s.innerHTML=`<div class="fc${c.active?'':' rest'}" onclick="togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
         ${ci(n)}<div class="fc-btm"><div class="fc-nm">${nm.substring(0,8)}</div>
         <div class="fc-st">${ap!==null?`<span class="fc-ap">AP${ap}</span>`:''}${dp!==null?`<span class="fc-dp">DP${dp}</span>`:''}</div></div>
         ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}
+        ${equipHtml}
       </div>`;
     }else{s.textContent='空';}
     mEl.appendChild(s);
@@ -961,6 +977,9 @@ function showCtx(e,card,zone,idx,pi){
   document.getElementById('cx-eff').textContent=card.data[10]||'';
   const z=zone,t=card.data[2];
   const H=z==='hand',M=z==='main',S=z==='sup',MP=z==='mp';
+  // 装備カード判定（名前に「杖」「マント」「眼鏡」等を含むItem）
+  const isEquip=H&&t==='Item'&&(nm.includes('杖')||nm.includes('マント')||nm.includes('道具')||nm.includes('装備'));
+  document.getElementById('cx-equip').style.display=isEquip?'':'none';
   document.getElementById('cx-main').style.display=H?'':'none';
   document.getElementById('cx-sup').style.display=H?'':'none';
   document.getElementById('cx-use').style.display=(H&&(t==='Magic'||t==='Event'||t==='Item'))?'':'none';
@@ -972,10 +991,17 @@ function showCtx(e,card,zone,idx,pi){
   document.getElementById('cx-bot').style.display=(H||M||S||MP)?'':'none';
   const m=document.getElementById('ctx');
   m.style.display='block';
-  let x=e.clientX,y=e.clientY;
-  if(x+190>window.innerWidth)x=window.innerWidth-200;
-  if(y+240>window.innerHeight)y=window.innerHeight-250;
-  m.style.left=x+'px';m.style.top=y+'px';
+  // メニューサイズを取得してから位置決定
+  const mw=m.offsetWidth||190, mh=m.offsetHeight||280;
+  let x=e.clientX, y=e.clientY;
+  // 右端
+  if(x+mw+4>window.innerWidth) x=window.innerWidth-mw-4;
+  // 下端
+  if(y+mh+4>window.innerHeight) y=window.innerHeight-mh-4;
+  // 上端・左端
+  if(x<4) x=4;
+  if(y<4) y=4;
+  m.style.left=x+'px'; m.style.top=y+'px';
 }
 function ctxH(e,pi,i){showCtx(e,G.players[pi].hand[i],'hand',i,pi);}
 function ctxF(e,fc){const s=fc.parentElement;if(!s._cardRef)return;showCtx(e,s._cardRef,s._zone,s._idx,s._pi);}
@@ -997,6 +1023,7 @@ function ca(action){
   else if(action==='toh'){rm();p.hand.push(card);log(`「${nm}」を手札に戻しました。`);}
   else if(action==='bot'){rm();card.active=true;p.deck.push(card);log(`「${nm}」をデッキ下に。`);}
   else if(action==='tr'){rm();p.trash.push(card);log(`「${nm}」を捨て札に。`);}
+  else if(action==='equip'){ openEquipSelect(card,idx,pi); closeCtx(); return; }
   closeCtx();renderAll();
 }
 
@@ -1047,6 +1074,48 @@ function trAct(pi,idx,dest){
   document.getElementById('trash-modal').style.display='none';renderAll();
 }
 
+
+// ===== 装備システム =====
+function openEquipSelect(card, handIdx, pi){
+  const p = G.players[pi];
+  // メインフィールドにキャラがいるか確認
+  const targets = p.main.map((c,i)=>({card:c,idx:i})).filter(x=>x.card);
+  if(!targets.length){ alert('メインフィールドにキャラがいません。先にキャラを出してください。'); return; }
+  if(targets.length===1){
+    // 1枚しかいなければ自動選択
+    attachEquip(card, handIdx, pi, targets[0].idx);
+  } else {
+    // 複数いる場合は選択させる（簡易）
+    const names = targets.map((t,i)=>` ${i+1}. ${t.card.data[1]}`).join('\n');
+    const choice = prompt(`どのキャラに装備しますか？\n${names}\n\n番号を入力してください：`);
+    const n = parseInt(choice)-1;
+    if(n>=0 && n<targets.length) attachEquip(card, handIdx, pi, targets[n].idx);
+  }
+}
+
+function attachEquip(equipCard, handIdx, pi, fieldIdx){
+  const p = G.players[pi];
+  const target = p.main[fieldIdx];
+  if(!target) return;
+  // 手札から削除
+  p.hand.splice(handIdx,1);
+  // フィールドカードに装備を追加
+  if(!target.equips) target.equips = [];
+  target.equips.push(equipCard);
+  log(`「${target.data[1]}」に「${equipCard.data[1]}」を装備しました。`);
+  renderAll();
+}
+
+function removeEquip(pi, fieldZone, fieldIdx, equipIdx){
+  const p = G.players[pi];
+  const arr = fieldZone==='main' ? p.main : p.sup;
+  const card = arr[fieldIdx];
+  if(!card || !card.equips) return;
+  const eq = card.equips.splice(equipIdx,1)[0];
+  p.trash.push(eq);
+  log(`「${eq.data[1]}」を装備解除して捨て札へ。`);
+  renderAll();
+}
 // 後攻のMPカード自動セット
 function autoSetMpCard(){
   if(!G)return;
