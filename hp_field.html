@@ -111,10 +111,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .iz-lbl{font-size:7px;color:var(--ink-light);}
 .iz-val{font-size:15px;font-weight:700;color:var(--ink);line-height:1;}
 .iz-sub{font-size:8px;color:var(--ink-light);}
-.iz-pt{flex:2;cursor:default;overflow:hidden;}
-.pt-img{width:30px;height:42px;overflow:hidden;margin:0 auto 1px;}
+.iz-pt{cursor:default;overflow:hidden;flex-shrink:0;}
+.pt-img{width:64px;height:90px;overflow:hidden;margin:0 auto 2px;}
 .pt-img img{width:100%;height:100%;object-fit:cover;}
-.pt-nm{font-size:8px;font-weight:700;color:var(--ink);text-align:center;line-height:1.2;}
+.pt-nm{font-size:9px;font-weight:700;color:var(--ink);text-align:center;line-height:1.2;max-width:70px;}
 
 /* ゾーン行 */
 .zrow{display:flex;align-items:center;gap:2px;flex-shrink:0;}
@@ -303,11 +303,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
           <div class="life-pips" id="lp-p1"></div>
           <div class="lcnt" id="lc-p1">3</div>
         </div>
+        <!-- パートナー独立カラム -->
+        <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:76px;gap:2px;padding:2px 0;">
+          <div style="font-size:7px;color:var(--ink-light);letter-spacing:.3px;">PARTNER</div>
+          <div class="iz iz-pt" id="pt-p1" style="width:72px;height:108px;"></div>
+        </div>
         <!-- フィールド -->
         <div class="col-center">
           <!-- 情報バー -->
           <div class="info-row">
-            <div class="iz iz-pt" id="pt-p1"></div>
             <div class="iz" onclick="drawCard(0)" title="ドロー">
               <div class="iz-lbl">DECK</div>
               <div class="iz-val" id="dc-p1">50</div>
@@ -356,11 +360,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
           <div class="life-pips" id="lp-p2"></div>
           <div class="lcnt" id="lc-p2">3</div>
         </div>
+        <!-- パートナー独立カラム -->
+        <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:76px;gap:2px;padding:2px 0;">
+          <div style="font-size:7px;color:var(--ink-light);letter-spacing:.3px;">PARTNER</div>
+          <div class="iz iz-pt" id="pt-p2" style="width:72px;height:108px;"></div>
+        </div>
         <!-- フィールド -->
         <div class="col-center">
           <!-- 情報バー -->
           <div class="info-row">
-            <div class="iz iz-pt" id="pt-p2"></div>
             <div class="iz" onclick="drawCard(1)" title="ドロー">
               <div class="iz-lbl">DECK</div>
               <div class="iz-val" id="dc-p2">50</div>
@@ -875,8 +883,9 @@ function doSwitch(){
 function renderPartner(p,elId){
   const el=document.getElementById(elId);
   const pt=p.partner;
-  if(pt){el.innerHTML=`<div class="pt-img">${ci(pt[0])}</div><div class="pt-nm">${pt[1]}</div>`;}
-  else{el.innerHTML=`<div style="font-size:8px;color:var(--ink-light)">PARTNER<br>未設定</div>`;}
+  el.innerHTML=pt
+    ?`<img src="${IM}${pt[0]}" style="width:100%;height:80%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'"><div class="pt-nm" style="font-size:8px;padding:1px 2px;">${pt[1].substring(0,8)}</div>`
+    :'<div style="font-size:8px;color:var(--ink-light);text-align:center;padding-top:30px;">未設定</div>';
 }
 function renderFieldSlots(p,mId,sId,pi){
   const mEl=document.getElementById(mId); mEl.innerHTML='';
