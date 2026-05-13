@@ -334,20 +334,24 @@ body::after{
     <a href="hp_deckbuilder.html" class="location-card">
       <div>
         <div class="location-title">デッキビルダー</div>
-        <div class="location-desc">全カードから構築・保存。画像付きで確認。</div>
+        <div class="location-desc">全カードからデッキを構築・保存。画像付きで確認。</div>
       </div>
       <div class="location-mark">&#8594;</div>
     </a>
     <a href="hp_field.html" class="location-card">
       <div>
-        <div class="location-title">一人回しフィールド</div>
-        <div class="location-desc">保存したデッキで実際に動きを確認。</div>
+        <div class="location-title">一人回し</div>
+        <div class="location-desc">保存したデッキを選んで1P・2Pを自分で操作。</div>
       </div>
       <div class="location-mark">&#8594;</div>
     </a>
-    <a href="hp_field.html" class="location-card">
+    <a href="hp_field.html" class="location-card" onclick="localStorage.setItem('ppx_start_tutorial','1');return true;">
       <div>
-        <div class="location-title">一人回しフィールド</div>
+        <div class="location-title">チュートリアル</div>
+        <div class="location-desc">グリフィンドール vs スリザリンで遊びながらルールを学ぶ。</div>
+      </div>
+      <div class="location-mark">&#8594;</div>
+    </a>
         <div class="location-desc">保存したデッキを読み込んで実際に回してみよう。</div>
       </div>
       <div class="location-mark">&#8594;</div>

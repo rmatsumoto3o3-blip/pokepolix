@@ -272,6 +272,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <button class="cb cb-o" onclick="drawAct()">ドロー</button>
       <button class="cb cb-s" onclick="doSwitch()">⇄ サイド交代</button>
       <button class="cb cb-d" onclick="if(confirm('リセット？'))location.reload()">リセット</button>
+      <a href="index.html" class="cb" style="background:rgba(80,45,12,.4);color:var(--ink);border:1px solid var(--border);text-decoration:none;display:inline-flex;align-items:center;">← TOP</a>
       <button id="tut-btn" class="cb" onclick="reopenTut()" style="display:none;background:rgba(180,140,40,.5);color:#1e0e06;border:1px solid rgba(90,50,15,.4);">チュートリアル</button>
     </div>
   </div>
@@ -696,15 +697,28 @@ function mkP(d){
 }
 
 // セットアップ
+// プリセットデッキ（保存済みデッキがなくても使えるデッキ）
+const PRESET_DECKS = [
+  {id:'preset-grif', name:'グリフィンドールスターター', partner:'Pt001', total:50,
+   deck:{'01-003':2,'01-004':2,'01-005':2,'01-013':3,'01-014':2,'01-015':2,'01-016':2,'01-017':2,'01-018':2,'01-009':2,'01-024':2,'01-025':2,'01-037':3,'01-038':3,'01-039':3,'01-040':2,'01-041':1,'01-042':1,'01-055':2,'01-032':3,'01-076':3,'01-035':2,'01-034':2}},
+  {id:'preset-slyt', name:'スリザリンスターター', partner:'Pt002', total:50,
+   deck:{'01-006':2,'01-007':2,'01-010':2,'01-011':2,'01-019':4,'01-020':3,'01-021':3,'01-022':3,'01-026':2,'01-027':2,'01-043':4,'01-044':4,'01-049':2,'01-056':2,'01-032':3,'01-074':3,'01-076':2,'01-079':2,'01-077':2,'01-075':1}},
+];
+
 function initSetup(){
   const saved=loadSaved();
+  const all=[...PRESET_DECKS, ...saved];
   [0,1].forEach(pi=>{
     const el=document.getElementById(`dl-p${pi+1}`);
-    if(!saved.length){el.innerHTML='<div class="no-deck">保存済みデッキがありません</div>';return;}
-    el.innerHTML=saved.map(d=>`<div class="deck-item" onclick="selDeck(${pi},'${d.id}',this)">
-      <div class="deck-item-name">${d.name}</div>
-      <div class="deck-item-meta">${d.total}枚 ／ ${PARTNERS.find(p=>p[0]===d.partner)?.at(1)||'パートナー未設定'}</div>
-    </div>`).join('');
+    el.innerHTML=`<div style="font-size:9px;color:var(--ink-light);padding:2px 4px;margin-bottom:3px;border-bottom:1px solid var(--border)">プリセット</div>`
+      + PRESET_DECKS.map(d=>`<div class="deck-item" onclick="selDeck(${pi},'${d.id}',this)">
+          <div class="deck-item-name">${d.name}</div>
+          <div class="deck-item-meta">${d.total}枚 ／ ${PARTNERS.find(p=>p[0]===d.partner)?.at(1)||''}</div>
+        </div>`).join('')
+      + (saved.length?`<div style="font-size:9px;color:var(--ink-light);padding:2px 4px;margin:3px 0;border-bottom:1px solid var(--border)">保存済み</div>`+saved.map(d=>`<div class="deck-item" onclick="selDeck(${pi},'${d.id}',this)">
+          <div class="deck-item-name">${d.name}</div>
+          <div class="deck-item-meta">${d.total}枚 ／ ${PARTNERS.find(p=>p[0]===d.partner)?.at(1)||'パートナー未設定'}</div>
+        </div>`).join(''):'');
   });
 }
 function selDeck(pi,id,el){
@@ -714,8 +728,9 @@ function selDeck(pi,id,el){
 }
 function startGame(){
   const saved=loadSaved();
-  const d0=saved.find(x=>String(x.id)===selIds[0]);
-  const d1=saved.find(x=>String(x.id)===selIds[1]);
+  const all=[...PRESET_DECKS,...saved];
+  const d0=all.find(x=>String(x.id)===selIds[0]);
+  const d1=all.find(x=>String(x.id)===selIds[1]);
   if(!d0||!d1)return;
   const p0=mkP(d0), p1=mkP(d1);
   if(p1.deck.length){const c=p1.deck.shift();c.active=true;p1.mp.push(c);}
@@ -996,6 +1011,11 @@ function trAct(pi,idx,dest){
 
 document.addEventListener('click',()=>closeCtx());
 initSetup();
+// チュートリアルリンクから来た場合は自動でスターター起動
+if(localStorage.getItem('ppx_start_tutorial')==='1'){
+  localStorage.removeItem('ppx_start_tutorial');
+  startStarter();
+}
 </script>
 </body>
 </html>
