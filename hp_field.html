@@ -94,10 +94,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .side-body{display:flex;flex:1;min-height:0;padding:4px 6px;gap:4px;overflow:hidden;}
 
 /* 左カラム：LIFE */
-.col-life{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:32px;gap:2px;}
+.col-life{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:44px;gap:2px;}
 .llife{font-size:7px;color:var(--ink-light);writing-mode:vertical-rl;letter-spacing:.3px;}
 .life-pips{display:flex;flex-direction:column;align-items:center;gap:2px;}
-.lpip{width:26px;height:36px;background:linear-gradient(135deg,rgba(80,45,12,.5),rgba(40,20,6,.4));border:1px solid rgba(80,45,12,.3);display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;}
+.lpip{width:36px;height:50px;background:linear-gradient(135deg,rgba(80,45,12,.5),rgba(40,20,6,.4));border:1px solid rgba(80,45,12,.3);display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;}
 .lpip:hover{border-color:rgba(80,45,12,.65);}
 .lcnt{font-size:8px;color:var(--ink-light);}
 
@@ -105,7 +105,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .col-center{display:flex;flex-direction:column;flex:1;min-width:0;gap:3px;overflow:hidden;}
 
 /* 情報バー：PARTNER + DECK + TRASH */
-.info-row{display:flex;gap:4px;align-items:stretch;flex-shrink:0;height:50px;}
+.info-row{display:flex;gap:4px;align-items:stretch;flex-shrink:0;height:64px;}
 .iz{background:rgba(210,175,100,.45);border:1px solid var(--border);padding:2px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;min-width:40px;}
 .iz:hover{border-color:var(--bd);}
 .iz-lbl{font-size:7px;color:var(--ink-light);}
@@ -125,19 +125,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* カードスロット */
 .slot{background:var(--slot);border:1px solid var(--slotb);display:flex;align-items:center;justify-content:center;font-size:7px;color:rgba(30,14,6,.2);flex-shrink:0;position:relative;overflow:hidden;}
 .slot.has{border:none;}
-.ms{width:72px;height:100px;}
-.ss{width:60px;height:84px;}
-.mps{width:50px;height:70px;flex-shrink:0;}
+.ms{width:100px;height:140px;}
+.ss{width:84px;height:118px;}
+.mps{width:68px;height:96px;flex-shrink:0;}
 
 /* フィールドカード */
 .fc{width:100%;height:100%;display:flex;flex-direction:column;position:relative;cursor:pointer;border:1px solid rgba(255,255,255,.1);overflow:hidden;transition:filter .12s;}
 .fc img{width:100%;flex:1;object-fit:cover;min-height:0;display:block;}
 .fc-btm{background:rgba(0,0,0,.65);padding:1px 2px;flex-shrink:0;}
-.fc-nm{font-size:6px;color:#fff;line-height:1.2;font-family:var(--font-ja);}
+.fc-nm{font-size:8px;color:#fff;line-height:1.2;font-family:var(--font-ja);}
 .fc-st{display:flex;gap:1px;}
-.fc-ap{font-size:6px;padding:0 2px;background:#1a3a6a;color:#adf;font-family:monospace;}
-.fc-dp{font-size:6px;padding:0 2px;background:rgba(255,255,255,.15);color:#ddd;font-family:monospace;}
-.fc-cost{position:absolute;top:1px;right:1px;width:14px;height:14px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:monospace;}
+.fc-ap{font-size:7px;padding:0 2px;background:#1a3a6a;color:#adf;font-family:monospace;}
+.fc-dp{font-size:7px;padding:0 2px;background:rgba(255,255,255,.15);color:#ddd;font-family:monospace;}
+.fc-cost{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:monospace;}
 .fc.rest{filter:brightness(.55) saturate(.6);}
 .fc.rest::after{content:'休';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:rgba(240,208,150,.7);pointer-events:none;}
 .fc:hover{filter:brightness(1.1);}
@@ -151,17 +151,18 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .hand-warn{background:rgba(150,50,20,.2);border:1px solid rgba(150,50,20,.4);padding:2px 6px;font-size:10px;color:rgba(150,50,20,.9);display:none;margin-bottom:2px;}
 .hlbl{font-size:8px;color:var(--ink-light);margin-bottom:2px;}
 .hcards{display:flex;gap:3px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
-.hc{width:52px;height:74px;border:1px solid var(--border);cursor:pointer;flex-shrink:0;overflow:hidden;transition:transform .12s,border-color .12s;}
+.hc{width:72px;height:102px;border:1px solid var(--border);cursor:pointer;flex-shrink:0;overflow:hidden;transition:transform .12s,border-color .12s;}
 .hc img{width:100%;height:100%;object-fit:cover;display:block;}
-.hc:hover{transform:translateY(-6px);border-color:var(--bd);}
-.hc.sel{transform:translateY(-10px);border-color:rgba(80,45,12,.8);}
+.hc:hover{transform:translateY(-8px);border-color:var(--bd);}
+.hc.sel{transform:translateY(-14px);border-color:rgba(80,45,12,.8);}
 .hc.over{border:2px solid rgba(180,40,20,.7);}
-.hc-back{width:52px;height:74px;flex-shrink:0;background:linear-gradient(135deg,rgba(40,20,80,.65),rgba(80,40,20,.5));border:1px solid rgba(90,50,15,.3);display:flex;align-items:center;justify-content:center;font-size:13px;}
+.hc-back{width:72px;height:102px;flex-shrink:0;background:linear-gradient(135deg,rgba(40,20,80,.65),rgba(80,40,20,.5));border:1px solid rgba(90,50,15,.3);display:flex;align-items:center;justify-content:center;font-size:13px;}
 
 /* 右カラム：DECK + TRASH */
-.col-right{display:flex;flex-direction:column;gap:3px;flex-shrink:0;width:60px;align-items:center;}
+.col-right{display:flex;flex-direction:column;gap:3px;flex-shrink:0;width:80px;align-items:center;}
 .rslot{background:var(--slot);border:1px solid var(--slotb);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:7px;color:var(--ink-light);text-align:center;cursor:pointer;overflow:hidden;position:relative;width:56px;}
 .rslot img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.rslot{width:76px!important;}
 .rslot-lbl{position:relative;z-index:1;background:rgba(0,0,0,.5);padding:1px 3px;font-family:var(--font-logo);font-size:8px;color:#fff;margin-top:auto;}
 .rslot-cnt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:700;color:#f0e0c0;font-family:var(--font-logo);text-shadow:0 1px 4px rgba(0,0,0,.8);z-index:2;}
 .ds{height:90px;}
