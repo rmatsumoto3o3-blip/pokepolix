@@ -638,24 +638,24 @@ function startStarter(){
   G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1],tut:true};
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='flex';
-  renderAll();
   // 引き直し確認（先攻1P）
   if(confirm('【ゲームの準備】\n1P（グリフィンドール）、手札を確認してください。\n引き直しますか？\n（OKで全て戻してシャッフル→7枚引き直し / キャンセルでそのまま）')){
     const p=G.players[0];
     p.deck.push(...p.hand);p.hand=[];
     for(let i=p.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];}
     for(let i=0;i<7;i++){if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}}
-    renderAll();
   }
+  // 引き直し確認（後攻2P）
   if(confirm('【ゲームの準備】\n2P（スリザリン）、手札を確認してください。\n引き直しますか？')){
     const p=G.players[1];
     p.deck.push(...p.hand);p.hand=[];
     for(let i=p.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];}
     for(let i=0;i<7;i++){if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}}
-    renderAll();
   }
+  // 全準備完了後にMPカードをセット→描画
   autoSetMpCard();
-  log('後攻2PのMPカードをセットしました。ゲーム開始！');
+  renderAll();
+  log('後攻2P（スリザリン）のMPカードをセットしました。ゲーム開始！1P先攻。スタンバイ実行を押してください。');
   showTut(0);
   document.getElementById("tut-btn").style.display="";
 }
