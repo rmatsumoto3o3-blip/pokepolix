@@ -391,10 +391,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 <div id="tut-arrow">▼</div>
 <!-- チュートリアルボックス -->
-<div id="tut-box" style="display:none;position:fixed;bottom:40px;right:16px;z-index:300;width:320px;background:#e2c882;border:2px solid rgba(90,50,15,.5);box-shadow:4px 4px 0 rgba(80,45,12,.2);flex-direction:column;">
+<div id="tut-box" style="display:none;position:fixed;bottom:40px;right:16px;z-index:300;width:360px;background:#e2c882;border:2px solid rgba(90,50,15,.5);box-shadow:4px 4px 0 rgba(80,45,12,.2);flex-direction:column;">
   <div style="background:rgba(80,45,12,.7);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;">
     <span style="font-family:var(--font-logo);font-size:16px;color:#f0e0c0;" id="tut-title">チュートリアル</span>
-    <span style="font-size:10px;color:rgba(240,224,192,.6);" id="tut-step">1 / 5</span>
+    <span style="font-size:10px;color:rgba(240,224,192,.6);" id="tut-step">1 / 13</span>
   </div>
   <div style="padding:12px 14px;">
     <p id="tut-msg" style="font-size:12px;color:var(--ink);line-height:1.8;white-space:pre-wrap;"></p>
@@ -596,39 +596,147 @@ const ST_SLYT = {
 };
 const TUT = [
   {
-    title:'① スタンバイ実行',
-    msg:'「スタンバイ実行」ボタンを押してターンを開始してください。\n\n公式順序：\n① デッキから1枚ドロー\n② 全カードを活動状態に\n③ MPに1枚置ける（任意・メインフェイズで）',
+    title:'ようこそ！ハリー・ポッターカードゲームへ',
+    msg:'このチュートリアルでは、グリフィンドール vs スリザリンのスターターデッキを使って基本ルールを学びます。
+
+画面は左が1P（グリフィンドール）、右が2P（スリザリン）です。
+
+まず画面の見方を覚えましょう。「次へ」を押してください。',
+    target:null
+  },
+  {
+    title:'画面の見方 ① パートナー・デッキ・トラッシュ',
+    msg:'各サイドの右上エリアを見てください。
+
+【PARTNER】あなたの主人公カード。これが倒されたら負けです。
+【DECK】山札。クリックすると1枚引けます。
+【TRASH】捨て札置き場。使ったカードが積まれます。',
+    target:'pt-p1', arrow:'top'
+  },
+  {
+    title:'画面の見方 ② ライフ',
+    msg:'左端の「LIFE」エリアを見てください。
+
+ライフは3枚のカードです。
+パートナーがダメージを受けるたびに1枚公開して処理します。
+
+ライフが0枚の状態でパートナーがダメージを受けると敗北です。',
+    target:'lp-p1', arrow:'top'
+  },
+  {
+    title:'画面の見方 ③ フィールド',
+    msg:'中央エリアがフィールドです。
+
+【MAIN】最大3枚。ここに出したキャラが相手に攻撃できます。
+【SUP（サポート）】最大4枚。サポート効果を持つカードを置きます。
+【MP】コスト支払い用エリア。カードを置いて「休息（右クリック→活動/休息）」にするとコスト1を払えます。',
+    target:'main-p1', arrow:'top'
+  },
+  {
+    title:'画面の見方 ④ 手札',
+    msg:'画面下が手札です。
+
+右クリックするとアクションメニューが開きます。
+・メインフィールドに出す
+・サポートフィールドに出す
+・MPフィールドに置く
+・魔法/アイテムは「使用する」
+
+手札は常に7枚以下にしなければなりません。',
+    target:'hand-p1', arrow:'bottom'
+  },
+  {
+    title:'ターンの流れ',
+    msg:'各ターンは3つのフェイズで進みます。
+
+①スタンバイフェイズ
+　→ドロー → 全カードを活動状態に
+
+②メインフェイズ
+　→手札からカードをプレイ、決闘など
+
+③エンドフェイズ
+　→手札を7枚以下に調整してターン終了
+
+では実際にやってみましょう！',
+    target:null
+  },
+  {
+    title:'【操作①】スタンバイ実行ボタンを押してください',
+    msg:'「スタンバイ実行」ボタンを押してターンを開始しましょう。
+
+自動で以下が処理されます：
+① デッキから1枚引く
+② 全カードを活動状態にする
+
+⚠ 先攻1ターン目のみ：引いた後に手札から1枚捨てる必要があります。',
     target:'btn-sb', arrow:'bottom'
   },
   {
-    title:'② 先攻1ターン目：手札を1枚捨てる',
-    msg:'先攻1ターン目のみ、ドロー後に手札から1枚捨てる必要があります。\n\n手札のカードを右クリック→「捨て札にする」を選んでください。',
-    target:'hand-p1', arrow:'top'
+    title:'【操作②】手札から1枚捨てる（先攻1ターン目のみ）',
+    msg:'先攻1ターン目は手札から1枚捨てるルールがあります。
+
+手札のカードを右クリック →「捨て札にする」を選んでください。
+
+捨てるカードは何でもOKです。不要なカードを選びましょう。',
+    target:'hand-p1', arrow:'bottom'
   },
   {
-    title:'③ 手札からカードをプレイ',
-    msg:'手札のカードを右クリックしてフィールドに出しましょう。\n\n・メインフィールドに出す（最大3枚）\n・サポートフィールドに出す（最大4枚）\n・MPフィールドに置く（コスト支払い用）\n・魔法・アイテムは「使用する」',
-    target:'hand-p1', arrow:'top'
+    title:'【操作③】手札からカードをプレイしよう',
+    msg:'手札のカードを右クリックしてフィールドに出しましょう。
+
+おすすめの手順：
+1. コストが払える（MPカードを休息にする）キャラを選ぶ
+2. 右クリック →「メインフィールドに出す」
+
+まずは1枚メインフィールドに出してみてください。',
+    target:'hand-p1', arrow:'bottom'
   },
   {
-    title:'④ エンドフェイズへ',
-    msg:'カードのプレイが終わったら「エンドへ →」を押してください。\n\n手札が7枚を超えている場合は先に右クリック→「捨て札にする」で調整してください。',
+    title:'【操作④】エンドフェイズに進む',
+    msg:'カードをプレイし終わったら「エンドへ →」ボタンを押してください。
+
+手札が7枚を超えている場合は先に右クリック→「捨て札にする」で調整してください。
+
+問題なければそのままボタンを押しましょう。',
     target:'btn-next', arrow:'bottom'
   },
   {
-    title:'⑤ ターン終了',
-    msg:'手札が7枚以下になったら「ターン終了」を押してターン交代します。\n\n2Pのターンになったら「⇄ サイド交代」ボタンを押して2P側を操作してください。',
+    title:'【操作⑤】ターン終了 → 2Pのターンへ',
+    msg:'「ターン終了（次のターンへ）」を押すと2Pのターンに切り替わります。
+
+2Pを操作するには「⇄ サイド交代」ボタンを押してください。
+画面右側（2P）の手札が表向きになって操作できます。
+
+同じようにスタンバイ→メイン→エンドを繰り返します。',
     target:'btn-next', arrow:'bottom'
   },
   {
-    title:'⑥ ライフダメージ',
-    msg:'相手パートナーへのダメージが通ったときは、相手の「LIFE」をクリックして処理します。\n\n公開したカードを：\n・手札に加える\n・MPへ置く（活動状態）\n・ブレイク効果を使用（捨て札へ）',
-    target:'lp-p2', arrow:'top'
-  },
-  {
-    title:'⑦ 決闘の流れ',
-    msg:'メインのキャラをクリックして休息状態→アタック宣言。\n\n公式7ステップ：\n①アタックキャラ指定（休息に）\n②パートナーアシスト使用可\n③対象指定\n④〔決闘中〕効果使用可\n⑤ブロックキャラ指定\n⑥〔決闘中〕効果使用可\n⑦勝敗判定（AP≧DPなら攻撃側勝利）\n  敗れたキャラ→右クリック→ダウン',
+    title:'【操作⑥】決闘（攻撃）のやり方',
+    msg:'メインフィールドのキャラで相手に攻撃できます。
+
+手順：
+① 攻撃するキャラを左クリック（休息状態にする）
+② 相手パートナーか相手キャラが対象
+③ 自分のAP（攻撃力）≧ 相手のDP（防御力）なら勝利
+④ 負けたキャラはダウン（右クリック→ダウン）
+
+相手パートナーへのダメージ → 相手のLIFEをクリックして処理！',
     target:'main-p1', arrow:'top'
+  },
+  {
+    title:'チュートリアル完了！',
+    msg:'基本的な操作は以上です。お疲れ様でした！
+
+まとめ：
+① スタンバイ（ドロー・全活動）
+② メイン（カードをプレイ・攻撃）
+③ エンド（手札7枚以下）
+→ ターン交代（⇄ サイド交代）
+
+わからなくなったら「チュートリアル」ボタンでいつでも確認できます。
+楽しんでください！',
+    target:null
   },
 ];
 let tutStep=0;
@@ -759,8 +867,8 @@ function startGame(){
   G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1]};
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='flex';
-  renderAll();
   autoSetMpCard();
+  renderAll();
   log('ゲーム開始！後攻2PのMPカードをセットしました。1P先攻。スタンバイ実行を押してください。');
 }
 
@@ -1030,6 +1138,18 @@ function trAct(pi,idx,dest){
   if(dest==='hand'){p.hand.push(c);log(`${lb} 捨て札から「${c.data[1]}」を手札に。`);}
   else{p.deck.push(c);log(`${lb} 捨て札から「${c.data[1]}」をデッキ下に。`);}
   document.getElementById('trash-modal').style.display='none';renderAll();
+}
+
+// 後攻のMPカード自動セット
+function autoSetMpCard(){
+  if(!G)return;
+  const p1=G.players[1];
+  if(!p1.mpCardId)return;
+  const data=CARDS.find(x=>x[0]===p1.mpCardId);
+  if(!data)return;
+  if(!p1.mp.some(m=>m.data[0]===p1.mpCardId)){
+    p1.mp.push({id:nid(),data,active:true});
+  }
 }
 
 document.addEventListener('click',()=>closeCtx());
