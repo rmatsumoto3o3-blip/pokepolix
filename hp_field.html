@@ -1,1907 +1,446 @@
 <!DOCTYPE html>
-
 <html lang="ja">
-
-<head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>一人回し — PokePoLix</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Lavishly+Yours&family=Zen+Antique+Soft&display=swap" rel="stylesheet">
-
-<style>
-
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-
-:root{
-
-  --ink:#1e0e06;--ink-mid:rgba(30,14,6,.7);--ink-light:rgba(30,14,6,.45);
-
-  --border:rgba(90,50,15,.3);--bd:rgba(90,50,15,.6);
-
-  --slot:rgba(200,170,90,.18);--slotb:rgba(90,50,15,.22);
-
-  --p1bg:rgba(26,58,106,.12);--p1c:rgba(26,58,106,.9);
-
-  --p2bg:rgba(106,26,26,.12);--p2c:rgba(106,26,26,.9);
-
-  --font-logo:'Lavishly Yours',cursive;--font-ja:'Zen Antique Soft',serif;
-
-}
-
-html,body{height:100%;overflow:hidden;}
-
-body{
-
-  font-family:var(--font-ja);background-color:#c9a45a;
-
-  background-image:radial-gradient(ellipse at 20% 20%,rgba(80,40,10,.15) 0%,transparent 45%),
-
-    radial-gradient(ellipse at 80% 80%,rgba(80,40,10,.12) 0%,transparent 40%),
-
-    radial-gradient(ellipse at 50% 50%,#e2bf82 0%,#c49850 65%,#a87a38 100%);
-
-  color:var(--ink);
-
-}
-
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-
-  background-image:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(140,90,30,.05) 28px,rgba(140,90,30,.05) 29px);}
-
-
-
-
-/* ===== スマホ（〜700px）===== */
-@media(max-width:700px){
-  /* デスクトップビューを非表示 */
-  #field-area, #field-area * {display:none!important;}
-  /* モバイルビューを表示 */
-  #mob-view{display:flex!important;}
-
-  /* コントロールバー */
-  #ctrl{padding:3px 4px;gap:2px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .tbadge{font-size:9px;padding:2px 5px;flex-shrink:0;white-space:nowrap;}
-  .tnum{font-size:14px;}
-  .pps{gap:1px;flex-shrink:0;}
-  .pp{font-size:8px;padding:1px 4px;}
-  .cbs{gap:2px;flex-shrink:0;flex-wrap:nowrap;margin-left:auto;}
-  .cb{font-size:9px;padding:2px 5px;white-space:nowrap;}
-
-  #log{font-size:9px;padding:2px 6px;flex-shrink:0;}
-  #tut-box{
-    width:calc(100vw - 16px)!important;left:8px!important;
-    bottom:8px!important;top:auto!important;max-height:45vh;overflow-y:auto;
-  }
-  #tut-box p{font-size:11px!important;}
-  .cb2{font-size:10px;padding:4px 8px;}
-  .ctx-eff{font-size:8px;max-height:56px;}
-}
-@media(min-width:701px){
-  #mob-view{display:none!important;}
-}
-
-/* ===== セットアップ ===== */
-
-#setup{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;overflow-y:auto;}
-
-.setup-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:680px;}
-
-.setup-logo{font-family:var(--font-logo);font-size:38px;color:var(--ink);text-shadow:1px 2px 0 rgba(80,40,10,.15);}
-
-.setup-logo span{color:#6b3a10;}
-
-.setup-players{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;}
-
-.setup-player-label{font-size:11px;font-weight:700;padding:5px;text-align:center;border:1px solid var(--border);margin-bottom:6px;}
-
-.p1-lbl{background:var(--p1bg);color:var(--p1c);}
-
-.p2-lbl{background:var(--p2bg);color:var(--p2c);}
-
-.deck-list{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;}
-
-.deck-item{background:rgba(210,175,100,.5);border:1px solid var(--border);padding:8px 10px;cursor:pointer;font-size:12px;}
-
-.deck-item:hover,.deck-item.sel{border-color:var(--bd);background:rgba(180,140,60,.5);}
-
-.deck-item-name{font-weight:700;color:var(--ink);}
-
-.deck-item-meta{font-size:10px;color:var(--ink-light);margin-top:2px;}
-
-.no-deck{text-align:center;padding:16px;color:var(--ink-light);font-size:12px;}
-
-.btn-start{background:rgba(80,45,12,.75);color:#f0e0c0;border:none;padding:10px 28px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-ja);}
-
-.btn-start:disabled{opacity:.4;cursor:not-allowed;}
-
-.setup-link{font-size:11px;color:var(--ink-light);text-decoration:none;}
-
-/* ===== ゲーム画面 ===== */
-
-#game{display:none;flex-direction:column;height:100vh;position:relative;z-index:1;}
-
-/* コントロールバー */
-
-#ctrl{display:flex;align-items:center;gap:6px;padding:5px 10px;background:rgba(180,135,55,.65);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
-
-.tbadge{font-size:11px;font-weight:700;padding:3px 10px;}
-
-.tb-p1{background:rgba(26,58,106,.7);color:#c8dcf5;}
-
-.tb-p2{background:rgba(106,26,26,.7);color:#f5c8c8;}
-
-.tinfo{font-size:11px;color:var(--ink-light);}
-
-.tnum{font-family:var(--font-logo);font-size:22px;color:var(--ink);line-height:1;}
-
-.pps{display:flex;gap:3px;}
-
-.pp{font-size:10px;padding:2px 8px;border:1px solid var(--border);background:rgba(200,165,80,.25);color:var(--ink-light);}
-
-.pp.on{background:rgba(80,45,12,.7);color:#f0e0c0;}
-
-.cbs{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;}
-
-.cb{font-size:11px;padding:4px 9px;border:none;cursor:pointer;font-family:var(--font-ja);font-weight:500;white-space:nowrap;}
-
-.cb-p{background:rgba(80,45,12,.75);color:#f0e0c0;}
-
-.cb-o{background:rgba(200,165,80,.35);color:var(--ink);border:1px solid var(--border);}
-
-.cb-s{background:rgba(40,40,100,.6);color:#d0d8ff;}
-
-.cb-d{background:rgba(120,40,20,.5);color:#f0c8b0;border:1px solid rgba(120,40,20,.4);}
-
-/* ===== フィールドエリア（横並び） ===== */
-
-#field-area{flex:1;display:flex;flex-direction:row;overflow:hidden;gap:0;}
-
-/* 中央の縦分割線 */
-
-.vdivider{
-
-  width:4px;flex-shrink:0;
-
-  background:linear-gradient(180deg,transparent,rgba(90,50,15,.4) 20%,rgba(90,50,15,.6) 50%,rgba(90,50,15,.4) 80%,transparent);
-
-  position:relative;
-
-}
-
-.vdivider::before{
-
-  content:attr(data-label);position:absolute;top:50%;left:50%;
-
-  transform:translate(-50%,-50%) rotate(90deg);
-
-  background:#d4a84a;border:1px solid rgba(90,50,15,.4);
-
-  font-size:10px;font-family:var(--font-logo);color:var(--ink);
-
-  padding:1px 10px;white-space:nowrap;
-
-}
-
-/* 各プレイヤーのサイド */
-
-.pside{display:flex;flex-direction:column;flex:1;min-width:0;overflow:hidden;}
-
-/* サイドヘッダー */
-
-.side-hdr{font-size:10px;font-weight:700;padding:2px 8px;flex-shrink:0;display:flex;align-items:center;gap:6px;}
-
-.shdr-p1{background:var(--p1bg);border-bottom:1px solid rgba(26,58,106,.2);color:var(--p1c);}
-
-.shdr-p2{background:var(--p2bg);border-bottom:1px solid rgba(106,26,26,.2);color:var(--p2c);}
-
-/* サイドの内部レイアウト */
-
-.side-body{display:flex;flex:1;min-height:0;padding:2px 4px;gap:3px;overflow:hidden;}
-
-/* 左カラム：LIFE */
-
-.col-life{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:44px;gap:2px;}
-
-.llife{font-size:7px;color:var(--ink-light);writing-mode:vertical-rl;letter-spacing:.3px;}
-
-.life-pips{display:flex;flex-direction:column;align-items:center;gap:2px;}
-
-.lpip{width:36px;height:50px;background:linear-gradient(135deg,rgba(80,45,12,.5),rgba(40,20,6,.4));border:1px solid rgba(80,45,12,.3);display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;}
-
-.lpip:hover{border-color:rgba(80,45,12,.65);}
-
-.lcnt{font-size:8px;color:var(--ink-light);}
-
-/* 中央カラム：フィールドゾーン */
-
-.col-center{display:flex;flex-direction:column;flex:1;min-width:0;gap:2px;overflow:hidden;}
-
-/* 情報バー：PARTNER + DECK + TRASH */
-
-.info-row{display:flex;gap:4px;align-items:stretch;flex-shrink:0;height:54px;}
-
-.iz{background:rgba(210,175,100,.45);border:1px solid var(--border);padding:2px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;min-width:40px;}
-
-.iz:hover{border-color:var(--bd);}
-
-.iz-lbl{font-size:7px;color:var(--ink-light);}
-
-.iz-val{font-size:15px;font-weight:700;color:var(--ink);line-height:1;}
-
-.iz-sub{font-size:8px;color:var(--ink-light);}
-
-.iz-pt{cursor:default;overflow:hidden;flex-shrink:0;}
-
-.pt-img{width:64px;height:90px;overflow:hidden;margin:0 auto 2px;}
-
-.pt-img img{width:100%;height:100%;object-fit:cover;}
-
-.pt-nm{font-size:9px;font-weight:700;color:var(--ink);text-align:center;line-height:1.2;max-width:70px;}
-
-/* ゾーン行 */
-
-.zrow{display:flex;align-items:center;gap:2px;flex-shrink:0;}
-
-.zlbl{font-size:7px;font-weight:600;color:var(--ink-light);writing-mode:vertical-rl;letter-spacing:.3px;flex-shrink:0;padding:1px;}
-
-.slots{display:flex;gap:3px;}
-
-.mpscroll{display:flex;gap:3px;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:1px;}
-
-/* カードスロット */
-
-.slot{background:var(--slot);border:1px solid var(--slotb);display:flex;align-items:center;justify-content:center;font-size:7px;color:rgba(30,14,6,.2);flex-shrink:0;position:relative;overflow:hidden;}
-
-.slot.has{border:none;}
-
-.ms{width:100px;height:140px;}
-
-.ss{width:84px;height:118px;}
-
-.mps{width:68px;height:96px;flex-shrink:0;}
-
-/* フィールドカード */
-
-.fc{width:100%;height:100%;display:flex;flex-direction:column;position:relative;cursor:pointer;border:1px solid rgba(255,255,255,.1);overflow:hidden;transition:filter .12s;}
-
-.fc img{width:100%;flex:1;object-fit:cover;min-height:0;display:block;}
-
-.fc-btm{background:rgba(0,0,0,.65);padding:1px 2px;flex-shrink:0;}
-
-.fc-nm{font-size:8px;color:#fff;line-height:1.2;font-family:var(--font-ja);}
-
-.fc-st{display:flex;gap:1px;}
-
-.fc-ap{font-size:7px;padding:0 2px;background:#1a3a6a;color:#adf;font-family:monospace;}
-
-.fc-dp{font-size:7px;padding:0 2px;background:rgba(255,255,255,.15);color:#ddd;font-family:monospace;}
-
-.fc-cost{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:monospace;}
-
-.fc.rest{filter:brightness(.55) saturate(.6);}
-
-.fc.rest::after{content:'休';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:rgba(240,208,150,.7);pointer-events:none;}
-
-.fc:hover{filter:brightness(1.1);}
-
-.fc.rest:hover{filter:brightness(.7);}
-
-.mp-fc{width:100%;height:100%;cursor:pointer;overflow:hidden;}
-
-.mp-fc img{width:100%;height:100%;object-fit:cover;display:block;}
-
-.mp-fc.rest{filter:brightness(.55);}
-
-/* 手札エリア */
-
-.hand-area{flex-shrink:0;padding:1px 4px 2px;border-top:1px solid var(--border);background:rgba(180,135,55,.2);}
-
-.hand-warn{background:rgba(150,50,20,.2);border:1px solid rgba(150,50,20,.4);padding:2px 6px;font-size:10px;color:rgba(150,50,20,.9);display:none;margin-bottom:2px;}
-
-.hlbl{font-size:8px;color:var(--ink-light);margin-bottom:2px;}
-
-.hcards{display:flex;gap:3px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
-
-.hc{width:88px;height:124px;border:1px solid var(--border);cursor:pointer;flex-shrink:0;overflow:hidden;transition:transform .12s,border-color .12s;}
-
-.hc img{width:100%;height:100%;object-fit:cover;display:block;}
-
-.hc:hover{transform:translateY(-8px);border-color:var(--bd);}
-
-.hc.sel{transform:translateY(-14px);border-color:rgba(80,45,12,.8);}
-
-.hc.over{border:2px solid rgba(180,40,20,.7);}
-
-.hc-back{width:88px;height:124px;flex-shrink:0;background:linear-gradient(135deg,rgba(40,20,80,.65),rgba(80,40,20,.5));border:1px solid rgba(90,50,15,.3);display:flex;align-items:center;justify-content:center;font-size:13px;}
-
-/* 右カラム：DECK + TRASH */
-
-.col-right{display:flex;flex-direction:column;gap:3px;flex-shrink:0;width:80px;align-items:center;}
-
-.rslot{background:var(--slot);border:1px solid var(--slotb);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:7px;color:var(--ink-light);text-align:center;cursor:pointer;overflow:hidden;position:relative;width:56px;}
-
-.rslot img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
-
-.rslot{width:76px!important;}
-
-.rslot-lbl{position:relative;z-index:1;background:rgba(0,0,0,.5);padding:1px 3px;font-family:var(--font-logo);font-size:8px;color:#fff;margin-top:auto;}
-
-.rslot-cnt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:700;color:#f0e0c0;font-family:var(--font-logo);text-shadow:0 1px 4px rgba(0,0,0,.8);z-index:2;}
-
-.ds{height:90px;}
-
-.ts{height:80px;}
-
-/* ログ */
-
-#log{flex-shrink:0;background:rgba(180,135,55,.5);border-top:1px solid var(--border);padding:3px 10px;font-size:10px;color:var(--ink-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
-/* チュートリアルハイライト */
-
-.tut-highlight{
-
-  outline:3px solid rgba(200,40,20,.85)!important;
-
-  outline-offset:2px;
-
-  box-shadow:0 0 12px rgba(200,40,20,.5),0 0 24px rgba(200,40,20,.25)!important;
-
-  animation:tutPulse 1.2s ease-in-out infinite;
-
-  position:relative;z-index:50;
-
-}
-
-@keyframes tutPulse{
-
-  0%,100%{box-shadow:0 0 8px rgba(200,40,20,.5),0 0 20px rgba(200,40,20,.2);}
-
-  50%{box-shadow:0 0 18px rgba(200,40,20,.8),0 0 36px rgba(200,40,20,.4);}
-
-}
-
-#tut-arrow{
-
-  position:fixed;z-index:299;pointer-events:none;
-
-  font-size:24px;color:rgba(200,40,20,.9);
-
-  text-shadow:0 0 8px rgba(200,40,20,.5);
-
-  animation:arrowBounce .8s ease-in-out infinite;
-
-  display:none;
-
-}
-
-@keyframes arrowBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
-
-/* 装備カード */
-
-.equip-badge{
-
-  position:absolute;bottom:18px;left:0;right:0;
-
-  display:flex;justify-content:center;gap:1px;pointer-events:none;
-
-}
-
-.equip-icon{
-
-  width:22px;height:30px;overflow:hidden;
-
-  border:1px solid rgba(255,200,50,.7);
-
-  box-shadow:0 0 4px rgba(255,200,50,.4);
-
-  flex-shrink:0;
-
-}
-
-.equip-icon img{width:100%;height:100%;object-fit:cover;display:block;}
-
-/* コンテキストメニュー */
-
-#ctx{position:fixed;background:#e2c882;border:1px solid rgba(90,50,15,.5);z-index:1000;display:none;min-width:165px;box-shadow:3px 3px 0 rgba(80,45,12,.2);}
-
-.ctx-info{padding:6px 10px;border-bottom:1px solid var(--border);}
-
-.ctx-nm{font-size:12px;font-weight:700;color:var(--ink);}
-
-.ctx-num{font-size:9px;color:var(--ink-light);font-family:monospace;}
-
-.ctx-eff{font-size:9px;color:var(--ink-mid);margin-top:3px;line-height:1.5;max-width:190px;white-space:pre-wrap;max-height:70px;overflow-y:auto;}
-
-.cb2{display:flex;align-items:center;width:100%;padding:5px 10px;border:none;background:none;color:var(--ink-mid);font-size:11px;cursor:pointer;font-family:var(--font-ja);text-align:left;}
-
-.cb2:hover{background:rgba(180,140,60,.4);color:var(--ink);}
-
-.cb2.dng{color:rgba(120,40,20,.8);}
-
-.csep{height:1px;background:var(--border);margin:2px 0;}
-
-/* モーダル */
-
-.mov{position:fixed;inset:0;background:rgba(20,8,2,.75);z-index:500;display:none;align-items:center;justify-content:center;}
-
-.mbox{background:#e2c882;border:2px solid rgba(90,50,15,.5);padding:18px;box-shadow:4px 4px 0 rgba(80,45,12,.2);}
-
-.mbox h3{font-family:var(--font-logo);font-size:22px;color:var(--ink);margin-bottom:8px;}
-
-#life-info{background:rgba(210,175,100,.4);border:1px solid var(--border);padding:10px;margin:8px 0;font-size:11px;}
-
-.lbtns{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
-
-.lbtn{padding:8px 12px;border:none;cursor:pointer;font-size:12px;font-family:var(--font-ja);}
-
-.lb-h{background:rgba(30,58,106,.7);color:#c8dcf5;}
-
-.lb-m{background:rgba(26,58,24,.7);color:#a0d888;}
-
-.lb-b{background:rgba(42,16,80,.7);color:#c0a8ff;}
-
-#trash-inner{width:340px;max-height:80vh;overflow-y:auto;}
-
-.ti{display:flex;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid rgba(90,50,15,.12);font-size:11px;}
-
-.ti-num{font-family:monospace;color:var(--ink-light);font-size:9px;min-width:42px;}
-
-.ti-nm{flex:1;color:var(--ink);}
-
-.tib{font-size:10px;padding:2px 5px;background:rgba(200,165,80,.3);border:1px solid var(--border);cursor:pointer;font-family:var(--font-ja);}
-
-</style>
-
-</head>
-
-<body>
-
-<!-- セットアップ -->
-
-<div id="setup">
-
-<div class="setup-inner">
-
-  <div class="setup-logo">Poke<span>Po</span>Lix</div>
-
-  <div style="font-size:12px;color:var(--ink-light)">一人回し — 1P vs 2P</div>
-
-  <div class="setup-players">
-
-    <div>
-
-      <div class="setup-player-label p1-lbl">1P のデッキ（先攻）</div>
-
-      <div id="dl-p1" class="deck-list"></div>
-
-    </div>
-
-    <div>
-
-      <div class="setup-player-label p2-lbl">2P のデッキ（後攻）</div>
-
-      <div id="dl-p2" class="deck-list"></div>
-
-    </div>
-
-  </div>
-
-  <div style="font-size:11px;color:var(--ink-light);text-align:center">後攻2PはMPカード1枚が自動でセットされます</div>
-
-  <button class="btn-start" id="btn-start" disabled onclick="startGame()">ゲームを開始する</button>
-
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:460px;">
-
-    <div style="width:100%;height:1px;background:rgba(90,50,15,.3);"></div>
-
-    <button onclick="startStarter()" style="width:100%;background:rgba(80,45,12,.55);border:2px solid rgba(80,45,12,.4);color:#f0e0c0;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-ja);">
-
-      スターターデッキでチュートリアル対戦
-
-    </button>
-
-    <div style="font-size:10px;color:var(--ink-light);text-align:center;line-height:1.7;">
-
-      1P：グリフィンドール（ハリー・ポッター）<br>
-
-      2P：スリザリン（ドラコ・マルフォイ）<br>
-
-      デッキ選択不要ですぐ始められます
-
-    </div>
-
-  </div>
-
-  <a href="index.html" class="setup-link">← トップへ戻る</a>
-
-</div>
-
-</div>
-
-<!-- ゲーム -->
-
-<div id="game">
-
-  <!-- コントロールバー -->
-
-  <div id="ctrl">
-
-    <span class="tbadge" id="tbadge">1P のターン</span>
-
-    <span class="tinfo">ターン</span>
-
-    <span class="tnum" id="tnum">1</span>
-
-    <div class="pps">
-
-      <span class="pp" id="ps-standby">スタンバイ</span>
-
-      <span class="pp on" id="ps-main">メイン</span>
-
-      <span class="pp" id="ps-end">エンド</span>
-
-    </div>
-
-    <div class="cbs">
-
-      <button class="cb cb-o" id="btn-sb" onclick="doStandby()">スタンバイ実行</button>
-
-      <button class="cb cb-p" id="btn-next" onclick="nextPhase()">エンドへ →</button>
-
-      <button class="cb cb-o" onclick="activateAll()">全活動に</button>
-
-      <button class="cb cb-o" onclick="drawAct()">ドロー</button>
-
-      <button class="cb cb-s" onclick="doSwitch()">⇄ サイド交代</button>
-
-      <button class="cb cb-d" onclick="if(confirm('リセット？'))location.reload()">リセット</button>
-
-      <a href="index.html" class="cb" style="background:rgba(80,45,12,.4);color:var(--ink);border:1px solid var(--border);text-decoration:none;display:inline-flex;align-items:center;">← TOP</a>
-
-      <button id="tut-btn" class="cb" onclick="reopenTut()" style="display:none;background:rgba(180,140,40,.5);color:#1e0e06;border:1px solid rgba(90,50,15,.4);">チュートリアル</button>
-
-    </div>
-
-  </div>
-
-  
-  <!-- ===== モバイルビュー（〜700px専用） ===== -->
-  <div id="mob-view" style="display:none;flex-direction:column;flex:1;overflow:hidden;font-family:var(--font-ja);">
-
-    <!-- 2P（上・相手） -->
-    <div id="mob-p2" style="flex:none;background:rgba(106,26,26,.08);border-bottom:2px solid rgba(106,26,26,.25);">
-      <!-- ヘッダー -->
-      <div id="mob-hdr-p2" style="display:flex;align-items:center;gap:6px;padding:3px 8px;background:rgba(106,26,26,.15);font-size:10px;font-weight:700;color:rgba(106,26,26,.9);">
-        <span>2P（後攻）</span>
-        <span id="mob-life-p2" style="margin-left:4px;font-size:11px;">❤️ 3</span>
-        <span id="mob-deck-p2" style="font-size:9px;color:var(--ink-light);">DECK:50</span>
-        <span id="mob-trash-p2" style="font-size:9px;color:var(--ink-light);">TRASH:0</span>
-        <span id="mob-hand-cnt-p2" style="margin-left:auto;font-size:9px;color:var(--ink-light);">手札:7枚</span>
-      </div>
-      <!-- フィールド -->
-      <div style="padding:4px 6px;display:flex;flex-direction:column;gap:3px;">
-        <!-- Row1: MAIN×3 + PARTNER -->
-        <div id="mob-row1-p2" style="display:flex;gap:3px;align-items:flex-end;"></div>
-        <!-- Row2: SUPPORT×4 -->
-        <div id="mob-row2-p2" style="display:flex;gap:3px;"></div>
-      </div>
-    </div>
-
-    <!-- 分割線 -->
-    <div style="flex:none;height:3px;background:linear-gradient(90deg,transparent,rgba(90,50,15,.7) 50%,transparent);position:relative;">
-      <div id="mob-vs-label" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#d4a84a;border:1px solid rgba(90,50,15,.4);font-size:9px;font-family:var(--font-logo);color:var(--ink);padding:0 10px;white-space:nowrap;">vs</div>
-    </div>
-
-    <!-- 1P（下・自分） -->
-    <div id="mob-p1" style="flex:1;display:flex;flex-direction:column;min-height:0;background:rgba(26,58,106,.06);">
-      <!-- ヘッダー -->
-      <div id="mob-hdr-p1" style="display:flex;align-items:center;gap:6px;padding:3px 8px;background:rgba(26,58,106,.15);font-size:10px;font-weight:700;color:rgba(26,58,106,.9);flex-shrink:0;">
-        <span>1P（先攻）</span>
-        <span id="mob-life-p1" style="margin-left:4px;font-size:11px;">❤️ 3</span>
-        <span id="mob-deck-p1" style="font-size:9px;color:var(--ink-light);">DECK:50</span>
-        <span id="mob-trash-p1" style="font-size:9px;color:var(--ink-light);">TRASH:0</span>
-      </div>
-      <!-- フィールド -->
-      <div style="padding:4px 6px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
-        <!-- Row1: MAIN×3 + PARTNER -->
-        <div id="mob-row1-p1" style="display:flex;gap:3px;align-items:flex-end;"></div>
-        <!-- Row2: SUPPORT×4 -->
-        <div id="mob-row2-p1" style="display:flex;gap:3px;"></div>
-      </div>
-      <!-- 手札（1P） -->
-      <div style="flex:1;min-height:0;padding:3px 6px 4px;border-top:1px solid var(--border);background:rgba(180,135,55,.15);overflow-y:hidden;">
-        <div style="font-size:8px;color:var(--ink-light);margin-bottom:3px;">HAND — 右クリックでアクション</div>
-        <div id="mob-hand-p1" class="hcards" style="gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;"></div>
-      </div>
-    </div>
-
-  </div><!-- /mob-view -->
-
-<div id="field-area">
-
-    <!-- 1P サイド（左） -->
-
-    <div class="pside" id="side-p1">
-
-      <div class="side-hdr shdr-p1" id="hdr-p1">1P（先攻）</div>
-
-      <div class="side-body">
-
-        <!-- LIFE -->
-
-        <div class="col-life">
-
-          <div class="llife">LIFE</div>
-
-          <div class="life-pips" id="lp-p1"></div>
-
-          <div class="lcnt" id="lc-p1">3</div>
-
-        </div>
-
-        <!-- パートナー独立カラム -->
-
-        <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:100px;gap:2px;padding:2px 0;">
-
-          <div style="font-size:7px;color:var(--ink-light);letter-spacing:.3px;">PARTNER</div>
-
-          <div class="iz iz-pt" id="pt-p1" style="width:96px;height:135px;border:1px solid var(--border);overflow:hidden;"></div>
-
-        </div>
-
-        <!-- フィールド -->
-
-        <div class="col-center">
-
-          <!-- 情報バー -->
-
-          <div class="info-row">
-
-            <div class="iz" onclick="drawCard(0)" title="ドロー">
-
-              <div class="iz-lbl">DECK</div>
-
-              <div class="iz-val" id="dc-p1">50</div>
-
-            </div>
-
-            <div class="iz" onclick="showTrash(0)" title="捨て札">
-
-              <div class="iz-lbl">TRASH</div>
-
-              <div class="iz-val" id="tc-p1">0</div>
-
-              <div class="iz-sub" id="tt-p1">-</div>
-
-            </div>
-
-          </div>
-
-          <!-- MAIN -->
-
-          <div class="zrow">
-
-            <div class="zlbl">MAIN</div>
-
-            <div class="slots" id="main-p1"></div>
-
-          </div>
-
-          <!-- SUPPORT -->
-
-          <div class="zrow">
-
-            <div class="zlbl">SUP</div>
-
-            <div class="slots" id="sup-p1"></div>
-
-          </div>
-
-          <!-- MP -->
-
-          <div class="zrow">
-
-            <div class="zlbl">MP</div>
-
-            <div class="mpscroll" id="mp-p1"><div style="font-size:9px;color:rgba(30,14,6,.28);border:1px dashed rgba(90,50,15,.18);padding:3px 6px;white-space:nowrap">手札右クリック→MP</div></div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- 手札（表向き） -->
-
-      <div class="hand-area">
-
-        <div class="hand-warn" id="hw-p1">⚠ 手札7枚超。エンドフェイズまでに捨て札にしてください。</div>
-
-        <div class="hlbl">HAND — 右クリックでアクション</div>
-
-        <div class="hcards" id="hand-p1"></div>
-
-      </div>
-
-    </div>
-
-    <!-- 縦分割線 -->
-
-    <div class="vdivider" id="vdiv" data-label="vs"></div>
-
-    <!-- 2P サイド（右） -->
-
-    <div class="pside" id="side-p2">
-
-      <div class="side-hdr shdr-p2" id="hdr-p2">2P（後攻）</div>
-
-      <div class="side-body">
-
-        <!-- LIFE -->
-
-        <div class="col-life">
-
-          <div class="llife">LIFE</div>
-
-          <div class="life-pips" id="lp-p2"></div>
-
-          <div class="lcnt" id="lc-p2">3</div>
-
-        </div>
-
-        <!-- パートナー独立カラム -->
-
-        <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:100px;gap:2px;padding:2px 0;">
-
-          <div style="font-size:7px;color:var(--ink-light);letter-spacing:.3px;">PARTNER</div>
-
-          <div class="iz iz-pt" id="pt-p2" style="width:96px;height:135px;border:1px solid var(--border);overflow:hidden;"></div>
-
-        </div>
-
-        <!-- フィールド -->
-
-        <div class="col-center">
-
-          <!-- 情報バー -->
-
-          <div class="info-row">
-
-            <div class="iz" onclick="drawCard(1)" title="ドロー">
-
-              <div class="iz-lbl">DECK</div>
-
-              <div class="iz-val" id="dc-p2">50</div>
-
-            </div>
-
-            <div class="iz" onclick="showTrash(1)" title="捨て札">
-
-              <div class="iz-lbl">TRASH</div>
-
-              <div class="iz-val" id="tc-p2">0</div>
-
-              <div class="iz-sub" id="tt-p2">-</div>
-
-            </div>
-
-          </div>
-
-          <!-- MAIN -->
-
-          <div class="zrow">
-
-            <div class="zlbl">MAIN</div>
-
-            <div class="slots" id="main-p2"></div>
-
-          </div>
-
-          <!-- SUPPORT -->
-
-          <div class="zrow">
-
-            <div class="zlbl">SUP</div>
-
-            <div class="slots" id="sup-p2"></div>
-
-          </div>
-
-          <!-- MP -->
-
-          <div class="zrow">
-
-            <div class="zlbl">MP</div>
-
-            <div class="mpscroll" id="mp-p2"><div style="font-size:9px;color:rgba(30,14,6,.28);border:1px dashed rgba(90,50,15,.18);padding:3px 6px;white-space:nowrap">手札右クリック→MP</div></div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- 手札（2P側・裏向き or アクティブ時表向き） -->
-
-      <div class="hand-area">
-
-        <div class="hand-warn" id="hw-p2">⚠ 手札7枚超。エンドフェイズまでに捨て札にしてください。</div>
-
-        <div class="hlbl" id="hlbl-p2">HAND（裏向き）</div>
-
-        <div class="hcards" id="hand-p2"></div>
-
-      </div>
-
-    </div>
-
-  </div><!-- /field-area -->
-
-  <div id="log">ゲーム開始！</div>
-
-</div>
-
-<div id="tut-arrow">▼</div>
-
-<!-- チュートリアルボックス -->
-
-<div id="tut-box" style="display:none;position:fixed;z-index:300;width:360px;background:#e2c882;border:2px solid rgba(90,50,15,.5);box-shadow:4px 4px 0 rgba(80,45,12,.2);flex-direction:column;">
-
-  <div style="background:rgba(80,45,12,.7);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;">
-
-    <span style="font-family:var(--font-logo);font-size:16px;color:#f0e0c0;" id="tut-title">チュートリアル</span>
-
-    <span style="font-size:10px;color:rgba(240,224,192,.6);" id="tut-step">1 / 13</span>
-
-  </div>
-
-  <div style="padding:12px 14px;">
-
-    <p id="tut-msg" style="font-size:12px;color:var(--ink);line-height:1.8;white-space:pre-wrap;"></p>
-
-  </div>
-
-  <div style="display:flex;gap:6px;padding:8px 14px;border-top:1px solid rgba(90,50,15,.25);">
-
-    <button onclick="prevTut()" style="flex:1;padding:6px;background:rgba(200,165,80,.3);border:1px solid var(--border);cursor:pointer;font-family:var(--font-ja);font-size:12px;">◀ 前へ</button>
-
-    <button onclick="nextTut()" style="flex:2;padding:6px;background:rgba(80,45,12,.7);border:none;color:#f0e0c0;cursor:pointer;font-family:var(--font-ja);font-size:12px;font-weight:600;">次へ ▶</button>
-
-    <button onclick="closeTut()" style="flex:1;padding:6px;background:transparent;border:1px solid var(--border);cursor:pointer;font-family:var(--font-ja);font-size:12px;">閉じる</button>
-
-  </div>
-
-</div>
-
-<!-- 後攻MPカード選択モーダル -->
-
-<div id="mp-select-modal" class="mov">
-
-  <div class="mbox" style="width:420px;">
-
-    <h3>後攻のMPカードを選択</h3>
-
-    <p style="font-size:12px;color:var(--ink-mid);margin-bottom:12px;line-height:1.7;">
-
-      後攻（2P）は手札から1枚を選んでMPフィールドに置きます。<br>
-
-      カードをクリックして選んでください。
-
-    </p>
-
-    <div id="mp-select-hand" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;"></div>
-
-    <div style="display:flex;gap:8px;justify-content:flex-end;">
-
-      <button onclick="confirmMpSelect()" id="mp-select-ok"
-
-        style="padding:8px 20px;background:rgba(80,45,12,.75);color:#f0e0c0;border:none;cursor:pointer;font-family:var(--font-ja);font-size:13px;font-weight:600;opacity:.4;pointer-events:none;">
-
-        これをMPに置く
-
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-<!-- コンテキストメニュー -->
-
-<div id="ctx">
-
-  <div class="ctx-info">
-
-    <div class="ctx-nm" id="cx-nm"></div>
-
-    <div class="ctx-num" id="cx-num"></div>
-
-    <div class="ctx-eff" id="cx-eff"></div>
-
-  </div>
-
-  <button class="cb2" id="cx-main" onclick="ca('main')">⚔ メインフィールドに出す</button>
-
-  <button class="cb2" id="cx-sup" onclick="ca('sup')">🛡 サポートフィールドに出す</button>
-
-  <button class="cb2" id="cx-use" onclick="ca('use')">✨ 使用する（捨て札へ）</button>
-
-  <button class="cb2" id="cx-mp" onclick="ca('mp')">🔋 MPフィールドに置く</button>
-
-  <div class="csep"></div>
-
-  <button class="cb2" id="cx-tog" onclick="ca('tog')">🔄 活動 / 休息を切替</button>
-
-  <button class="cb2" id="cx-rst" onclick="ca('rst')">↩ メインに復帰</button>
-
-  <button class="cb2" id="cx-dwn" onclick="ca('dwn')">⬇ ダウン（サポートへ）</button>
-
-  <div class="csep"></div>
-
-  <button class="cb2" id="cx-equip" onclick="ca('equip')">⚔ キャラに装備する</button>
-
-  <button class="cb2" id="cx-toh" onclick="ca('toh')">👋 手札に戻す</button>
-
-  <button class="cb2" id="cx-bot" onclick="ca('bot')">⬇ デッキの下に戻す</button>
-
-  <button class="cb2 dng" onclick="ca('tr')">🗑 捨て札にする</button>
-
-  <div class="csep"></div>
-
-  <button class="cb2" onclick="closeCtx()">✕ 閉じる</button>
-
-</div>
-
-<!-- ライフモーダル -->
-
-<div id="life-modal" class="mov">
-
-  <div class="mbox">
-
-    <h3>ライフダメージ</h3>
-
-    <div id="life-info"></div>
-
-    <div class="lbtns">
-
-      <button class="lbtn lb-h" onclick="resLife('hand')">手札に加える</button>
-
-      <button class="lbtn lb-m" onclick="resLife('mp')">MPフィールドへ（活動状態）</button>
-
-      <button class="lbtn lb-b" id="life-brk" onclick="resLife('break')">≪ブレイク≫効果を使用（捨て札へ）</button>
-
-    </div>
-
-  </div>
-
-</div>
-
-<!-- 捨て札モーダル -->
-
-<div id="trash-modal" class="mov">
-
-  <div class="mbox" id="trash-inner">
-
-    <h3 id="trash-ttl">捨て札</h3>
-
-    <div id="trash-list"></div>
-
-    <button onclick="document.getElementById('trash-modal').style.display='none'" style="margin-top:10px;width:100%;padding:7px;background:rgba(80,45,12,.6);color:#f0e0c0;border:none;cursor:pointer;font-family:var(--font-ja);font-size:12px;">閉じる</button>
-
-  </div>
-
-</div>
-
-<script>
-
-const SK='hp_saved_decks', IM='/card-images/';
-
-let uid=0; const nid=()=>++uid;
-
-let G=null, ctxT=null, pendLife=null, selIds=[null,null];
-
-const PARTNERS=[
-
-['Pt001','ハリー・ポッター','ST','グリフィンドール,ホグワーツ,魔法使い','〔アシスト〕①⤵ 味方キャラ1枚までを、この決闘中、+1/±0する。 〔宣言〕〔相手のターン〕〔決闘中〕〔ゲーム中1回〕 味方の【グリフィンドール】カード2枚までを、活動状態にする。'],
-
-['Pt002','ドラコ・マルフォイ','ST','スリザリン,ホグワーツ,魔法使い','〔アシスト〕①⤵ 味方キャラ1枚までを、この決闘中、+1/±0する。 〔宣言〕〔相手のターン〕〔決闘中〕〔ゲーム中1回〕 味方の【スリザリン】カード2枚までを、活動状態にする。'],
-
-['Pt003','ハリー・ポッター','Pt','グリフィンドール,ホグワーツ,魔法使い','〔アシスト〕①⤵ 味方キャラ1枚まで+1/±0。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 味方の【グリフィンドール】カード1枚まで活動状態にする。'],
-
-['Pt004','ハーマイオニー・グレンジャー','Pt','グリフィンドール,ホグワーツ,魔女','〔アシスト〕①⤵ 味方キャラ1枚まで+1/±0。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 捨て札のMagicカード2枚をデッキ下に移し、サポートの味方キャラ1枚をメインに移す。'],
-
-['Pt005','ドラコ・マルフォイ','Pt','スリザリン,ホグワーツ,魔法使い','〔アシスト〕①⤵ 味方キャラ1枚まで+1/±0。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 相手キャラ1枚まで、ターン終了時まで、コスト-3する。'],
-
-['Pt006','アルバス・ダンブルドア','Pt','ホグワーツ,教師,魔法使い','〔アシスト〕① 味方キャラ1枚まで、この決闘中、+1/±0する。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 自分が次にプレイする【教師】のカード1枚は、コスト-1を得る。'],
-
-['Pt007','ハリー・ポッター','Pt','ダーズリー家,魔法使い','〔アシスト〕① 味方キャラ1枚まで、この決闘中、+1/±0する。〔宣言〕〔自分のメインフェイズ〕〔ゲーム中1回〕 自分のメインフィールドに【マグル】のカードが3枚いる場合、カードを2枚引く。'],
-
-];
-
-const CARDS=[
-
-['01-001','アルバス・ダンブルドア','Character','UR',10,10,10,null,1,'ホグワーツ,教師,魔法使い','〔常時〕 自分がMagicカードをプレイした場合、活動状態になる。'],
-
-['01-002','ルビウス・ハグリッド','Character','UR',9,9,9,null,1,'ホグワーツ,魔法使い','〔自動〕〔エントリー〕 味方「ハリー・ポッター」のカード全てを、活動状態にする。'],
-
-['01-003','ハリー・ポッター','Character','SR',5,6,6,null,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕 サポートのコスト4以下の味方キャラ1枚をメインに移す。'],
-
-['01-004','ロン・ウィーズリー＆ハーマイオニー・グレンジャー','Character','SR',4,5,5,null,1,'グリフィンドール,ホグワーツ,魔女,魔法使い','〔Pリンク【グリフィンドール】〕〔常時〕 〔速攻〕を得る。'],
-
-['01-005','ネビル・ロングボトム','Character','SR',3,3,3,1,1,'グリフィンドール,ホグワーツ,魔法使い','≪サポーター≫ 〔Pリンク【グリフィンドール】〕〔宣言〕⤵ 味方キャラ1枚まで+2/+2する。'],
-
-['01-006','ドラコ・マルフォイ','Character','SR',5,6,6,null,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕 相手メインのコスト4以下キャラ1枚をダウンさせる。'],
-
-['01-007','ドラコ・マルフォイ','Character','SR',3,3,3,1,1,'スリザリン,ホグワーツ,魔法使い','≪サポーター≫ 〔Pリンク【スリザリン】〕〔宣言〕⤵ 相手キャラ2枚まで-1/-1する。'],
-
-['01-008','アルバス・ダンブルドア','Character','SR',7,7,7,null,1,'ホグワーツ,教師,魔法使い','〔Pリンク「アルバス・ダンブルドア」〕〔常時〕〔ターン1回〕 自分がMagicカードをプレイした場合、カードを1枚引く。'],
-
-['01-009','ミネルバ・マクゴナガル','Character','SR',5,6,6,1,1,'グリフィンドール,ホグワーツ,教師,魔女','〔自動〕〔エントリー〕 相手メインの元々のAP4以下キャラ1枚をダウンさせる。'],
-
-['01-010','セブルス・スネイプ','Character','SR',5,6,6,1,1,'スリザリン,ホグワーツ,教師,魔法使い','〔自動〕〔エントリー〕〔アタック〕 相手サポートのコスト2以下キャラ1枚を捨て札にする。'],
-
-['01-011','セブルス・スネイプ','Character','SR',3,4,4,1,1,'スリザリン,ホグワーツ,教師,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕 【スリザリン】以外の相手キャラ1枚まで-3/-3する。'],
-
-['01-012','ハリー・ポッター','Character','SR',5,6,6,1,0,'ダーズリー家,魔法使い','〔自動〕〔アタック〕〔ターン1回〕 味方の【マグル】カード1枚を休息にし、このカードを活動状態にする。'],
-
-['01-013','ハリー・ポッター','Character','R',5,5,6,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔自動〕〔自分のターン終了時〕 コスト4以下の味方【グリフィンドール】カード2枚まで活動状態にする。'],
-
-['01-014','ロン・ウィーズリー','Character','R',4,5,5,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕 味方キャラ2枚まで+1/+1する。'],
-
-['01-015','ロン・ウィーズリー','Character','R',3,4,4,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔連携〕：【グリフィンドール】'],
-
-['01-016','ハーマイオニー・グレンジャー','Character','R',2,2,2,1,1,'グリフィンドール,ホグワーツ,魔女','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕 カードを1枚引く。 ≪ブレイク≫カード2枚引き、手札1枚を捨て。'],
-
-['01-017','ハーマイオニー・グレンジャー','Character','R',4,4,4,1,1,'グリフィンドール,ホグワーツ,魔女','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕 相手メインの元々のAP2以下キャラ1枚をダウンさせる。'],
-
-['01-018','ネビル・ロングボトム','Character','R',3,3,4,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔ダウン〕 味方キャラ1枚まで活動状態にする。'],
-
-['01-019','ドラコ・マルフォイ','Character','R',4,5,4,1,1,'スリザリン,ホグワーツ,魔法使い','〔自動〕〔エントリー〕 サポートの相手キャラ1枚まで捨て札にする。'],
-
-['01-020','ドラコ・マルフォイ','Character','R',3,4,4,1,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔常時〕 決闘中の相手キャラを-2/-2する。'],
-
-['01-021','ビンセント・クラッブ','Character','R',2,2,2,1,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕 カードを1枚引く。'],
-
-['01-022','グレゴリー・ゴイル','Character','R',2,3,3,1,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔ダウン〕 相手キャラ1枚まで-2/-2する。'],
-
-['01-023','アルバス・ダンブルドア','Character','R',5,6,6,1,1,'ホグワーツ,教師,魔法使い','〔Pリンク「アルバス・ダンブルドア」〕〔自動〕〔自分のターン終了時〕 このカードを活動状態にする。'],
-
-['01-024','ミネルバ・マクゴナガル','Character','R',5,4,7,1,1,'グリフィンドール,ホグワーツ,教師,魔女','〔自動〕〔ブロック〕 〔反撃〕を得る。'],
-
-['01-025','ミネルバ・マクゴナガル','Character','R',2,2,2,1,1,'グリフィンドール,ホグワーツ,教師,魔女','〔Pリンク「アルバス・ダンブルドア」〕〔自動〕〔エントリー〕 カードを1枚引く。'],
-
-['01-026','セブルス・スネイプ','Character','R',4,4,4,1,1,'スリザリン,ホグワーツ,教師,魔法使い','〔自動〕〔エントリー〕 コスト2以下の相手キャラ1枚をダウンさせる。'],
-
-['01-027','クィリナス・クィレル','Character','R',3,4,4,1,1,'ホグワーツ,教師,魔法使い','〔自動〕〔エントリー〕 相手のMPフィールドのカード1枚を休息状態にする。'],
-
-['01-028','ミセス・ノリス','Character','R',1,0,2,1,0,'ホグワーツ,魔法生物','〔自動〕〔エントリー〕 コスト2以下の相手キャラ1枚まで休息状態にする。'],
-
-['01-029','バーノン・ダーズリー','Character','R',3,3,3,null,0,'ダーズリー家,マグル','〔Pリンク【ダーズリー家】〕〔自動〕〔エントリー〕 相手【魔法使い】or【魔女】カード1枚まで休息状態にする。'],
-
-['01-030','ペチュニア・ダーズリー','Character','R',2,2,2,1,0,'ダーズリー家,マグル','〔Pリンク【ダーズリー家】〕〔常時〕 全プレイヤーの手札Magicカードはコスト+1。'],
-
-['01-031','ダドリー・ダーズリー','Character','R',1,1,1,1,0,'ダーズリー家,マグル','〔Pリンク【ダーズリー家】〕〔自動〕〔エントリー〕 相手【魔法使い】or【魔女】カード1枚まで-2/-2する。'],
-
-['01-032','ウィンガーディアム・レヴィオーサ','Magic','R',2,null,null,1,0,'','〔使用〕〔決闘中〕 決闘中の相手キャラ1枚まで-3/-3する。 ≪ブレイク≫相手キャラ1枚まで休息状態にする。'],
-
-['01-033','入学許可証','Item','R',1,null,null,1,0,'手紙','〔使用〕〔自分のメインフェイズ〕 デッキ上から2枚を見て、【魔法使い】or【魔女】カード1枚を手札に。 ≪ブレイク≫カードを1枚引く。'],
-
-['01-034','ホグワーツ特急','Item','R',4,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 サポートの味方【ホグワーツ】カード1枚をメインに移す。'],
-
-['01-035','談話室','Location','R',1,null,null,1,0,'','〔自動〕〔自分のターン終了時〕 自分のパートナーと同じ寮のキャラ1枚まで活動状態にする。'],
-
-['01-036','階段下の物置部屋','Location','R',1,null,null,1,0,'','〔常時〕 味方【マグル】カードがメインにいる場合、味方「ハリー・ポッター」全てに±0/+2する。'],
-
-['01-037','ハリー・ポッター','Character','N',3,4,4,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔アタック〕 味方キャラ1枚まで+2/+2する。'],
-
-['01-038','ロン・ウィーズリー','Character','N',3,4,4,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔アタック〕 味方キャラ1枚まで〔突進〕を得る。'],
-
-['01-039','ハーマイオニー・グレンジャー','Character','N',3,4,4,1,1,'グリフィンドール,ホグワーツ,魔女','〔Pリンク【グリフィンドール】〕〔自動〕〔アタック〕 次にプレイするMagicカード1枚をコスト-2する。'],
-
-['01-040','パーシー・ウィーズリー','Character','N',2,3,3,1,1,'グリフィンドール,ホグワーツ,魔法使い','≪ブレイク≫味方キャラ1枚まで活動状態にし、このカードを手札に移す。'],
-
-['01-041','フレッド・ウィーズリー','Character','N',4,5,5,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔常時〕 メインに「ジョージ・ウィーズリー」がいる場合、コスト-2。'],
-
-['01-042','ジョージ・ウィーズリー','Character','N',4,5,5,1,1,'グリフィンドール,ホグワーツ,魔法使い','〔常時〕 メインに「フレッド・ウィーズリー」がいる場合、コスト-2。'],
-
-['01-043','ドラコ・マルフォイ','Character','N',3,4,4,1,1,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔アタック〕 相手キャラ1枚まで、ターン終了時まで、コスト-2する。'],
-
-['01-044','ドラコ・マルフォイ','Character','N',1,2,2,1,1,'スリザリン,ホグワーツ,魔法使い','〔挑発〕 ≪ブレイク≫相手キャラ1枚まで休息状態にする。'],
-
-['01-045','スーザン・ボーンズ','Character','N',3,4,4,1,1,'ハッフルパフ,ホグワーツ,魔女','≪ブレイク≫サポートの味方キャラ1枚をメインに移し、このカードを手札に移す。'],
-
-['01-046','アルバス・ダンブルドア','Character','N',5,6,6,1,1,'ホグワーツ,教師,魔法使い','〔常時〕 Magicカードがプレイされた場合、このカードをターン終了時まで+2/+2する。'],
-
-['01-047','アルバス・ダンブルドア','Character','N',4,4,4,1,1,'ホグワーツ,教師,魔法使い','〔常時〕 味方の【教師】カード全てを+1/+1する。'],
-
-['01-048','ミネルバ・マクゴナガル','Character','N',3,4,4,1,1,'グリフィンドール,ホグワーツ,教師,魔女','〔自動〕〔エントリー〕 手札1枚まで、MPフィールドに置く。'],
-
-['01-049','セブルス・スネイプ','Character','N',4,5,5,1,1,'スリザリン,ホグワーツ,教師,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕 相手は休息状態の自分のキャラ1枚を手札に移す。'],
-
-['01-050','ロランダ・フーチ','Character','N',3,4,4,1,1,'ホグワーツ,教師,魔女','≪サポーター≫ 〔Pリンク「アルバス・ダンブルドア」〕〔宣言〕〔決闘中〕⤵ 味方【教師】カード1枚まで+1/+1する。'],
-
-['01-051','フィリウス・フリットウィック','Character','N',3,3,3,1,1,'ホグワーツ,レイブンクロー,教師,魔法使い','〔Pリンク「アルバス・ダンブルドア」〕〔自動〕〔自分のターン終了時〕 味方キャラ1枚まで活動状態にする。'],
-
-['01-052','クィリナス・クィレル','Character','N',3,4,4,1,1,'ホグワーツ,教師,魔法使い','≪ブレイク≫相手キャラ1枚まで休息状態にし、このカードを手札に移す。'],
-
-['01-053','ルビウス・ハグリッド','Character','N',3,6,6,1,1,'ホグワーツ,魔法使い','〔常時〕 このカードは、パートナーにアタックできない。'],
-
-['01-054','アーガス・フィルチ','Character','N',2,4,4,1,0,'ホグワーツ','〔常時〕 このカードの決闘中、自分はMagicカードをプレイできない。'],
-
-['01-055','ほとんど首無しニック','Character','N',0,null,null,1,0,'グリフィンドール,ゴースト,ホグワーツ','≪サポーター≫ 〔宣言〕〈捨て札にする〉 味方【グリフィンドール】カード1枚まで活動状態にする。'],
-
-['01-056','血みどろ男爵','Character','N',0,null,null,1,0,'ゴースト,スリザリン,ホグワーツ','≪サポーター≫ 〔宣言〕〈捨て札にする〉 味方【スリザリン】カード1枚まで活動状態にする。'],
-
-['01-057','灰色のレディ','Character','N',0,null,null,1,0,'ゴースト,ホグワーツ,レイブンクロー','≪サポーター≫ 〔宣言〕〈捨て札にする〉 味方【レイブンクロー】カード1枚まで活動状態にする。'],
-
-['01-058','太った修道士','Character','N',0,null,null,1,0,'ゴースト,ハッフルパフ,ホグワーツ','≪サポーター≫ 〔宣言〕〈捨て札にする〉 味方【ハッフルパフ】カード1枚まで活動状態にする。'],
-
-['01-059','太った婦人','Character','N',0,null,null,1,0,'ホグワーツ,肖像画','≪サポーター≫ 〔宣言〕〈捨て札にする〉 自分のMPフィールドのカード1枚まで活動状態にする。'],
-
-['01-060','ハリー・ポッター','Character','N',5,6,6,1,0,'ダーズリー家,魔法使い','〔Pリンク【ダーズリー家】〕〔常時〕 手札にある場合、サポートの味方【マグル】カード1枚につきコスト-1。'],
-
-['01-061','ハリー・ポッター','Character','N',4,6,6,1,0,'ダーズリー家,魔法使い','〔常時〕 このカードは休息状態でフィールドに出る。〔自動〕〔エントリー〕 味方【マグル】カード1枚を手札に移し、活動状態にする。'],
-
-['01-062','ハリー・ポッター','Character','N',2,2,2,1,0,'ダーズリー家,魔法使い','〔Pリンク【ダーズリー家】〕〔常時〕〔ターン1回〕 味方【マグル】カードがダウンした場合、カードを1枚引く。'],
-
-['01-063','バーノン・ダーズリー','Character','N',3,3,3,1,0,'ダーズリー家,マグル','〔自動〕〔アタック〕 手札からコスト2以下の【マグル】カード1枚をメインに出す。'],
-
-['01-064','バーノン・ダーズリー','Character','N',3,3,3,1,0,'ダーズリー家,マグル','〔自動〕〔エントリー〕 手札から【手紙】カード1枚を捨て。その後、相手は手札1枚を捨て。'],
-
-['01-065','ペチュニア・ダーズリー','Character','N',2,2,2,1,0,'ダーズリー家,マグル','〔自動〕〔エントリー〕 相手のデッキ上から1枚を表向きにする。Magicカードなら相手は手札1枚を捨て。'],
-
-['01-066','ペチュニア・ダーズリー','Character','N',2,2,2,1,0,'ダーズリー家,マグル','〔自動〕〔ブロック〕 他の味方【マグル】カード1枚を活動状態にする。'],
-
-['01-067','ダドリー・ダーズリー','Character','N',1,2,2,1,0,'ダーズリー家,マグル','〔常時〕 相手「ハリー・ポッター」と決闘中、このカードを+3/+3する。'],
-
-['01-068','ダドリー・ダーズリー','Character','N',1,3,3,1,0,'ダーズリー家,マグル','〔自動〕 メインに「ハリー・ポッター」のカードがいる場合、ダウンする。'],
-
-['01-069','グリップフック','Character','N',1,1,1,1,1,'小鬼,魔法生物','〔自動〕〔エントリー〕〔ダウン〕 カードを1枚引き、手札1枚を捨て。'],
-
-['01-070','ギャリック・オリバンダー','Character','N',1,0,3,1,1,'魔法使い','〔自動〕〔エントリー〕 捨て札の名称に「杖」を含むカード1枚まで手札に移す。'],
-
-['01-071','トロール','Character','N',3,6,2,1,0,'トロール,魔法生物',''],
-
-['01-072','ヘドウィグ','Character','N',0,null,null,1,0,'魔法生物','≪サポーター≫〔常時〕 自分が使用する【手紙】カードはコスト-1。'],
-
-['01-073','フラッフィー','Character','N',2,3,3,1,0,'魔法生物','〔常時〕 Magicカードの効果でデッキから手札に移る場合、相手に見せるとメインに出せる。'],
-
-['01-074','ウィンガード・レビオーサ','Magic','N',2,null,null,1,0,'','〔使用〕〔決闘中〕 決闘中の全キャラを±0/-5する。'],
-
-['01-075','お陽さま　ヒナ菊　とろけたバター','Magic','N',0,null,null,1,0,'','≪ブレイク≫このカードを無償で使用できる。'],
-
-['01-076','アロホモラ','Magic','N',2,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 カードを2枚引き、手札1枚を捨て。 ≪ブレイク≫このカードを無償で使用できる。'],
-
-['01-077','思い出し玉','Item','N',1,null,null,1,0,'','〔自動〕〔エントリー〕 デッキ下から1枚をこのカードの下に裏向きで重ねる。〔自動〕〔自分のターン終了時〕 下のカードを手札に移し、このカードを捨て。'],
-
-['01-078','校長先生のカード','Item','N',3,null,null,1,0,'','〔自動〕〔エントリー〕 このカードを捨て、手札の「アルバス・ダンブルドア」1枚をメインに出す。'],
-
-['01-079','動く階段','Location','N',0,null,null,1,0,'','〔宣言〕〔決闘中〕⑤〈手札1枚を捨て〉 相手のアタック対象を味方キャラ1枚に変更する。'],
-
-['01-080','9と3/4番線','Location','N',5,null,null,1,0,'','〔自動〕〔自分のターン終了時〕 手札1枚を捨て、味方【ホグワーツ】カード1枚をメインに移す。'],
-
-['01-081','オリバンダーの店','Location','N',0,null,null,1,0,'','〔宣言〕〔自分のメインフェイズ〕①⤵ デッキ上から10枚を見て、「杖」カード1枚を抜き出し味方キャラ1枚に装備。'],
-
-// ===== STカード（スターターデッキ専用）=====
-['S01-001','ハリー・ポッター','Character','ST',4,5,5,1,0,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕〔アタック〕 カードを2枚引き、手札2枚を捨て札にする。'],
-['S01-002','ハリー・ポッター','Character','ST',2,2,2,1,0,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔自分のターン終了時〕 味方キャラ1枚までを活動状態にする。 ≪ブレイク≫味方の【グリフィンドール】カード1枚までを、活動状態にする。'],
-['S01-003','ロン・ウィーズリー','Character','ST',1,1,1,1,0,'グリフィンドール,ホグワーツ,魔法使い','≪サポーター≫ 〔宣言〕〔自分のメインフェイズ〕⤵ 味方の【グリフィンドール】カード1枚までを、ターン終了時まで、+1/+1する。 ≪ブレイク≫味方の【グリフィンドール】カード1枚までを、活動状態にする。'],
-['S01-004','ハーマイオニー・グレンジャー','Character','ST',3,3,5,1,0,'グリフィンドール,ホグワーツ,魔女','〔常時〕 Magicカードがプレイされた場合、このカードを、ターン終了時まで、+1/+1する。'],
-['S01-005','ネビル・ロングボトム','Character','ST',3,4,4,1,0,'グリフィンドール,ホグワーツ,魔法使い','〔突進〕 ※突進を持つキャラはエントリーしたターンからキャラに攻撃できる。'],
-['S01-006','シェーマス・フィネガン','Character','ST',1,3,2,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['S01-007','ディーン・トーマス','Character','ST',1,2,3,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['S01-008','フレッド・ウィーズリー','Character','ST',2,4,3,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['S01-009','ジョージ・ウィーズリー','Character','ST',2,3,4,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['S01-010','ホグワーツ魔法魔術学校','Location','ST',3,null,null,1,0,'ホグワーツ','〔宣言〕〔自分のメインフェイズ〕⤵ 味方の【ホグワーツ】カード1枚までを、ターン終了時まで、+2/+2する。 ≪ブレイク≫このカードを、サポートフィールドに出す。'],
-['S01-011','レパロ','Magic','ST',1,null,null,1,0,'','〔使用〕〔相手のターン〕〔決闘中〕 味方キャラ1枚までを活動状態にする。 ≪ブレイク≫このカードを、無償で使用できる。'],
-['S01-012','杖','Item','ST',0,null,null,1,0,'','≪装備≫〔常時〕 このカードを装備している【魔法使い】または【魔女】のカードを、+2/±0する。'],
-['S01-013','組分け儀式','Event','ST',2,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 自分のパートナーと同じ寮の味方キャラ全てを、ターン終了時まで、+2/+2する。 ≪ブレイク≫このカードを、無償で使用できる。'],
-['S01-012a','杖（スリザリン版）','Item','ST',0,null,null,1,0,'','≪装備≫〔常時〕 このカードを装備している【魔法使い】または【魔女】のカードを、+2/±0する。'],
-['S01-013a','組分け儀式（スリザリン版）','Event','ST',2,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 自分のパートナーと同じ寮の味方キャラ全てを、ターン終了時まで、+2/+2する。 ≪ブレイク≫このカードを、無償で使用できる。'],
-['S02-001','ドラコ・マルフォイ','Character','ST',4,5,5,1,0,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕〔アタック〕 相手キャラ1枚までを、ターン終了時まで、-1/-1する。'],
-['S02-002','ドラコ・マルフォイ','Character','ST',2,2,2,1,0,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔自分のターン終了時〕 味方キャラ1枚までを活動状態にする。 ≪ブレイク≫味方の【スリザリン】カード1枚までを、活動状態にする。'],
-['S02-003','ビンセント・クラッブ','Character','ST',3,4,4,1,0,'スリザリン,ホグワーツ,魔法使い','〔常時〕 味方「ドラコ・マルフォイ」のカード全てを、+1/±0する。'],
-['S02-004','グレゴリー・ゴイル','Character','ST',3,4,4,1,0,'スリザリン,ホグワーツ,魔法使い','〔常時〕 味方「ドラコ・マルフォイ」のカード全てを±0/+1する。'],
-['S02-005','パンジー・パーキンソン','Character','ST',1,1,1,1,0,'スリザリン,ホグワーツ,魔女','≪サポーター≫ 〔宣言〕〔自分のメインフェイズ〕⤵ 味方の【スリザリン】カード1枚までを、ターン終了時まで、+1/+1する。 ≪ブレイク≫味方の【スリザリン】カード1枚までを活動状態にする。'],
-['S02-006','テレンス・ヒッグス','Character','ST',1,3,2,1,0,'クィディッチ,スリザリン,ホグワーツ,魔法使い',''],
-['S02-007','エイドリアン・ピュシー','Character','ST',1,2,3,1,0,'クィディッチ,スリザリン,ホグワーツ,魔法使い',''],
-['S02-008','ドラコ・マルフォイ','Character','ST',2,4,3,1,0,'スリザリン,ホグワーツ,魔法使い',''],
-['S02-009','セブルス・スネイプ','Character','ST',2,3,4,1,0,'スリザリン,ホグワーツ,教師,魔法使い',''],
-['S02-010','上がれ！','Magic','ST',1,null,null,1,0,'','〔使用〕〔決闘中〕 決闘中の味方キャラ1枚までを、この決闘中、+3/±0する。'],
-// MPカード（スターターデッキ専用）
-
-['MP-001','MPカード','Character','N',null,null,null,null,0,'MPカード','ゲーム開始時、後攻のプレイヤーはMPカード1枚をMPフィールドに配置する。MPカードをゲームから取り除くことで1度だけコスト1を得る。'],
-
-['MP-002','MPカード','Character','N',null,null,null,null,0,'MPカード','ゲーム開始時、後攻のプレイヤーはMPカード1枚をMPフィールドに配置する。MPカードをゲームから取り除くことで1度だけコスト1を得る。'],
-
-];
-
-// ===== スターターデッキ =====
-
-const ST_GRIF = {
-  name:'グリフィンドールスターターデッキ', partner:'Pt001', mpCard:'MP-001',
-  deck:{
-    'S01-001':4,'S01-002':4,'S01-003':4,'S01-004':4,
-    'S01-005':4,'S01-006':4,'S01-007':4,'S01-008':4,
-    'S01-009':4,'S01-010':3,'S01-011':4,'S01-012':4,'S01-013':3
-  }
-};
-
-const ST_SLYT = {
-  name:'スリザリンスターターデッキ', partner:'Pt002', mpCard:'MP-002',
-  deck:{
-    'S02-001':4,'S02-002':4,'S02-003':4,'S02-004':4,
-    'S02-005':4,'S02-006':4,'S02-007':4,'S02-008':4,
-    'S02-009':4,'S02-010':4,'S01-012a':4,'S01-013a':4,'S01-010':2
-  }
-};
-
-const TUT = [
-  {title:'ようこそ！ハリーポッターカードゲームへ',
-   msg:'このチュートリアルでは、グリフィンドール vs スリザリンのスターターデッキを使って基本ルールを学びます。\n\n画面は左が1P（グリフィンドール）、右が2P（スリザリン）です。\n\n「次へ」を押して画面の見方を確認しましょう。',
-   mobmsg:'このチュートリアルでは、グリフィンドール vs スリザリンのスターターデッキを使って基本ルールを学びます。\n\n画面は上が2P（スリザリン）、下が1P（グリフィンドール）です。\n\n「次へ」を押して画面の見方を確認しましょう。',
-   target:null,arrow:null},
-  {title:'画面の見方 ① パートナー',
-   msg:'各サイドの右上を見てください。\n\n【PARTNER】あなたの主人公カードです。\nこれが攻撃されるとライフが減ります。\nライフが0でパートナーがダメージを受けると負けです。',
-   mobmsg:'1P側（下）のパートナーカードを見てください。\n\n【PARTNER】あなたの主人公カードです。\nこれが攻撃されるとライフが減ります。\nライフが0でパートナーがダメージを受けると負けです。',
-   target:'pt-p1',arrow:'top'},
-  {title:'画面の見方 ② ライフ・デッキ・トラッシュ',
-   msg:'【LIFE】左端のカード。ダメージを受けるたびに1枚公開して処理します。\n【DECK】山札。クリックすると1枚引けます。\n【TRASH】捨て札置き場。',
-   mobmsg:'ヘッダーの情報を見てください。\n\n【❤️3】ライフの残り枚数（最大3）\n【DECK】山札の枚数\n【TRASH】捨て札の枚数\n\nライフが0でパートナーへのダメージを受けると負けです。',
-   target:'lp-p1',arrow:'top'},
-  {title:'画面の見方 ③ メインフィールド',
-   msg:'中央上が【メインフィールド】です。最大3枚までキャラを置けます。\n\nここに出たキャラが相手のパートナーや相手キャラに攻撃できます。\nキャラを左クリックすると活動／休息状態が切り替わります。',
-   mobmsg:'1P側（下）の上段左3枠が【メインフィールド】です。最大3枚までキャラを置けます。\n\nここに出たキャラが相手に攻撃できます。\nカードをタップすると活動／休息状態が切り替わります。',
-   target:'main-p1',arrow:'top'},
-  {title:'画面の見方 ④ サポート・MPフィールド',
-   msg:'【サポートフィールド】最大4枚。サポーター効果を使うカードを置きます。\n\n【MPフィールド】コスト支払いに使うエリアです。\nMPカードを休息状態（クリック）にするとコスト1を払えます。',
-   mobmsg:'1P側（下）の下段4枠が【サポートフィールド】です。\n\n【MPフィールド】はデッキ・トラッシュの下にあります。\nMPカードをタップして休息状態にするとコスト1を払えます。',
-   target:'hand-p1',arrow:'bottom'},
-  {title:'画面の見方 ⑤ 手札',
-   msg:'画面下が手札です。\n\n手札のカードを右クリックするとメニューが開きます。\n・メインフィールドに出す\n・サポートフィールドに出す\n・MPフィールドに置く\n・魔法やアイテムは「使用する」\n\n手札は常に7枚以下にしなければなりません。',
-   mobmsg:'1P側（下）の最下段が手札です。\n\n手札のカードを長押し（右クリック）するとメニューが開きます。\n・メインフィールドに出す\n・サポートフィールドに出す\n・MPフィールドに置く\n・魔法やアイテムは「使用する」\n\n手札は常に7枚以下にしなければなりません。',
-   target:'hand-p1',arrow:'bottom'},
-  {title:'ターンの流れ',
-   msg:'ターンは3つのフェイズで進みます。\n\n① スタンバイフェイズ\n　1枚ドロー → 全カード活動状態に\n\n② メインフェイズ\n　カードをプレイ、攻撃など\n\n③ エンドフェイズ\n　手札を7枚以下にしてターン終了\n\nでは実際にやってみましょう！',
-   mobmsg:'ターンは3つのフェイズで進みます。\n\n① スタンバイフェイズ\n　1枚ドロー → 全カード活動状態に\n\n② メインフェイズ\n　カードをプレイ、攻撃など\n\n③ エンドフェイズ\n　手札を7枚以下にしてターン終了\n\nでは実際にやってみましょう！',
-   target:null,arrow:null},
-  {title:'【操作 1】スタンバイ実行',
-   msg:'「スタンバイ実行」ボタンを押してターンを開始してください。\n\n自動で以下が処理されます。\n1. デッキから1枚引く\n2. 全カードを活動状態にする\n\n先攻1ターン目のみ：引いた後に手札から1枚捨てる必要があります。',
-   mobmsg:'上部バーの「スタンバイ実行」ボタンを押してターンを開始してください。\n\n自動で以下が処理されます。\n1. デッキから1枚引く\n2. 全カードを活動状態にする\n\n先攻1ターン目のみ：引いた後に手札から1枚捨てる必要があります。',
-   target:'btn-sb',arrow:'bottom'},
-  {title:'【操作 2】手札を1枚捨てる（先攻1ターン目のみ）',
-   msg:'先攻1ターン目は手札から1枚捨てるルールがあります。\n\n手札のカードを右クリック →「捨て札にする」を選んでください。\n捨てるカードは何でもOKです。',
-   mobmsg:'先攻1ターン目は手札から1枚捨てるルールがあります。\n\n下部の手札エリアのカードを長押し →「捨て札にする」を選んでください。\n捨てるカードは何でもOKです。',
-   target:'hand-p1',arrow:'bottom'},
-  {title:'【操作 3】手札からカードをプレイ',
-   msg:'手札のカードを右クリックしてフィールドに出しましょう。\n\nまずメインフィールドにキャラを1枚出してみましょう。\n右クリック →「メインフィールドに出す」\n\nコストがある場合はMPカードを休息にして支払います。',
-   mobmsg:'下部の手札エリアのカードを長押ししてフィールドに出しましょう。\n\nまずメインフィールドにキャラを1枚出してみましょう。\n長押し →「メインフィールドに出す」\n\nコストがある場合はMPカードをタップして休息にして支払います。',
-   target:'hand-p1',arrow:'bottom'},
-  {title:'【操作 4】エンドフェイズへ',
-   msg:'カードのプレイが終わったら「エンドへ →」ボタンを押してください。\n\n手札が7枚を超えている場合は、先に右クリック →「捨て札にする」で7枚以下にしてください。',
-   mobmsg:'カードのプレイが終わったら上部バーの「エンドへ →」ボタンを押してください。\n\n手札が7枚を超えている場合は、先に長押し →「捨て札にする」で7枚以下にしてください。',
-   target:'btn-next',arrow:'bottom'},
-  {title:'【操作 5】ターン交代と決闘',
-   msg:'「ターン終了」で2Pのターンに切り替わります。\n\n攻撃するときは：\n1. メインのキャラを左クリック（休息状態に）\n2. 相手パートナーか相手キャラが対象\n3. 自分AP >= 相手DPなら勝利\n4. 敗れたキャラ → 右クリック →「ダウン」',
-   mobmsg:'「ターン終了」で2Pのターンに切り替わります。\n\n攻撃するときは：\n1. メインのキャラをタップ（休息状態に）\n2. 相手パートナーか相手キャラが対象\n3. 自分AP >= 相手DPなら勝利\n4. 敗れたキャラ → 長押し →「ダウン」',
-   target:'btn-next',arrow:'bottom'},
-  {title:'チュートリアル完了！',
-   msg:'おつかれさまでした！基本操作は以上です。\n\nまとめ：\n① スタンバイ（ドロー・全活動）\n② メイン（プレイ・攻撃）\n③ エンド（手札7枚以下）\n→ ターン交代\n\n「チュートリアル」ボタンでいつでもこの説明を見直せます。楽しんでください！',
-   mobmsg:'おつかれさまでした！基本操作は以上です。\n\nまとめ：\n① スタンバイ（ドロー・全活動）\n② メイン（プレイ・攻撃）\n③ エンド（手札7枚以下）\n→ ターン交代\n\n「チュートリアル」ボタンでいつでもこの説明を見直せます。楽しんでください！',
-   target:null,arrow:null},
-];
-let tutStep=0;
-
-// ===== ユーティリティ =====
-function loadSaved(){try{return JSON.parse(localStorage.getItem(SK)||'[]');}catch{return[];}}
-function log(m){const el=document.getElementById('log');if(el)el.textContent=m;}
-function ci(n){return `<img src="${IM}${n}" alt="${n}" loading="lazy" onerror="this.style.opacity='.25'">`;}
-
-// ===== プリセットデッキ =====
-const PRESET_DECKS=[
-  {id:'preset-grif',name:'グリフィンドールスターター',partner:'Pt001',total:50,mpCard:'MP-001',
-   deck:{'01-003':2,'01-004':2,'01-005':2,'01-013':3,'01-014':2,'01-015':2,'01-016':2,'01-017':2,'01-018':2,'01-009':2,'01-024':2,'01-025':2,'01-037':3,'01-038':3,'01-039':3,'01-040':2,'01-041':1,'01-042':1,'01-055':2,'01-032':3,'01-076':3,'01-035':2,'01-034':2}},
-  {id:'preset-slyt',name:'スリザリンスターター',partner:'Pt002',total:50,mpCard:'MP-002',
-   deck:{'01-006':2,'01-007':2,'01-010':2,'01-011':2,'01-019':4,'01-020':3,'01-021':3,'01-022':3,'01-026':2,'01-027':2,'01-043':4,'01-044':4,'01-049':2,'01-056':2,'01-032':3,'01-074':3,'01-076':2,'01-079':2,'01-077':2,'01-075':1}},
-];
-
-function mkP(d){
-  const cs=[];
-  Object.entries(d.deck).forEach(([num,cnt])=>{
-    const data=CARDS.find(c=>c[0]===num);
-    if(!data)return;
-    for(let i=0;i<cnt;i++)cs.push({id:nid(),data,active:true});
-  });
-  for(let i=cs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cs[i],cs[j]]=[cs[j],cs[i]];}
-  const hand=cs.splice(0,7);
-  const life=cs.splice(0,3);
-  return{partner:d.partner?PARTNERS.find(p=>p[0]===d.partner):null,deck:cs,hand,life,trash:[],main:[null,null,null],sup:[null,null,null,null],mp:[],mpCardId:d.mpCard||null};
-}
-
-// ===== セットアップ =====
-function initSetup(){
-  const saved=loadSaved();
-  [0,1].forEach(pi=>{
-    const el=document.getElementById(`dl-p${pi+1}`);
-    if(!el)return;
-    el.innerHTML=`<div style="font-size:9px;color:var(--ink-light);padding:2px 4px;margin-bottom:3px;border-bottom:1px solid var(--border)">プリセット</div>`
-      +PRESET_DECKS.map(d=>`<div class="deck-item" onclick="selDeck(${pi},'${d.id}',this)">
-        <div class="deck-item-name">${d.name}</div>
-        <div class="deck-item-meta">${d.total}枚 ／ ${PARTNERS.find(p=>p[0]===d.partner)?.at(1)||''}</div>
-      </div>`).join('')
-      +(saved.length?`<div style="font-size:9px;color:var(--ink-light);padding:2px 4px;margin:3px 0;border-bottom:1px solid var(--border)">保存済み</div>`+saved.map(d=>`<div class="deck-item" onclick="selDeck(${pi},'${d.id}',this)">
-        <div class="deck-item-name">${d.name}</div>
-        <div class="deck-item-meta">${d.total}枚 ／ ${PARTNERS.find(p=>p[0]===d.partner)?.at(1)||'パートナー未設定'}</div>
-      </div>`).join(''):'');
-  });
-}
-
-function selDeck(pi,id,el){
-  document.querySelectorAll(`#dl-p${pi+1} .deck-item`).forEach(e=>e.classList.remove('sel'));
-  el.classList.add('sel');selIds[pi]=String(id);
-  document.getElementById('btn-start').disabled=!(selIds[0]&&selIds[1]);
-}
-
-// ===== MPカード自動セット =====
-function autoSetMpCard(){
-  if(!G)return;
-  const p1=G.players[1];
-  if(!p1.mpCardId)return;
-  const data=CARDS.find(x=>x[0]===p1.mpCardId);
-  if(!data)return;
-  if(!p1.mp.some(m=>m.data[0]===p1.mpCardId))p1.mp.push({id:nid(),data,active:true});
-}
-
-// ===== ゲーム開始 =====
-function startGame(){
-  const saved=loadSaved();
-  const all=[...PRESET_DECKS,...saved];
-  const d0=all.find(x=>String(x.id)===selIds[0]);
-  const d1=all.find(x=>String(x.id)===selIds[1]);
-  if(!d0||!d1)return;
-  G={turn:1,phase:'main',cur:0,va:0,players:[mkP(d0),mkP(d1)]};
-  document.getElementById('setup').style.display='none';
-  document.getElementById('game').style.display='flex';
-  autoSetMpCard();
-  renderAll();
-  log('ゲーム開始！後攻2PのMPカードをセットしました。1P先攻。スタンバイ実行を押してください。');
-}
-
-function startStarter(){
-  const p0=mkP(ST_GRIF),p1=mkP(ST_SLYT);
-  G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1],tut:true};
-  document.getElementById('setup').style.display='none';
-  document.getElementById('game').style.display='flex';
-  if(confirm('【ゲームの準備】\n1P（グリフィンドール）手札を確認してください。\n引き直しますか？（OKで全て戻してシャッフル→7枚引き直し）')){
-    const p=G.players[0];
-    p.deck.push(...p.hand);p.hand=[];
-    for(let i=p.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];}
-    for(let i=0;i<7;i++){if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}}
-  }
-  if(confirm('【ゲームの準備】\n2P（スリザリン）手札を確認してください。\n引き直しますか？')){
-    const p=G.players[1];
-    p.deck.push(...p.hand);p.hand=[];
-    for(let i=p.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];}
-    for(let i=0;i<7;i++){if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}}
-  }
-  autoSetMpCard();
-  renderAll();
-  log('後攻2P（スリザリン）のMPカードをセットしました。ゲーム開始！1P先攻。スタンバイ実行を押してください。');
-  showTut(0);
-  document.getElementById('tut-btn').style.display='';
-}
-
-// ===== フェイズ =====
-function ap(){return G.players[G.va];}
-function op(){return G.players[1-G.va];}
-
-function setPhaseUI(){
-  ['standby','main','end'].forEach(p=>document.getElementById('ps-'+p).classList.toggle('on',G.phase===p));
-  const nb=document.getElementById('btn-next');
-  const sb=document.getElementById('btn-sb');
-  if(G.phase==='main'){nb.textContent='エンドへ →';if(sb)sb.style.display='';}
-  else if(G.phase==='end'){nb.textContent='ターン終了（次のターンへ）';if(sb)sb.style.display='none';}
-  const b=document.getElementById('tbadge');
-  if(b){b.textContent=`${G.cur===0?'1P':'2P'} のターン`;b.className='tbadge '+(G.cur===0?'tb-p1':'tb-p2');}
-  document.getElementById('tnum').textContent=G.turn;
-  const vd=document.getElementById('vdiv');
-  if(vd)vd.setAttribute('data-label',`${G.va===0?'1P':'2P'} vs ${G.va===0?'2P':'1P'}`);
-  document.getElementById('side-p1').style.background=G.va===0?'rgba(26,58,106,.06)':'';
-  document.getElementById('side-p2').style.background=G.va===1?'rgba(106,26,26,.06)':'';
-}
-
-function doStandby(){
-  if(G.phase!=='main')return;
-  const p=G.players[G.cur];const lb=G.cur===0?'1P':'2P';
-  if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}
-  else{log(`⚠ ${lb}のデッキが0枚！`);renderAll();return;}
-  p.main.forEach(c=>{if(c)c.active=true;});
-  p.sup.forEach(c=>{if(c)c.active=true;});
-  p.mp.forEach(c=>{c.active=true;});
-  log(`${lb} スタンバイ完了。${G.turn===1&&G.cur===0?'先攻1ターン目は手札から1枚捨ててください。':''}`);
-  renderAll();
-  if(G&&G.tut&&tutStep===0)showTut(1);
-}
-
-function nextPhase(){
-  if(G.phase==='main'){
-    if(G._mustDiscard){if(!confirm('先攻1ターン目：手札から1枚捨てましたか？\n（まだの場合はキャンセルして捨て札にしてください）'))return;G._mustDiscard=false;}
-    G.phase='end';
-    if(G&&G.tut&&(tutStep===2||tutStep===1))showTut(3);
-    const h=G.players[G.cur].hand.length;
-    log(h>7?`⚠ ${G.cur===0?'1P':'2P'} エンドフェイズ：手札${h}枚。${h-7}枚捨ててください（右クリック→捨て札）。`:`${G.cur===0?'1P':'2P'} エンドフェイズへ。`);
-  } else if(G.phase==='end'){
-    const h=G.players[G.cur].hand.length;
-    if(h>7&&!confirm(`${G.cur===0?'1P':'2P'}の手札が${h}枚。${h-7}枚捨てる必要があります。進めますか？`))return;
-    G.cur=1-G.cur;G.va=G.cur;G.turn++;G.phase='main';
-    log(`ターン交代！${G.cur===0?'1P':'2P'}のターン${G.turn}。スタンバイ実行を押してください。`);
-  }
-  setPhaseUI();renderAll();
-}
-
-function activateAll(){
-  const p=ap();
-  p.main.forEach(c=>{if(c)c.active=true;});
-  p.sup.forEach(c=>{if(c)c.active=true;});
-  p.mp.forEach(c=>{c.active=true;});
-  renderAll();log(`${G.va===0?'1P':'2P'}の全カードを活動状態にしました。`);
-}
-
-function drawAct(){drawCard(G.va);}
-function drawCard(pi){
-  const p=G.players[pi],lb=pi===0?'1P':'2P';
-  if(!p.deck.length){log(`⚠ ${lb}のデッキ0枚！`);return;}
-  const c=p.deck.shift();c.active=true;p.hand.push(c);
-  log(`${lb}「${c.data[1]}」ドロー。手札${p.hand.length}枚。`);renderAll();
-}
-
-function doSwitch(){
-  G.va=1-G.va;renderAll();
-  log(`表示切替：${G.va===0?'1P':'2P'}側をアクティブに（ターンは${G.cur===0?'1P':'2P'}）。`);
-}
-
-// ===== デスクトップ描画 =====
-function renderPartner(p,elId){
-  const el=document.getElementById(elId);if(!el)return;
-  const pt=p.partner;
-  el.innerHTML=pt
-    ?`<img src="${IM}${pt[0]}" style="width:100%;height:80%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'"><div class="pt-nm" style="font-size:8px;padding:1px 2px;">${pt[1].substring(0,8)}</div>`
-    :'<div style="font-size:8px;color:var(--ink-light);text-align:center;padding-top:30px;">未設定</div>';
-}
-
-function renderFieldSlots(p,mId,sId,pi){
-  const mEl=document.getElementById(mId);if(!mEl)return;
-  mEl.innerHTML='';
-  for(let i=0;i<3;i++){
-    const s=document.createElement('div');
-    s.className='slot ms'+(p.main[i]?' has':'');
-    s._pi=pi;s._zone='main';s._idx=i;
-    if(p.main[i]){
-      const c=p.main[i];s._cardRef=c;
-      const [n,nm,,,cost,ap,dp]=c.data;
-      const eq=c.equips&&c.equips.length?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'main',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
-      s.innerHTML=`<div class="fc${c.active?'':' rest'}" onclick="togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
-        ${ci(n)}<div class="fc-btm"><div class="fc-nm">${nm.substring(0,8)}</div>
-        <div class="fc-st">${ap!==null?`<span class="fc-ap">AP${ap}</span>`:''}${dp!==null?`<span class="fc-dp">DP${dp}</span>`:''}</div></div>
-        ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}${eq}
-      </div>`;
-    }else{s.textContent='空';}
-    mEl.appendChild(s);
-  }
-  const sEl=document.getElementById(sId);if(!sEl)return;
-  sEl.innerHTML='';
-  for(let i=0;i<4;i++){
-    const s=document.createElement('div');
-    s.className='slot ss'+(p.sup[i]?' has':'');
-    s._pi=pi;s._zone='sup';s._idx=i;
-    if(p.sup[i]){
-      const c=p.sup[i];s._cardRef=c;
-      const [n,nm,,,cost]=c.data;
-      s.innerHTML=`<div class="fc${c.active?'':' rest'}" onclick="togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
-        ${ci(n)}<div class="fc-btm"><div class="fc-nm">${nm.substring(0,7)}</div></div>
-        ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}
-      </div>`;
-    }else{s.textContent='空';}
-    sEl.appendChild(s);
-  }
-}
-
-function renderMP(p,mpId,pi){
-  const el=document.getElementById(mpId);if(!el)return;
-  if(!p.mp.length){el.innerHTML=`<div style="font-size:9px;color:rgba(30,14,6,.28);border:1px dashed rgba(90,50,15,.18);padding:3px 6px;white-space:nowrap">${pi===G.va?'手札右クリック→MP':'空'}</div>`;return;}
-  el.innerHTML=p.mp.map((c,i)=>
-    `<div class="slot mps has"><div class="mp-fc${c.active?'':' rest'}" onclick="togMP(${pi},${i})" oncontextmenu="event.preventDefault();ctxMP(event,${pi},${i})">${ci(c.data[0])}</div></div>`
-  ).join('');
-}
-
-function renderHand(p,elId,pi){
-  const el=document.getElementById(elId);if(!el)return;
-  const isAct=pi===G.va;
-  const over=p.hand.length>7;
-  if(isAct){
-    el.innerHTML=p.hand.map((c,i)=>
-      `<div class="hc${over&&i>=7?' over':''}" onclick="selH(${i})" oncontextmenu="event.preventDefault();event.stopPropagation();ctxH(event,${pi},${i})">${ci(c.data[0])}</div>`
-    ).join('');
-  } else {
-    el.innerHTML=p.hand.map(()=>`<div class="hc-back">🃏</div>`).join('');
-  }
-  const hw=document.getElementById(`hw-p${pi+1}`);
-  if(hw)hw.style.display=(isAct&&over)?'block':'none';
-  const lb=document.getElementById('hlbl-p2');
-  if(lb)lb.textContent=pi===1&&G.va===1?'HAND — 右クリックでアクション':'HAND（裏向き）';
-}
-
-function renderAll(){
-  if(!G)return;
-  setPhaseUI();
-  const p0=G.players[0],p1=G.players[1];
-  renderPartner(p0,'pt-p1');
-  const dc0=document.getElementById('dc-p1');if(dc0)dc0.textContent=p0.deck.length;
-  const tc0=document.getElementById('tc-p1');if(tc0)tc0.textContent=p0.trash.length;
-  const tt0=document.getElementById('tt-p1');if(tt0)tt0.textContent=p0.trash.length?p0.trash[p0.trash.length-1].data[1].substring(0,4):'-';
-  renderLife(p0,'lp-p1','lc-p1',0);
-  renderFieldSlots(p0,'main-p1','sup-p1',0);
-  renderMP(p0,'mp-p1',0);
-  renderHand(p0,'hand-p1',0);
-  renderPartner(p1,'pt-p2');
-  const dc1=document.getElementById('dc-p2');if(dc1)dc1.textContent=p1.deck.length;
-  const tc1=document.getElementById('tc-p2');if(tc1)tc1.textContent=p1.trash.length;
-  const tt1=document.getElementById('tt-p2');if(tt1)tt1.textContent=p1.trash.length?p1.trash[p1.trash.length-1].data[1].substring(0,4):'-';
-  renderLife(p1,'lp-p2','lc-p2',1);
-  renderFieldSlots(p1,'main-p2','sup-p2',1);
-  renderMP(p1,'mp-p2',1);
-  renderHand(p1,'hand-p2',1);
-  renderMobile();
-}
-
-function renderLife(p,pId,cId,pi){
-  const pips=document.getElementById(pId);
-  if(pips)pips.innerHTML=p.life.map(()=>`<div class="lpip" onclick="trigLife(${pi})" title="ライフダメージ">🃏</div>`).join('');
-  const cnt=document.getElementById(cId);
-  if(cnt)cnt.textContent=`${p.life.length}枚`;
-}
-
-// ===== フィールド操作 =====
-function togFC(fc){const s=fc.parentElement;const c=s._cardRef;if(!c)return;c.active=!c.active;log(`「${c.data[1]}」を${c.active?'活動':'休息'}状態に。`);renderAll();}
-function togMP(pi,i){const c=G.players[pi].mp[i];if(!c)return;c.active=!c.active;log(`MPの「${c.data[1]}」を${c.active?'活動':'休息'}状態に。`);renderAll();}
-function selH(i){document.querySelectorAll('.hc').forEach((el,j)=>el.classList.toggle('sel',j===i));}
-
-// ===== 装備 =====
-function openEquipSelect(card,handIdx,pi){
-  const p=G.players[pi];
-  const targets=p.main.map((c,i)=>({card:c,idx:i})).filter(x=>x.card);
-  if(!targets.length){alert('メインフィールドにキャラがいません。');return;}
-  if(targets.length===1){attachEquip(card,handIdx,pi,targets[0].idx);}
-  else{
-    const names=targets.map((t,i)=>` ${i+1}. ${t.card.data[1]}`).join('\n');
-    const choice=prompt(`どのキャラに装備しますか？\n${names}\n\n番号を入力してください：`);
-    const n=parseInt(choice)-1;
-    if(n>=0&&n<targets.length)attachEquip(card,handIdx,pi,targets[n].idx);
-  }
-}
-function attachEquip(eq,handIdx,pi,fieldIdx){
-  const p=G.players[pi];const target=p.main[fieldIdx];if(!target)return;
-  p.hand.splice(handIdx,1);if(!target.equips)target.equips=[];
-  target.equips.push(eq);
-  log(`「${target.data[1]}」に「${eq.data[1]}」を装備しました。`);renderAll();
-}
-function removeEquip(pi,zone,fieldIdx,equipIdx){
-  const p=G.players[pi];const arr=zone==='main'?p.main:p.sup;const card=arr[fieldIdx];
-  if(!card||!card.equips)return;
-  const eq=card.equips.splice(equipIdx,1)[0];p.trash.push(eq);
-  log(`「${eq.data[1]}」を装備解除して捨て札へ。`);renderAll();
-}
-
-// ===== コンテキストメニュー =====
-function showCtx(e,card,zone,idx,pi){
-  ctxT={card,zone,idx,pi};
-  document.getElementById('cx-nm').textContent=card.data[1];
-  document.getElementById('cx-num').textContent=card.data[0];
-  document.getElementById('cx-eff').textContent=card.data[10]||'';
-  const z=zone,t=card.data[2];
-  const H=z==='hand',M=z==='main',S=z==='sup',MP=z==='mp';
-  const isEquip=H&&t==='Item'&&(card.data[1].includes('杖')||card.data[1].includes('マント'));
-  document.getElementById('cx-equip').style.display=isEquip?'':'none';
-  document.getElementById('cx-main').style.display=H?'':'none';
-  document.getElementById('cx-sup').style.display=H?'':'none';
-  document.getElementById('cx-use').style.display=(H&&(t==='Magic'||t==='Event'||t==='Item'))?'':'none';
-  document.getElementById('cx-mp').style.display=H?'':'none';
-  document.getElementById('cx-tog').style.display=(M||S||MP)?'':'none';
-  document.getElementById('cx-rst').style.display=S?'':'none';
-  document.getElementById('cx-dwn').style.display=M?'':'none';
-  document.getElementById('cx-toh').style.display=(M||S||MP)?'':'none';
-  document.getElementById('cx-bot').style.display=(H||M||S||MP)?'':'none';
-  const m=document.getElementById('ctx');
-  m.style.display='block';
-  const mw=m.offsetWidth||190,mh=m.offsetHeight||280;
-  let x=e.clientX,y=e.clientY;
-  if(x+mw+4>window.innerWidth)x=window.innerWidth-mw-4;
-  if(y+mh+4>window.innerHeight)y=window.innerHeight-mh-4;
-  if(x<4)x=4;if(y<4)y=4;
-  m.style.left=x+'px';m.style.top=y+'px';
-}
-function ctxH(e,pi,i){showCtx(e,G.players[pi].hand[i],'hand',i,pi);}
-function ctxF(e,fc){const s=fc.parentElement;if(!s._cardRef)return;showCtx(e,s._cardRef,s._zone,s._idx,s._pi);}
-function ctxMP(e,pi,i){showCtx(e,G.players[pi].mp[i],'mp',i,pi);}
-function closeCtx(){document.getElementById('ctx').style.display='none';ctxT=null;}
-
-function ca(action){
-  if(!ctxT)return;
-  const{card,zone,idx,pi}=ctxT;const p=G.players[pi];const nm=card.data[1];
-  function rm(){if(zone==='hand')p.hand.splice(idx,1);else if(zone==='main')p.main[idx]=null;else if(zone==='sup')p.sup[idx]=null;else if(zone==='mp')p.mp.splice(idx,1);}
-  if(action==='main'){const s=p.main.findIndex(x=>!x);if(s===-1){alert('メインが満杯（3枚）');closeCtx();return;}rm();card.active=true;p.main[s]=card;log(`「${nm}」をメインに。`);}
-  else if(action==='sup'){const s=p.sup.findIndex(x=>!x);if(s===-1){alert('サポートが満杯（4枚）');closeCtx();return;}rm();card.active=true;p.sup[s]=card;log(`「${nm}」をサポートに。`);}
-  else if(action==='use'){rm();p.trash.push(card);log(`「${nm}」を使用（捨て札へ）。`);}
-  else if(action==='mp'){rm();card.active=true;p.mp.push(card);log(`「${nm}」をMPへ。`);}
-  else if(action==='tog'){card.active=!card.active;log(`「${nm}」を${card.active?'活動':'休息'}状態に。`);}
-  else if(action==='rst'){const s=p.main.findIndex(x=>!x);if(s===-1){alert('メインが満杯');closeCtx();return;}rm();card.active=true;p.main[s]=card;log(`「${nm}」をメインに復帰。`);}
-  else if(action==='dwn'){const s=p.sup.findIndex(x=>!x);if(s===-1){rm();p.trash.push(card);log(`「${nm}」ダウン→捨て札。`);}else{rm();p.sup[s]=card;log(`「${nm}」ダウン→サポートへ。`);}}
-  else if(action==='toh'){rm();p.hand.push(card);log(`「${nm}」を手札に戻しました。`);}
-  else if(action==='bot'){rm();card.active=true;p.deck.push(card);log(`「${nm}」をデッキ下に。`);}
-  else if(action==='tr'){rm();p.trash.push(card);log(`「${nm}」を捨て札に。`);}
-  else if(action==='equip'){openEquipSelect(card,idx,pi);closeCtx();return;}
-  closeCtx();renderAll();
-}
-
-// ===== ライフ =====
-function trigLife(pi){
-  const p=G.players[pi],lb=pi===0?'1P':'2P';
-  if(!p.life.length){log(`⚠ ${lb}ライフ0枚！`);return;}
-  pendLife={card:p.life.shift(),pi};
-  const c=pendLife.card,hasB=c.data[10]&&c.data[10].includes('ブレイク');
-  document.getElementById('life-info').innerHTML=
-    `<div style="font-weight:700;margin-bottom:3px;">${c.data[1]}</div><div style="font-size:9px;font-family:monospace;color:var(--ink-light)">${c.data[0]}</div><div style="margin-top:5px;font-size:10px;line-height:1.5">${c.data[10]||'テキストなし'}</div>`;
-  document.getElementById('life-brk').style.display=hasB?'':'none';
-  document.getElementById('life-modal').style.display='flex';
-  log(`${lb} ライフダメージ！「${c.data[1]}」を公開。処理を選択してください。`);
-}
-function resLife(action){
-  if(!pendLife)return;
-  const{card,pi}=pendLife;const p=G.players[pi];const lb=pi===0?'1P':'2P';
-  card.active=true;
-  if(action==='hand'){p.hand.push(card);log(`${lb}「${card.data[1]}」を手札に。残ライフ${p.life.length}枚。`);}
-  else if(action==='mp'){p.mp.push(card);log(`${lb}「${card.data[1]}」をMPへ。残ライフ${p.life.length}枚。`);}
-  else if(action==='break'){card.active=false;p.trash.push(card);log(`${lb}「${card.data[1]}」ブレイク使用。残ライフ${p.life.length}枚。`);}
-  if(!p.life.length)log(`⚠ ${lb}ライフ0枚！次のパートナーへのダメージで敗北。`);
-  pendLife=null;document.getElementById('life-modal').style.display='none';renderAll();
-}
-
-// ===== 捨て札 =====
-function showTrash(pi){
-  const p=G.players[pi],lb=pi===0?'1P':'2P';
-  document.getElementById('trash-ttl').textContent=`${lb}の捨て札`;
-  const list=document.getElementById('trash-list');
-  if(!p.trash.length){list.innerHTML='<div style="padding:14px;text-align:center;color:var(--ink-light)">捨て札はありません</div>';}
-  else{
-    list.innerHTML=[...p.trash].reverse().map((c,i)=>{
-      const ri=p.trash.length-1-i;
-      return `<div class="ti"><span class="ti-num">${c.data[0]}</span><span class="ti-nm">${c.data[1]}</span>
-        <button class="tib" onclick="trAct(${pi},${ri},'hand')">手札</button>
-        <button class="tib" onclick="trAct(${pi},${ri},'deck')">デッキ</button></div>`;
-    }).join('');
-  }
-  document.getElementById('trash-modal').style.display='flex';
-}
-function trAct(pi,idx,dest){
-  const p=G.players[pi],lb=pi===0?'1P':'2P';
-  const c=p.trash.splice(idx,1)[0];c.active=true;
-  if(dest==='hand'){p.hand.push(c);log(`${lb} 捨て札から「${c.data[1]}」を手札に。`);}
-  else{p.deck.push(c);log(`${lb} 捨て札から「${c.data[1]}」をデッキ下に。`);}
-  document.getElementById('trash-modal').style.display='none';renderAll();
-}
-
-// ===== チュートリアル補助 =====
-
-// ===== モバイルビュー描画 =====
-const MOB_MW=70,MOB_MH=98,MOB_SW=56,MOB_SH=78,MOB_PW=70,MOB_PH=98;
-const MOB_OMW=48,MOB_OMH=68,MOB_OSW=40,MOB_OSH=56,MOB_OPW=48,MOB_OPH=68;
-const MOB_HW=68,MOB_HH=96;
-
-function mobEmptySlot(w,h){
-  return `<div style="width:${w}px;height:${h}px;background:rgba(200,170,90,.15);border:1px dashed rgba(90,50,15,.2);flex-shrink:0;"></div>`;
-}
-
-function mobCard(card,w,h,pi,zone,idx){
-  if(!card)return mobEmptySlot(w,h);
-  const [num,nm,,,cost]=card.data;
-  return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;"
-    onclick="mobCardClick(${pi},'${zone}',${idx})"
-    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,G.players[${pi}].${'main'===zone?'main':'sup'}[${idx}],'${zone}',${idx},${pi})">
-    <img src="${IM}${num}" style="width:100%;height:100%;object-fit:cover;display:block;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
-    ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:rgba(240,208,150,.7);">休</div>'}
-    ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:14px;height:14px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cost}</div>`:''}
-  </div>`;
-}
-
-function mobPartner(p,w,h){
-  const pt=p.partner;
-  return `<div style="width:${w}px;height:${h}px;flex-shrink:0;overflow:hidden;border:2px solid rgba(90,50,15,.45);background:rgba(180,140,60,.2);">
-    ${pt?`<img src="${IM}${pt[0]}" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-light);">?</div>'}
-  </div>`;
-}
-
-function renderMobSide(pi,row1Id,row2Id,isOpp){
-  const p=G.players[pi];
-  const mw=isOpp?MOB_OMW:MOB_MW,mh=isOpp?MOB_OMH:MOB_MH;
-  const sw=isOpp?MOB_OSW:MOB_SW,sh=isOpp?MOB_OSH:MOB_SH;
-  const pw=isOpp?MOB_OPW:MOB_PW,ph=isOpp?MOB_OPH:MOB_PH;
-  const r1=document.getElementById(row1Id);
-  if(r1){
-    let h='';
-    for(let i=0;i<3;i++)h+=mobCard(p.main[i],mw,mh,pi,'main',i);
-    h+=mobPartner(p,pw,ph);
-    r1.innerHTML=h;
-  }
-  const r2=document.getElementById(row2Id);
-  if(r2){
-    let h='';
-    for(let i=0;i<4;i++)h+=mobCard(p.sup[i],sw,sh,pi,'sup',i);
-    r2.innerHTML=h;
-  }
-}
-
-function renderMobHeader(pi,lifeId,deckId,trashId,handCntId){
-  const p=G.players[pi];
-  const hearts=[0,1,2].map(i=>i<p.life.length?'❤️':'🖤').join('');
-  const lel=document.getElementById(lifeId);if(lel)lel.onclick=()=>trigLife(pi);
-  if(lel)lel.textContent=hearts+' '+p.life.length;
-  const del=document.getElementById(deckId);if(del)del.textContent='DECK:'+p.deck.length;
-  const tel=document.getElementById(trashId);if(tel){tel.textContent='TRASH:'+p.trash.length;tel.onclick=()=>showTrash(pi);}
-  const hel=document.getElementById(handCntId);if(hel)hel.textContent='手札:'+p.hand.length+'枚';
-}
-
-function renderMobHand(pi,handId){
-  const p=G.players[pi];
-  const el=document.getElementById(handId);if(!el)return;
-  const over=p.hand.length>7;
-  el.innerHTML=p.hand.map((card,i)=>`
-    <div style="width:${MOB_HW}px;height:${MOB_HH}px;flex-shrink:0;overflow:hidden;border:${over&&i>=7?'2px solid rgba(180,40,20,.7)':'1px solid var(--border)'};cursor:pointer;transition:transform .12s;"
-      onclick="selH(${i})"
-      oncontextmenu="event.preventDefault();event.stopPropagation();ctxH(event,${pi},${i})">
-      <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.opacity='.3'">
-    </div>`).join('');
-}
-
-function renderMobile(){
-  if(!isMob()||!G)return;
-  renderMobHeader(1,'mob-life-p2','mob-deck-p2','mob-trash-p2','mob-hand-cnt-p2');
-  renderMobSide(1,'mob-row1-p2','mob-row2-p2',true);
-  renderMobHeader(0,'mob-life-p1','mob-deck-p1','mob-trash-p1',null);
-  renderMobSide(0,'mob-row1-p1','mob-row2-p1',false);
-  renderMobHand(0,'mob-hand-p1');
-  const vl=document.getElementById('mob-vs-label');
-  if(vl)vl.textContent=G.cur===0?'1Pのターン':'2Pのターン';
-}
-
-function mobCardClick(pi,zone,idx){
-  const p=G.players[pi];
-  const arr=zone==='main'?p.main:p.sup;
-  const card=arr[idx];if(!card)return;
-  card.active=!card.active;
-  log('「'+card.data[1]+'」を'+(card.active?'活動':'休息')+'状態に。');
-  renderAll();
-}
-
-// ===== モバイル判定 =====
-function isMob(){return window.innerWidth<=700;}
-
-// ===== チュートリアル =====
-function showTut(i){
-  clearHighlight();
-  tutStep=i;
-  const t=TUT[i];
-  document.getElementById('tut-title').textContent=t.title;
-  // スマホ時はmobmsgを使用
-  document.getElementById('tut-msg').textContent=(isMob()&&t.mobmsg)?t.mobmsg:t.msg;
-  document.getElementById('tut-step').textContent=(i+1)+' / '+TUT.length;
-  const box=document.getElementById('tut-box');
-  box.style.display='flex';
-
-  // スマホ時はモバイルビューIDに変換
-  const MOB_MAP={
-    'pt-p1':'mob-row1-p1',
-    'lp-p1':'mob-life-p1',
-    'main-p1':'mob-row1-p1',
-    'hand-p1':'mob-hand-p1',
-    'sup-p1':'mob-row2-p1',
-  };
-  const targetId=t.target?(isMob()&&MOB_MAP[t.target]?MOB_MAP[t.target]:t.target):null;
-
-  setTimeout(()=>{
-    const BW=360,MARGIN=10;
-    const VW=window.innerWidth,VH=window.innerHeight;
-    const bh=box.offsetHeight||200;
-
-    if(!targetId){
-      if(isMob()){
-        box.style.left=MARGIN+'px';
-        box.style.right=MARGIN+'px';
-        box.style.bottom='48px';
-        box.style.top='';
-        box.style.width='auto';
-      } else {
-        box.style.left=Math.max(MARGIN,(VW-BW)/2)+'px';
-        box.style.top=Math.max(MARGIN,(VH-bh)/2)+'px';
-        box.style.bottom='';
-        box.style.right='';
-        box.style.width=BW+'px';
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>一人回し — PokePoLix</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lavishly+Yours&family=Zen+Antique+Soft&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
       }
-      return;
-    }
+      :root {
+        --ink: #1e0e06;
+        --ink-mid: rgba(30, 14, 6, 0.7);
+        --ink-light: rgba(30, 14, 6, 0.45);
+        --border: rgba(90, 50, 15, 0.3);
+        --bd: rgba(90, 50, 15, 0.6);
+        --slot: rgba(200, 170, 90, 0.18);
+        --slotb: rgba(90, 50, 15, 0.22);
+        --p1bg: rgba(26, 58, 106, 0.12);
+        --p1c: rgba(26, 58, 106, 0.9);
+        --p2bg: rgba(106, 26, 26, 0.12);
+        --p2c: rgba(106, 26, 26, 0.9);
+        --font-logo: "Lavishly Yours", cursive;
+        --font-ja: "Zen Antique Soft", serif;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+      body {
+        font-family: var(--font-ja);
+        background-color: #c9a45a;
+        background-image: radial-gradient(
+            ellipse at 20% 20%,
+            rgba(80, 40, 10, 0.15) 0%,
+            transparent 45%
+          ),
+          radial-gradient(
+            ellipse at 80% 80%,
+            rgba(80, 40, 10, 0.12) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            ellipse at 50% 50%,
+            #e2bf82 0%,
+            #c49850 65%,
+            #a87a38 100%
+          );
+        color: var(--ink);
+      }
 
-    const el=document.getElementById(targetId);
-    if(!el){
-      box.style.left=(VW-BW-MARGIN)+'px';
-      box.style.bottom=MARGIN+'px';
-      box.style.top='';
-      return;
-    }
+      /* スマホ版MP行のスタイル */
+      .mob-mp-row {
+        display: flex;
+        gap: 4px;
+        overflow-x: auto;
+        padding: 2px 4px;
+        background: rgba(200, 170, 90, 0.1);
+        border-top: 1px dashed var(--border);
+        min-height: 52px;
+        align-items: center;
+        flex-shrink: 0;
+      }
+      .mob-mp-row::-webkit-scrollbar {
+        display: none;
+      }
 
-    el.classList.add('tut-highlight');
-    const rect=el.getBoundingClientRect();
-    const arrow=document.getElementById('tut-arrow');
+      /* 既存のメディアクエリ修正 */
+      @media (max-width: 700px) {
+        #field-area,
+        #field-area * {
+          display: none !important;
+        }
+        #mob-view {
+          display: flex !important;
+        }
+        #ctrl {
+          padding: 3px 4px;
+          gap: 2px;
+          flex-wrap: nowrap;
+          overflow-x: auto;
+        }
+        .tbadge {
+          font-size: 9px;
+          padding: 2px 5px;
+          flex-shrink: 0;
+        }
+        .tnum {
+          font-size: 14px;
+        }
+        .cbs {
+          gap: 2px;
+          margin-left: auto;
+        }
+        .cb {
+          font-size: 9px;
+          padding: 2px 5px;
+        }
+        #tut-box {
+          width: calc(100vw - 16px) !important;
+          left: 8px !important;
+          bottom: 8px !important;
+          top: auto !important;
+        }
+      }
 
-    box.style.width=BW+'px';
-    box.style.right='';
-    let boxTop,boxLeft,arrowTxt,arrowTop;
-    const arrowLeft=Math.min(Math.max(rect.left+rect.width/2-12,MARGIN),VW-30);
+      /* ...（中略：既存のCSSは保持）... */
 
-    if(t.arrow==='bottom'){
-      boxTop=rect.top-bh-36;
-      if(boxTop<MARGIN)boxTop=rect.bottom+36;
-      arrowTxt=boxTop<rect.top?'▼':'▲';
-      arrowTop=boxTop<rect.top?rect.top-28:rect.bottom+8;
-    } else {
-      boxTop=rect.bottom+36;
-      if(boxTop+bh>VH-MARGIN)boxTop=rect.top-bh-36;
-      arrowTxt=boxTop>rect.bottom?'▲':'▼';
-      arrowTop=boxTop>rect.bottom?rect.bottom+8:rect.top-28;
-    }
+      /* チュートリアルハイライト */
+      .tut-highlight {
+        outline: 3px solid rgba(200, 40, 20, 0.85) !important;
+        outline-offset: 2px;
+        box-shadow: 0 0 12px rgba(200, 40, 20, 0.5) !important;
+        animation: tutPulse 1.2s ease-in-out infinite;
+        position: relative;
+        z-index: 50;
+      }
+      @keyframes tutPulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="setup">
+      <div class="setup-inner">
+        <div class="setup-logo">Poke<span>Po</span>Lix</div>
+        <div class="setup-players">
+          <div>
+            <div class="setup-player-label p1-lbl">1P デッキ</div>
+            <div id="dl-p1" class="deck-list"></div>
+          </div>
+          <div>
+            <div class="setup-player-label p2-lbl">2P デッキ</div>
+            <div id="dl-p2" class="deck-list"></div>
+          </div>
+        </div>
+        <button class="btn-start" id="btn-start" disabled onclick="startGame()">
+          ゲームを開始する
+        </button>
+        <button
+          onclick="startStarter()"
+          style="width: 100%; margin-top: 10px; padding: 12px; cursor: pointer"
+        >
+          スターターでチュートリアル
+        </button>
+      </div>
+    </div>
 
-    boxLeft=rect.left+rect.width/2-BW/2;
-    boxLeft=Math.max(MARGIN,Math.min(boxLeft,VW-BW-MARGIN));
-    box.style.left=boxLeft+'px';
-    box.style.top=boxTop+'px';
-    box.style.bottom='';
-    if(arrow){
-      arrow.textContent=arrowTxt;
-      arrow.style.left=arrowLeft+'px';
-      arrow.style.top=arrowTop+'px';
-      arrow.style.display='block';
-    }
-  },50);
-}
+    <div id="game">
+      <div id="ctrl">
+        <span class="tbadge" id="tbadge">1P のターン</span>
+        <span class="tnum" id="tnum">1</span>
+        <div class="cbs">
+          <button class="cb cb-o" id="btn-sb" onclick="doStandby()">
+            スタンバイ実行
+          </button>
+          <button class="cb cb-p" id="btn-next" onclick="nextPhase()">
+            エンドへ →
+          </button>
+          <button class="cb cb-s" onclick="doSwitch()">⇄ サイド交代</button>
+        </div>
+      </div>
 
-function clearHighlight(){
-  document.querySelectorAll('.tut-highlight').forEach(el=>el.classList.remove('tut-highlight'));
-  const arrow=document.getElementById('tut-arrow');
-  if(arrow)arrow.style.display='none';
-}
+      <div
+        id="mob-view"
+        style="display: none; flex-direction: column; flex: 1; overflow: hidden"
+      >
+        <div
+          id="mob-p2"
+          style="background: rgba(106, 26, 26, 0.08); flex: none"
+        >
+          <div
+            id="mob-hdr-p2"
+            style="
+              padding: 3px 8px;
+              font-size: 10px;
+              background: rgba(106, 26, 26, 0.15);
+            "
+          >
+            2P (後攻) <span id="mob-life-p2">❤️ 3</span>
+          </div>
+          <div id="mob-row1-p2" style="display: flex; padding: 4px"></div>
+          <div id="mob-row2-p2" style="display: flex; padding: 4px"></div>
+          <div id="mob-mp-p2" class="mob-mp-row"></div>
+        </div>
+        <div style="height: 2px; background: var(--border)"></div>
+        <div
+          id="mob-p1"
+          style="
+            background: rgba(26, 58, 106, 0.06);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <div
+            id="mob-hdr-p1"
+            style="
+              padding: 3px 8px;
+              font-size: 10px;
+              background: rgba(26, 58, 106, 0.15);
+            "
+          >
+            1P (先攻) <span id="mob-life-p1">❤️ 3</span>
+          </div>
+          <div id="mob-row1-p1" style="display: flex; padding: 4px"></div>
+          <div id="mob-row2-p1" style="display: flex; padding: 4px"></div>
+          <div id="mob-mp-p1" class="mob-mp-row"></div>
+          <div
+            id="mob-hand-p1"
+            class="hcards"
+            style="flex: 1; overflow-x: auto; padding: 4px"
+          ></div>
+        </div>
+      </div>
 
-function closeTut(){
-  clearHighlight();
-  const box=document.getElementById('tut-box');
-  if(box)box.style.display='none';
-}
+      <div id="field-area"></div>
+    </div>
 
-function nextTut(){if(tutStep<TUT.length-1)showTut(tutStep+1);else closeTut();}
-function prevTut(){if(tutStep>0)showTut(tutStep-1);}
-function reopenTut(){showTut(tutStep);}
+    <div
+      id="tut-box"
+      style="
+        display: none;
+        position: fixed;
+        z-index: 300;
+        width: 360px;
+        background: #e2c882;
+        border: 2px solid rgba(90, 50, 15, 0.5);
+      "
+    >
+      <div
+        style="
+          background: rgba(80, 45, 12, 0.7);
+          padding: 8px;
+          color: #f0e0c0;
+          display: flex;
+          justify-content: space-between;
+        "
+      >
+        <span id="tut-title"></span>
+        <span id="tut-step"></span>
+      </div>
+      <div style="padding: 12px">
+        <p id="tut-msg" style="font-size: 12px; white-space: pre-wrap"></p>
+      </div>
+      <div style="display: flex; gap: 4px; padding: 8px">
+        <button onclick="prevTut()" style="flex: 1">◀</button>
+        <button onclick="nextTut()" style="flex: 2; font-weight: bold">
+          次へ
+        </button>
+        <button onclick="closeTut()">閉じる</button>
+      </div>
+    </div>
 
-// ===== 起動 =====
-document.addEventListener('click',()=>closeCtx());
-initSetup();
-if(localStorage.getItem('ppx_start_tutorial')==='1'){
-  localStorage.removeItem('ppx_start_tutorial');
-  startStarter();
-}
-</script>
+    <script>
+      // 17ステップに拡張されたチュートリアルデータ
+      const TUTORIAL_STEPS = [
+        {
+          step: 1,
+          title: "画面の見方1",
+          msg: "左側の青いエリアが1P（あなた）、右側の赤いエリアが2P（相手）です。",
+          mobmsg: "上が相手(2P)、下が自分(1P)のエリアです。",
+        },
+        {
+          step: 2,
+          title: "画面の見方2",
+          msg: "一番下が手札です。右クリック（長押し）でプレイ内容を選べます。",
+          mobmsg: "一番下が手札です。タップで詳細、長押しでプレイできます。",
+        },
+        {
+          step: 3,
+          title: "画面の見方3",
+          msg: "中央が戦場（メイン）とその下のサポートエリアです。",
+          mobmsg: "中央の広い場所が戦場、その下がサポートエリアです。",
+        },
+        {
+          step: 4,
+          title: "画面の見方4",
+          msg: "さらに下にあるのがMPエリアです。カードを出すコストになります。",
+          mobmsg: "一番下の隙間がMPエリアです。ここにカードを溜めて戦います。",
+        },
+        {
+          step: 5,
+          title: "画面の見方5",
+          msg: "一番左にはライフがあります。これが0になると負けです。",
+          mobmsg: "左端のカードがライフです。3枚なくなると負けです。",
+        },
+        {
+          step: 6,
+          title: "ターンの流れ",
+          msg: "「スタンバイ」→「メイン」→「エンド」の順に進みます。",
+          mobmsg: "スタンバイで準備し、メインで戦い、エンドで交代します。",
+        },
+        {
+          step: 7,
+          title: "【1P】スタンバイ",
+          msg: "「スタンバイ実行」を押すと、MPが全回復しカードを1枚引きます。",
+          mobmsg:
+            "下の「スタンバイ実行」を押して、MPを回復しカードを引きます。",
+          trigger: "standby",
+        },
+        {
+          step: 8,
+          title: "【1P】手札捨て",
+          msg: "先攻1ターン目は手札が8枚になります。1枚捨て札に送ってください。",
+          mobmsg:
+            "先攻は手札が多くなります。1枚選んで「捨て札」にしてください。",
+          trigger: "trash",
+        },
+        {
+          step: 9,
+          title: "【1P】プレイ",
+          msg: "手札のカードを1枚「MP」に置き、余ったMPでキャラを出しましょう。",
+          mobmsg: "手札を1枚MPに置き、キャラを戦場へ出してみましょう。",
+        },
+        {
+          step: 10,
+          title: "【1P】エンドへ",
+          msg: "メインフェイズを終えるには「エンドへ」を押します。",
+          mobmsg: "「エンドへ」を押して、エンドフェイズに進みます。",
+          trigger: "endphase",
+        },
+        {
+          step: 11,
+          title: "【1P】交代",
+          msg: "「ターン終了」を押し、「サイド交代」で2P視点に切り替えます。",
+          mobmsg: "「ターン終了」を押し、サイド交代で2Pを操作しましょう。",
+          trigger: "switch",
+        },
+        {
+          step: 12,
+          title: "【2P】スタンバイ",
+          msg: "2Pのターンです。まずは「スタンバイ実行」をしましょう。",
+          mobmsg: "2Pの番です。スタンバイを実行します。",
+          trigger: "standby",
+        },
+        {
+          step: 13,
+          title: "【2P】MP確認",
+          msg: "後攻は最初からMPが1枚あります。これを使ってキャラを出せます。",
+          mobmsg: "後攻は最初からMPが1本ある状態で始まります。",
+        },
+        {
+          step: 14,
+          title: "【2P】エンドへ",
+          msg: "2Pの行動を終えたら、エンドフェイズへ進みましょう。",
+          mobmsg: "2Pのメインを終了します。",
+          trigger: "endphase",
+        },
+        {
+          step: 15,
+          title: "アタック(決闘)",
+          msg: "キャラを選択して相手を攻撃します。MPを消費し自身は休止します。",
+          mobmsg:
+            "キャラをタップして攻撃！MPを使い、終わると「休」になります。",
+        },
+        {
+          step: 16,
+          title: "ライフ処理",
+          msg: "攻撃が成功すると、相手のライフが1枚減ります。",
+          mobmsg: "ライフを削って勝利を目指します。",
+        },
+        {
+          step: 17,
+          title: "完了！",
+          msg: "これで一通りの流れを学びました。自由に対戦を続けてください！",
+          mobmsg: "チュートリアル完了！自由に対戦してみましょう。",
+        },
+      ];
 
-</body>
+      let currentTutIdx = 0;
+      let isTutMode = false;
 
+      function updateTutDisplay() {
+        const step = TUTORIAL_STEPS[currentTutIdx];
+        const isMob = window.innerWidth <= 700;
+        document.getElementById("tut-title").innerText = step.title;
+        document.getElementById("tut-step").innerText = `${
+          currentTutIdx + 1
+        } / 17`;
+        document.getElementById("tut-msg").innerText =
+          isMob && step.mobmsg ? step.mobmsg : step.msg;
+        clearHighlight();
+        // ハイライト誘導（必要に応じて要素を指定）
+      }
+
+      function nextTut() {
+        if (currentTutIdx < TUTORIAL_STEPS.length - 1) {
+          currentTutIdx++;
+          updateTutDisplay();
+        }
+      }
+
+      // 自動進行用フックを既存関数に組み込む
+      function doStandby() {
+        /* 既存のスタンバイ処理 */
+        if (isTutMode && TUTORIAL_STEPS[currentTutIdx].trigger === "standby")
+          nextTut();
+      }
+
+      function nextPhase() {
+        /* 既存のフェイズ進行処理 */
+        if (isTutMode && TUTORIAL_STEPS[currentTutIdx].trigger === "endphase")
+          nextTut();
+      }
+
+      function doSwitch() {
+        /* 既存のサイド交代処理 */
+        if (isTutMode && TUTORIAL_STEPS[currentTutIdx].trigger === "switch")
+          nextTut();
+      }
+
+      // スマホ版描画の際にMP行を更新する処理を追加
+      function updateView() {
+        /* 既存の描画ロジック... */
+        const players = [0, 1];
+        players.forEach((pIdx) => {
+          const mpContainer = document.getElementById(`mob-mp-p${pIdx + 1}`);
+          if (mpContainer) {
+            mpContainer.innerHTML = "";
+            state.players[pIdx].field.mp.forEach((card) => {
+              const div = document.createElement("div");
+              div.className = "mp-fc" + (card.rest ? " rest" : "");
+              div.innerHTML = `<img src="${card.image}">`;
+              mpContainer.appendChild(div);
+            });
+          }
+        });
+      }
+    </script>
+  </body>
 </html>
