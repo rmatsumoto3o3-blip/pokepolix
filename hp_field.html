@@ -53,9 +53,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(140,90,30,.05) 28px,rgba(140,90,30,.05) 29px);}
 
 
+
+
 /* ===== スマホ（〜700px）===== */
 @media(max-width:700px){
-  /* コントロールバー：横スクロール1行 */
+  /* デスクトップビューを非表示 */
+  #field-area, #field-area * {display:none!important;}
+  /* モバイルビューを表示 */
+  #mob-view{display:flex!important;}
+
+  /* コントロールバー */
   #ctrl{padding:3px 4px;gap:2px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .tbadge{font-size:9px;padding:2px 5px;flex-shrink:0;white-space:nowrap;}
   .tnum{font-size:14px;}
@@ -64,78 +71,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   .cbs{gap:2px;flex-shrink:0;flex-wrap:nowrap;margin-left:auto;}
   .cb{font-size:9px;padding:2px 5px;white-space:nowrap;}
 
-  /* 上下レイアウト */
-  #field-area{flex-direction:column;}
-  .vdivider{
-    width:100%;height:3px;flex-shrink:0;
-    background:linear-gradient(90deg,transparent,rgba(90,50,15,.6) 20%,rgba(90,50,15,.9) 50%,rgba(90,50,15,.6) 80%,transparent);
-  }
-  .vdivider::before{
-    top:50%;left:50%;transform:translate(-50%,-50%);
-    writing-mode:horizontal-tb;font-size:8px;padding:0 8px;
-  }
-
-  /* 相手（opp）：横帯ミニビュー */
-  .pside.opp{flex:none;overflow:hidden;}
-  .pside.opp .side-hdr{font-size:9px;padding:2px 6px;}
-  .pside.opp .side-body{
-    flex-direction:row;align-items:center;
-    padding:2px 4px;gap:4px;
-    overflow-x:auto;-webkit-overflow-scrolling:touch;
-    flex-wrap:nowrap;height:82px;
-  }
-  .pside.opp .col-life{flex-direction:row;align-items:center;gap:2px;width:auto;flex-shrink:0;}
-  .pside.opp .llife{writing-mode:horizontal-tb;font-size:6px;}
-  .pside.opp .life-pips{flex-direction:row;gap:1px;}
-  .pside.opp .lpip{width:14px;height:20px;font-size:6px;}
-  .pside.opp .lcnt{font-size:6px;}
-  .pside.opp [style*="width:100px"]{width:48px!important;flex-direction:row;align-items:center;padding:1px;gap:1px;}
-  .pside.opp .iz-pt{width:40px!important;height:58px!important;}
-  .pside.opp .col-center{flex-direction:row;align-items:center;gap:3px;flex:none;}
-  .pside.opp .info-row{display:none;}
-  .pside.opp .zrow{flex-direction:column;gap:1px;align-items:center;}
-  .pside.opp .zlbl{writing-mode:horizontal-tb;font-size:5px;padding:0;}
-  .pside.opp .slots{flex-direction:row;gap:2px;}
-  .pside.opp .mpscroll{flex-direction:row;gap:2px;overflow-x:visible;flex:none;}
-  .pside.opp .ms{width:36px;height:50px;}
-  .pside.opp .ss{width:30px;height:42px;}
-  .pside.opp .mps{width:24px;height:34px;}
-  .pside.opp .fc-nm,.pside.opp .fc-st{display:none;}
-  .pside.opp .fc-btm{display:none;}
-  .pside.opp .fc-cost{width:8px;height:8px;font-size:5px;top:0;right:0;}
-  .pside.opp .fc.rest::after{font-size:9px;}
-  .pside.opp .col-right{width:auto;flex-direction:row;gap:2px;align-items:center;}
-  .pside.opp .rslot{width:34px!important;}
-  .pside.opp .ds{height:50px;}
-  .pside.opp .ts{height:42px;}
-  .pside.opp .rslot-cnt{font-size:9px;}
-  .pside.opp .rslot-lbl{font-size:5px;padding:0 1px;}
-  .pside.opp .hand-area{padding:1px 2px;border-top:none;background:none;}
-  .pside.opp .hlbl{font-size:5px;margin-bottom:0;}
-  .pside.opp .hand-warn{display:none!important;}
-  .pside.opp .hc-back{width:16px;height:24px;}
-  .pside.opp .hcards{gap:1px;padding:0;}
-
-  /* 自分（act）：縦スクロール全画面 */
-  .pside.act{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-  .pside.act .side-hdr{font-size:10px;padding:3px 8px;}
-  .pside.act .side-body{padding:3px 5px;gap:4px;}
-  .pside.act [style*="width:100px"]{width:72px!important;}
-  .pside.act .iz-pt{width:68px!important;height:98px!important;}
-  .pside.act .ms{width:72px;height:100px;}
-  .pside.act .ss{width:56px;height:78px;}
-  .pside.act .mps{width:46px;height:64px;}
-  .pside.act .info-row{height:46px;}
-  .pside.act .col-life{width:32px;}
-  .pside.act .lpip{width:24px;height:34px;}
-  .pside.act .col-right{width:56px;}
-  .pside.act .rslot{width:52px!important;}
-  .pside.act .ds{height:70px;}
-  .pside.act .ts{height:60px;}
-  .pside.act .hc{width:64px;height:90px;}
-  .pside.act .hand-area{padding:3px 4px;}
-
-  /* ログ・チュートリアル */
   #log{font-size:9px;padding:2px 6px;flex-shrink:0;}
   #tut-box{
     width:calc(100vw - 16px)!important;left:8px!important;
@@ -144,6 +79,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   #tut-box p{font-size:11px!important;}
   .cb2{font-size:10px;padding:4px 8px;}
   .ctx-eff{font-size:8px;max-height:56px;}
+}
+@media(min-width:701px){
+  #mob-view{display:none!important;}
 }
 
 /* ===== セットアップ ===== */
@@ -630,7 +568,60 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
   </div>
 
-  <div id="field-area">
+  
+  <!-- ===== モバイルビュー（〜700px専用） ===== -->
+  <div id="mob-view" style="display:none;flex-direction:column;flex:1;overflow:hidden;font-family:var(--font-ja);">
+
+    <!-- 2P（上・相手） -->
+    <div id="mob-p2" style="flex:none;background:rgba(106,26,26,.08);border-bottom:2px solid rgba(106,26,26,.25);">
+      <!-- ヘッダー -->
+      <div id="mob-hdr-p2" style="display:flex;align-items:center;gap:6px;padding:3px 8px;background:rgba(106,26,26,.15);font-size:10px;font-weight:700;color:rgba(106,26,26,.9);">
+        <span>2P（後攻）</span>
+        <span id="mob-life-p2" style="margin-left:4px;font-size:11px;">❤️ 3</span>
+        <span id="mob-deck-p2" style="font-size:9px;color:var(--ink-light);">DECK:50</span>
+        <span id="mob-trash-p2" style="font-size:9px;color:var(--ink-light);">TRASH:0</span>
+        <span id="mob-hand-cnt-p2" style="margin-left:auto;font-size:9px;color:var(--ink-light);">手札:7枚</span>
+      </div>
+      <!-- フィールド -->
+      <div style="padding:4px 6px;display:flex;flex-direction:column;gap:3px;">
+        <!-- Row1: MAIN×3 + PARTNER -->
+        <div id="mob-row1-p2" style="display:flex;gap:3px;align-items:flex-end;"></div>
+        <!-- Row2: SUPPORT×4 -->
+        <div id="mob-row2-p2" style="display:flex;gap:3px;"></div>
+      </div>
+    </div>
+
+    <!-- 分割線 -->
+    <div style="flex:none;height:3px;background:linear-gradient(90deg,transparent,rgba(90,50,15,.7) 50%,transparent);position:relative;">
+      <div id="mob-vs-label" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#d4a84a;border:1px solid rgba(90,50,15,.4);font-size:9px;font-family:var(--font-logo);color:var(--ink);padding:0 10px;white-space:nowrap;">vs</div>
+    </div>
+
+    <!-- 1P（下・自分） -->
+    <div id="mob-p1" style="flex:1;display:flex;flex-direction:column;min-height:0;background:rgba(26,58,106,.06);">
+      <!-- ヘッダー -->
+      <div id="mob-hdr-p1" style="display:flex;align-items:center;gap:6px;padding:3px 8px;background:rgba(26,58,106,.15);font-size:10px;font-weight:700;color:rgba(26,58,106,.9);flex-shrink:0;">
+        <span>1P（先攻）</span>
+        <span id="mob-life-p1" style="margin-left:4px;font-size:11px;">❤️ 3</span>
+        <span id="mob-deck-p1" style="font-size:9px;color:var(--ink-light);">DECK:50</span>
+        <span id="mob-trash-p1" style="font-size:9px;color:var(--ink-light);">TRASH:0</span>
+      </div>
+      <!-- フィールド -->
+      <div style="padding:4px 6px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
+        <!-- Row1: MAIN×3 + PARTNER -->
+        <div id="mob-row1-p1" style="display:flex;gap:3px;align-items:flex-end;"></div>
+        <!-- Row2: SUPPORT×4 -->
+        <div id="mob-row2-p1" style="display:flex;gap:3px;"></div>
+      </div>
+      <!-- 手札（1P） -->
+      <div style="flex:1;min-height:0;padding:3px 6px 4px;border-top:1px solid var(--border);background:rgba(180,135,55,.15);overflow-y:hidden;">
+        <div style="font-size:8px;color:var(--ink-light);margin-bottom:3px;">HAND — 右クリックでアクション</div>
+        <div id="mob-hand-p1" class="hcards" style="gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;"></div>
+      </div>
+    </div>
+
+  </div><!-- /mob-view -->
+
+<div id="field-area">
 
     <!-- 1P サイド（左） -->
 
@@ -1919,7 +1910,8 @@ function renderAll(){
   renderMP(p1,'mp-p2',1);
 
   renderHand(p1,'hand-p2',1);
-  updateMobClasses();
+  renderMobile();
+  renderMobile();
 }
 
 // フィールド操作
@@ -2210,6 +2202,70 @@ function removeEquip(pi, fieldZone, fieldIdx, equipIdx){
 
 }
 
+
+// ===== モバイルビュー =====
+const MOB_MAIN_W=70,MOB_MAIN_H=98,MOB_SUP_W=56,MOB_SUP_H=78,MOB_PT_W=70,MOB_PT_H=98;
+const MOB_OMAIN_W=52,MOB_OMAIN_H=73,MOB_OSUP_W=42,MOB_OSUP_H=58,MOB_OPT_W=52,MOB_OPT_H=73;
+const MOB_HC_W=68,MOB_HC_H=96;
+function isMob(){return window.innerWidth<=700;}
+function mobEmptySlot(w,h){return `<div style="width:${w}px;height:${h}px;background:rgba(200,170,90,.15);border:1px dashed rgba(90,50,15,.2);flex-shrink:0;"></div>`;}
+function mobCard(card,w,h,pi,zone,idx){
+  if(!card)return mobEmptySlot(w,h);
+  const [num,nm,,,cost]=card.data;const ap=card.data[5];
+  return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;"
+    onclick="mobCardClick(${pi},'${zone}',${idx})"
+    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,G.players[${pi}].${zone==='main'?'main':'sup'}[${idx}],'${zone}',${idx},${pi})">
+    <img src="${IM}${num}" style="width:100%;height:100%;object-fit:cover;display:block;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
+    ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:rgba(240,208,150,.7);">休</div>'}
+    ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:14px;height:14px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cost}</div>`:''}
+  </div>`;
+}
+function mobPartner(p,w,h){
+  const pt=p.partner;
+  return `<div style="width:${w}px;height:${h}px;flex-shrink:0;overflow:hidden;border:2px solid rgba(90,50,15,.45);background:rgba(180,140,60,.2);">
+    ${pt?`<img src="${IM}${pt[0]}" style="width:100%;height:100%;object-fit:contain;display:block;">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-light);">?</div>'}
+  </div>`;
+}
+function renderMobSide(pi,row1Id,row2Id,isOpp){
+  const p=G.players[pi];
+  const mw=isOpp?MOB_OMAIN_W:MOB_MAIN_W,mh=isOpp?MOB_OMAIN_H:MOB_MAIN_H;
+  const sw=isOpp?MOB_OSUP_W:MOB_SUP_W,sh=isOpp?MOB_OSUP_H:MOB_SUP_H;
+  const pw=isOpp?MOB_OPT_W:MOB_PT_W,ph=isOpp?MOB_OPT_H:MOB_PT_H;
+  const r1=document.getElementById(row1Id);
+  if(r1){let h='';for(let i=0;i<3;i++)h+=mobCard(p.main[i],mw,mh,pi,'main',i);h+=mobPartner(p,pw,ph);r1.innerHTML=h;}
+  const r2=document.getElementById(row2Id);
+  if(r2){let h='';for(let i=0;i<4;i++)h+=mobCard(p.sup[i],sw,sh,pi,'sup',i);r2.innerHTML=h;}
+}
+function renderMobHeader(pi,lifeId,deckId,trashId,handCntId){
+  const p=G.players[pi];
+  const hearts=['❤️','❤️','❤️'].map((_,i)=>i<p.life.length?'❤️':'🖤').join('');
+  const lel=document.getElementById(lifeId);if(lel)lel.textContent=hearts+' '+p.life.length;
+  const del=document.getElementById(deckId);if(del)del.textContent='DECK:'+p.deck.length;
+  const tel=document.getElementById(trashId);if(tel)tel.textContent='TRASH:'+p.trash.length;
+  const hel=document.getElementById(handCntId);if(hel)hel.textContent='手札:'+p.hand.length+'枚';
+}
+function renderMobHand(pi,handId){
+  const p=G.players[pi];const el=document.getElementById(handId);if(!el)return;
+  el.innerHTML=p.hand.map((card,i)=>`<div style="width:${MOB_HC_W}px;height:${MOB_HC_H}px;flex-shrink:0;overflow:hidden;border:1px solid var(--border);cursor:pointer;position:relative;"
+    onclick="selHand(${i})" oncontextmenu="event.preventDefault();event.stopPropagation();ctxH(event,${pi},${i})">
+    <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;"></div>`).join('');
+}
+function renderMobile(){
+  if(!isMob()||!G)return;
+  renderMobHeader(1,'mob-life-p2','mob-deck-p2','mob-trash-p2','mob-hand-cnt-p2');
+  renderMobSide(1,'mob-row1-p2','mob-row2-p2',true);
+  renderMobHeader(0,'mob-life-p1','mob-deck-p1','mob-trash-p1',null);
+  renderMobSide(0,'mob-row1-p1','mob-row2-p1',false);
+  renderMobHand(0,'mob-hand-p1');
+  const vl=document.getElementById('mob-vs-label');
+  if(vl)vl.textContent=G.cur===0?'1Pのターン':'2Pのターン';
+}
+function mobCardClick(pi,zone,idx){
+  const p=G.players[pi];const arr=zone==='main'?p.main:p.sup;const card=arr[idx];
+  if(!card)return;card.active=!card.active;
+  log(`「${card.data[1]}」を${card.active?'活動':'休息'}状態に。`);renderAll();
+}
+
 // 後攻のMPカード自動セット
 
 function autoSetMpCard(){
@@ -2230,21 +2286,6 @@ function autoSetMpCard(){
 
   }
 
-}
-
-function updateMobClasses(){
-  if(window.innerWidth>700)return;
-  if(!G)return;
-  const actId=G.va===0?'side-p1':'side-p2';
-  const oppId=G.va===0?'side-p2':'side-p1';
-  const actEl=document.getElementById(actId);
-  const oppEl=document.getElementById(oppId);
-  if(!actEl||!oppEl)return;
-  actEl.classList.add('act');actEl.classList.remove('opp');
-  oppEl.classList.add('opp');oppEl.classList.remove('act');
-  const fa=document.getElementById('field-area');
-  const vd=fa?fa.querySelector('.vdivider'):null;
-  if(fa&&vd&&fa.firstElementChild!==oppEl){fa.insertBefore(oppEl,fa.firstElementChild);fa.insertBefore(vd,actEl);}
 }
 
 document.addEventListener('click',()=>closeCtx());
