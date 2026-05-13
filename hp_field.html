@@ -304,9 +304,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
           <div class="lcnt" id="lc-p1">3</div>
         </div>
         <!-- パートナー独立カラム -->
-        <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:76px;gap:2px;padding:2px 0;">
+        <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:100px;gap:2px;padding:2px 0;">
           <div style="font-size:7px;color:var(--ink-light);letter-spacing:.3px;">PARTNER</div>
-          <div class="iz iz-pt" id="pt-p1" style="width:72px;height:108px;"></div>
+          <div class="iz iz-pt" id="pt-p1" style="width:96px;height:135px;border:1px solid var(--border);overflow:hidden;"></div>
         </div>
         <!-- フィールド -->
         <div class="col-center">
@@ -361,9 +361,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
           <div class="lcnt" id="lc-p2">3</div>
         </div>
         <!-- パートナー独立カラム -->
-        <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:76px;gap:2px;padding:2px 0;">
+        <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:100px;gap:2px;padding:2px 0;">
           <div style="font-size:7px;color:var(--ink-light);letter-spacing:.3px;">PARTNER</div>
-          <div class="iz iz-pt" id="pt-p2" style="width:72px;height:108px;"></div>
+          <div class="iz iz-pt" id="pt-p2" style="width:96px;height:135px;border:1px solid var(--border);overflow:hidden;"></div>
         </div>
         <!-- フィールド -->
         <div class="col-center">
@@ -759,9 +759,9 @@ function mkP(d){
 // セットアップ
 // プリセットデッキ（保存済みデッキがなくても使えるデッキ）
 const PRESET_DECKS = [
-  {id:'preset-grif', name:'グリフィンドールスターター', partner:'Pt001', total:50,
+  {id:'preset-grif', name:'グリフィンドールスターター', partner:'Pt001', total:50, mpCard:'MP-001N',
    deck:{'01-003':2,'01-004':2,'01-005':2,'01-013':3,'01-014':2,'01-015':2,'01-016':2,'01-017':2,'01-018':2,'01-009':2,'01-024':2,'01-025':2,'01-037':3,'01-038':3,'01-039':3,'01-040':2,'01-041':1,'01-042':1,'01-055':2,'01-032':3,'01-076':3,'01-035':2,'01-034':2}},
-  {id:'preset-slyt', name:'スリザリンスターター', partner:'Pt002', total:50,
+  {id:'preset-slyt', name:'スリザリンスターター', partner:'Pt002', total:50, mpCard:'MP-002N',
    deck:{'01-006':2,'01-007':2,'01-010':2,'01-011':2,'01-019':4,'01-020':3,'01-021':3,'01-022':3,'01-026':2,'01-027':2,'01-043':4,'01-044':4,'01-049':2,'01-056':2,'01-032':3,'01-074':3,'01-076':2,'01-079':2,'01-077':2,'01-075':1}},
 ];
 
