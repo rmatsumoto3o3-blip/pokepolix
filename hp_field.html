@@ -406,6 +406,24 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   </div>
 </div>
 
+
+<!-- 後攻MPカード選択モーダル -->
+<div id="mp-select-modal" class="mov">
+  <div class="mbox" style="width:420px;">
+    <h3>後攻のMPカードを選択</h3>
+    <p style="font-size:12px;color:var(--ink-mid);margin-bottom:12px;line-height:1.7;">
+      後攻（2P）は手札から1枚を選んでMPフィールドに置きます。<br>
+      カードをクリックして選んでください。
+    </p>
+    <div id="mp-select-hand" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="confirmMpSelect()" id="mp-select-ok"
+        style="padding:8px 20px;background:rgba(80,45,12,.75);color:#f0e0c0;border:none;cursor:pointer;font-family:var(--font-ja);font-size:13px;font-weight:600;opacity:.4;pointer-events:none;">
+        これをMPに置く
+      </button>
+    </div>
+  </div>
+</div>
 <!-- コンテキストメニュー -->
 <div id="ctx">
   <div class="ctx-info">
@@ -547,12 +565,15 @@ const CARDS=[
 ['01-079','動く階段','Location','N',0,null,null,1,0,'','〔宣言〕〔決闘中〕⑤〈手札1枚を捨て〉 相手のアタック対象を味方キャラ1枚に変更する。'],
 ['01-080','9と3/4番線','Location','N',5,null,null,1,0,'','〔自動〕〔自分のターン終了時〕 手札1枚を捨て、味方【ホグワーツ】カード1枚をメインに移す。'],
 ['01-081','オリバンダーの店','Location','N',0,null,null,1,0,'','〔宣言〕〔自分のメインフェイズ〕①⤵ デッキ上から10枚を見て、「杖」カード1枚を抜き出し味方キャラ1枚に装備。'],
+// MPカード（スターターデッキ専用）
+['MP-001N','MPカード','Character','N',null,null,null,null,0,'MPカード','ゲーム開始時、後攻のプレイヤーはMPカード1枚をMPフィールドに配置する。MPカードをゲームから取り除くことで1度だけコスト1を得る。'],
+['MP-002N','MPカード','Character','N',null,null,null,null,0,'MPカード','ゲーム開始時、後攻のプレイヤーはMPカード1枚をMPフィールドに配置する。MPカードをゲームから取り除くことで1度だけコスト1を得る。'],
 ];
 
 
 // ===== スターターデッキ =====
 const ST_GRIF = {
-  name:'グリフィンドールスターターデッキ', partner:'Pt001',
+  name:'グリフィンドールスターターデッキ', partner:'Pt001', mpCard:'MP-001N',
   deck:{
     '01-003':2,'01-004':2,'01-005':2,
     '01-013':3,'01-014':2,'01-015':2,
@@ -564,7 +585,7 @@ const ST_GRIF = {
   }
 };
 const ST_SLYT = {
-  name:'スリザリンスターターデッキ', partner:'Pt002',
+  name:'スリザリンスターターデッキ', partner:'Pt002', mpCard:'MP-002N',
   deck:{
     '01-006':2,'01-007':2,'01-010':2,'01-011':2,
     '01-019':4,'01-020':3,'01-021':3,'01-022':3,
@@ -614,7 +635,6 @@ let tutStep=0;
 
 function startStarter(){
   const p0=mkP(ST_GRIF), p1=mkP(ST_SLYT);
-  if(p1.deck.length){const c=p1.deck.shift();c.active=true;p1.mp.push(c);}
   G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1],tut:true};
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='flex';
@@ -634,6 +654,8 @@ function startStarter(){
     for(let i=0;i<7;i++){if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}}
     renderAll();
   }
+  autoSetMpCard();
+  log('後攻2PのMPカードをセットしました。ゲーム開始！');
   showTut(0);
   document.getElementById("tut-btn").style.display="";
 }
@@ -694,7 +716,7 @@ function mkP(d){
   for(let i=cs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cs[i],cs[j]]=[cs[j],cs[i]];}
   const hand=cs.splice(0,7);  // 公式：手札7枚を先に引く
   const life=cs.splice(0,3);  // 公式：その後デッキ上3枚をライフに
-  return{partner:d.partner?PARTNERS.find(p=>p[0]===d.partner):null,deck:cs,hand,life,trash:[],main:[null,null,null],sup:[null,null,null,null],mp:[]};
+  return{partner:d.partner?PARTNERS.find(p=>p[0]===d.partner):null,deck:cs,hand,life,trash:[],main:[null,null,null],sup:[null,null,null,null],mp:[],mpCardId:d.mpCard||null};
 }
 
 // セットアップ
@@ -734,12 +756,12 @@ function startGame(){
   const d1=all.find(x=>String(x.id)===selIds[1]);
   if(!d0||!d1)return;
   const p0=mkP(d0), p1=mkP(d1);
-  if(p1.deck.length){const c=p1.deck.shift();c.active=true;p1.mp.push(c);}
   G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1]};
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='flex';
   renderAll();
-  log('ゲーム開始！1P先攻。スタンバイ実行ボタンを押してください。');
+  autoSetMpCard();
+  log('ゲーム開始！後攻2PのMPカードをセットしました。1P先攻。スタンバイ実行を押してください。');
 }
 
 // フェイズ
