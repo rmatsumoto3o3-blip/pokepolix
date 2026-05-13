@@ -391,7 +391,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 <div id="tut-arrow">▼</div>
 <!-- チュートリアルボックス -->
-<div id="tut-box" style="display:none;position:fixed;bottom:40px;right:16px;z-index:300;width:360px;background:#e2c882;border:2px solid rgba(90,50,15,.5);box-shadow:4px 4px 0 rgba(80,45,12,.2);flex-direction:column;">
+<div id="tut-box" style="display:none;position:fixed;z-index:300;width:360px;background:#e2c882;border:2px solid rgba(90,50,15,.5);box-shadow:4px 4px 0 rgba(80,45,12,.2);flex-direction:column;">
   <div style="background:rgba(80,45,12,.7);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;">
     <span style="font-family:var(--font-logo);font-size:16px;color:#f0e0c0;" id="tut-title">チュートリアル</span>
     <span style="font-size:10px;color:rgba(240,224,192,.6);" id="tut-step">1 / 13</span>
@@ -645,28 +645,65 @@ function showTut(i){
   document.getElementById('tut-title').textContent=t.title;
   document.getElementById('tut-msg').textContent=t.msg;
   document.getElementById('tut-step').textContent=(i+1)+' / '+TUT.length;
-  document.getElementById('tut-box').style.display='flex';
-  // ターゲット要素をハイライト
-  if(t.target){
-    setTimeout(()=>{
-      const el=document.getElementById(t.target);
-      if(!el)return;
-      el.classList.add('tut-highlight');
-      // 矢印を表示
-      const arrow=document.getElementById('tut-arrow');
-      const rect=el.getBoundingClientRect();
-      if(t.arrow==='bottom'){
-        arrow.textContent='▲';
-        arrow.style.left=(rect.left+rect.width/2-12)+'px';
-        arrow.style.top=(rect.top-30)+'px';
-      } else {
-        arrow.textContent='▼';
-        arrow.style.left=(rect.left+rect.width/2-12)+'px';
-        arrow.style.top=(rect.bottom+6)+'px';
-      }
-      arrow.style.display='block';
-    },50);
-  }
+  const box=document.getElementById('tut-box');
+  box.style.display='flex';
+
+  setTimeout(()=>{
+    const BW=360, MARGIN=10;
+    const VW=window.innerWidth, VH=window.innerHeight;
+    const bh=box.offsetHeight||200;
+
+    if(!t.target){
+      // ターゲットなし → 画面中央
+      box.style.left=Math.max(MARGIN,(VW-BW)/2)+'px';
+      box.style.top=Math.max(MARGIN,(VH-bh)/2)+'px';
+      box.style.bottom='';
+      return;
+    }
+
+    const el=document.getElementById(t.target);
+    if(!el){
+      box.style.left=(VW-BW-MARGIN)+'px';
+      box.style.bottom=MARGIN+'px';
+      box.style.top='';
+      return;
+    }
+    el.classList.add('tut-highlight');
+
+    const rect=el.getBoundingClientRect();
+    const arrow=document.getElementById('tut-arrow');
+
+    // ボックスをターゲットの上か下に配置
+    let boxTop, boxLeft, arrowTxt, arrowTop, arrowLeft;
+    arrowLeft = Math.min(Math.max(rect.left+rect.width/2-12, MARGIN), VW-30);
+
+    if(t.arrow==='bottom'){
+      // ターゲットの上にボックス
+      boxTop = rect.top - bh - 36;
+      if(boxTop < MARGIN) boxTop = rect.bottom + 36; // 上に入らなければ下へ
+      arrowTxt = boxTop < rect.top ? '▼' : '▲';
+      arrowTop = boxTop < rect.top ? rect.top - 28 : rect.bottom + 8;
+    } else {
+      // ターゲットの下にボックス
+      boxTop = rect.bottom + 36;
+      if(boxTop + bh > VH - MARGIN) boxTop = rect.top - bh - 36;
+      arrowTxt = boxTop > rect.bottom ? '▲' : '▼';
+      arrowTop = boxTop > rect.bottom ? rect.bottom + 8 : rect.top - 28;
+    }
+
+    // 左右がはみ出ないよう調整
+    boxLeft = rect.left + rect.width/2 - BW/2;
+    boxLeft = Math.max(MARGIN, Math.min(boxLeft, VW - BW - MARGIN));
+
+    box.style.left = boxLeft+'px';
+    box.style.top  = boxTop+'px';
+    box.style.bottom = '';
+
+    arrow.textContent = arrowTxt;
+    arrow.style.left  = arrowLeft+'px';
+    arrow.style.top   = arrowTop+'px';
+    arrow.style.display = 'block';
+  }, 50);
 }
 function clearHighlight(){
   document.querySelectorAll('.tut-highlight').forEach(el=>el.classList.remove('tut-highlight'));
