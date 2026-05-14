@@ -1713,9 +1713,13 @@ function showCtx(e,card,zone,idx,pi){
   if(!card) return;
 
   ctxT={card,zone,idx,pi};
-  document.getElementById('cx-nm').textContent=card.data[1];
-  document.getElementById('cx-num').textContent=card.data[0];
-  document.getElementById('cx-eff').textContent=card.data[10]||'';
+  let eff = card.data[10] || '';
+  if (card.equips && card.equips.length) {
+    card.equips.forEach(eq => {
+      eff += `\n\n【装備品】${eq.data[1]}\n${eq.data[10] || 'テキストなし'}`;
+    });
+  }
+  document.getElementById('cx-eff').textContent = eff;
   const z=zone,t=card.data[2];
   const H=z==='hand',M=z==='main',S=z==='sup',MP=z==='mp',P=z==='partner';
   const isEquip=H&&t==='Item'&&(card.data[1].includes('杖')||card.data[1].includes('マント')||(card.data[10]&&card.data[10].includes('≪装備≫')));
