@@ -1683,6 +1683,13 @@ select, input {
       const mainGrid = grids[0];
       const today = new Date('2026-05-14'); // 本日の日付
 
+      // 動的ヘッダーの作成
+      const dynamicHeader = document.createElement('h3');
+      dynamicHeader.id = "dynamic-event-title";
+      dynamicHeader.style.marginBottom = "25px";
+      dynamicHeader.style.textAlign = "center";
+      mainGrid.parentNode.insertBefore(dynamicHeader, mainGrid);
+
       function initEvents() {
         const cards = Array.from(document.querySelectorAll('.event-card'));
         
@@ -1703,19 +1710,25 @@ select, input {
         // 2. 日付の新しい順にソート（降順）
         cards.sort((a, b) => b.dataset.date.localeCompare(a.dataset.date));
 
-        // 3. UIの統合（地域別ヘッダーを隠し、全カードを一つのグリッドに集約）
+        // 3. UIのクリーンアップ（既存のエリア見出しをすべて隠す）
         grids.forEach((g, i) => { if(i>0) g.style.display='none'; });
         document.querySelectorAll('h3').forEach(h => {
-          if(h.textContent.includes('エリア')) h.style.display = 'none';
+          if(h.id !== "dynamic-event-title") h.style.display = 'none';
         });
 
-        const listHeader = document.createElement('h3');
-        listHeader.textContent = "全エリアのイベント情報（開催順）";
-        listHeader.style.marginBottom = "20px";
-        mainGrid.parentNode.insertBefore(listHeader, mainGrid);
-
+        // 4. すべてのカードをメイングリッドに移動してソート済みで再配置
         mainGrid.innerHTML = '';
         cards.forEach(c => mainGrid.appendChild(c));
+
+        updateHeader();
+      }
+
+      function updateHeader() {
+        const pref = prefSel.value;
+        const typeText = typeSel.options[typeSel.selectedIndex].text;
+        let title = pref ? `${pref}のイベント情報` : "全エリアのイベント情報";
+        if (typeSel.value) title += `（${typeText}）`;
+        dynamicHeader.textContent = title + " [日付順]";
       }
 
       function filter() {
@@ -1724,6 +1737,7 @@ select, input {
         const keyword = keywordInp.value.toLowerCase();
         const cards = document.querySelectorAll('.event-card');
 
+        let visibleCount = 0;
         cards.forEach(card => {
           const cPref = card.getAttribute('data-pref') || "";
           const cType = card.getAttribute('data-type') || "";
@@ -1733,11 +1747,15 @@ select, input {
           const matchType = !type || cType === type;
           const matchKeyword = !keyword || text.includes(keyword);
 
-          card.style.display = (matchPref && matchType && matchKeyword) ? 'flex' : 'none';
+          const isVisible = matchPref && matchType && matchKeyword;
+          card.style.display = isVisible ? 'flex' : 'none';
+          if(isVisible) visibleCount++;
         });
+
+        updateHeader();
       }
 
-      // 初期化とイベント登録
+      // 初期化
       initEvents();
       prefSel.addEventListener('change', filter);
       typeSel.addEventListener('change', filter);
