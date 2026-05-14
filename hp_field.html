@@ -1776,8 +1776,8 @@ function mobCard(card,w,h,pi,zone,idx){
   if(!card)return mobEmptySlot(w,h);
   const [num,nm,,,cost]=card.data;
   return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:transform .2s ease;${card.active?'':'transform:rotate(90deg) scale(0.72);'}"
-    onclick="mobCardClick(${pi},'${zone}',${idx})"
-    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,G.players[${pi}].${zone==='main'?'main':'sup'}[${idx}],'${zone}',${idx},${pi})">
+    onclick="ctxF(event,this)"
+    oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
     <img src="${IM}${num}" style="width:100%;height:100%;object-fit:cover;display:block;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
     ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(240,208,150,.8);">休</div>'}
     ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:13px;height:13px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cost}</div>`:''}
@@ -1792,7 +1792,7 @@ function mobPartner(p,w,h){
 function mobMpCard(card,pi,i){
   if(!card)return'';
   return `<div style="width:32px;height:44px;flex-shrink:0;overflow:hidden;border:1px solid rgba(90,50,15,.4);cursor:pointer;transition:transform .2s ease;${card.active?'':'filter:brightness(.55);transform:rotate(90deg) scale(0.72);'}"
-    onclick="togMP(${pi},${i})"
+    onclick="ctxMP(event,${pi},${i})"
     oncontextmenu="event.preventDefault();ctxMP(event,${pi},${i})">
     <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;">
   </div>`;
@@ -1850,7 +1850,7 @@ function renderMobile(){
   const r2a=document.getElementById('mob-row2-act');
   if(r2a){let h='';for(let i=0;i<4;i++)h+=mobCard(ap.sup[i],ASW,ASH,actPi,'sup',i);r2a.innerHTML=h;}
   const mpa=document.getElementById('mob-mp-act');
-  if(mpa){mpa.innerHTML=ap.mp.length?ap.mp.map((c,i)=>mobMpCard(c,actPi,i)).join(''):'<span style="font-size:8px;color:rgba(30,14,6,.25);">手札右クリック→MP</span>';}
+  if(mpa){mpa.innerHTML=ap.mp.length?ap.mp.map((c,i)=>mobMpCard(c,actPi,i)).join(''):'<span style="font-size:8px;color:rgba(30,14,6,.25);">タップ→MP</span>';}
 
   // 自分手札（表向き）
   const handEl=document.getElementById('mob-hand-act');
@@ -1858,7 +1858,7 @@ function renderMobile(){
     const over=ap.hand.length>7;
     handEl.innerHTML=ap.hand.map((card,i)=>`
       <div style="width:60px;height:86px;flex-shrink:0;overflow:hidden;border:${over&&i>=7?'2px solid rgba(180,40,20,.7)':'1px solid var(--border)'};cursor:pointer;"
-        onclick="selH(${i})"
+        onclick="ctxH(event,${actPi},${i})"
         oncontextmenu="event.preventDefault();event.stopPropagation();ctxH(event,${actPi},${i})">
         <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;">
       </div>`).join('');
