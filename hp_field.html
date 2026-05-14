@@ -1444,17 +1444,18 @@ async function startGame(){
 
 async function startStarter(){
   try {
-  const p0=mkP(ST_GRIF),p1=mkP(ST_SLYT);
-  G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1],tut:true};
-  document.getElementById('setup').style.display='none';
-  document.getElementById('game').style.display='flex';
-  await handleMulligan(0, '1P（グリフィンドール）');
-  await handleMulligan(1, '2P（スリザリン）');
-  G.va = 0;
-  autoSetMpCard();
-  renderAll();
-  log('後攻2P（スリザリン）のMPカードをセットしました。ゲーム開始！1P先攻。スタンバイ実行を押してください。');
-  showTut(0);
+    const p0=mkP(ST_GRIF),p1=mkP(ST_SLYT);
+    G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1],tut:true};
+    document.getElementById('setup').style.display='none';
+    document.getElementById('game').style.display='flex';
+    
+    // チュートリアル時は引き直しをスキップして、すぐに解説ポップアップを表示
+    G.va = 0;
+    autoSetMpCard();
+    renderAll();
+    log('後攻2P（スリザリン）のMPカードをセットしました。ゲーム開始！1P先攻。');
+    
+    showTut(0);
     document.getElementById('tut-btn').style.display='';
   } catch(err) {
     alert('startStarter エラー: ' + err.message + '\n' + (err.stack||'').split('\n').slice(0,3).join('\n'));

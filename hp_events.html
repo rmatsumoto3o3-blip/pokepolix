@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>イベント情報 — PokePoLix</title>
+<link href="https://fonts.googleapis.com/css2?family=Lavishly+Yours&family=Zen+Antique+Soft&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1e0e06;
+  --ink-mid: rgba(30,14,6,0.7);
+  --ink-light: rgba(30,14,6,0.45);
+  --gold: #ba7517;
+  --gold-bg: rgba(186, 117, 23, 0.1);
+  --border: rgba(90, 50, 15, 0.3);
+  --surface: #e2bf82;
+  --font-logo: 'Lavishly Yours', cursive;
+  --font-ja: 'Zen Antique Soft', serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--font-ja);
+  background-color: #c9a45a;
+  background-image: 
+    radial-gradient(ellipse at 50% 50%, #e2bf82 0%, #c49850 65%, #a87a38 100%);
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(140, 90, 30, 0.05) 28px, rgba(140, 90, 30, 0.05) 29px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-top: 20px;
+}
+
+.header-logo {
+  font-family: var(--font-logo);
+  font-size: 32px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+h1 {
+  font-size: 28px;
+  margin-top: 10px;
+  letter-spacing: 2px;
+  color: #5a2e08;
+}
+
+/* 検索フィルタ */
+.search-box {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--border);
+  padding: 20px;
+  border-radius: 4px;
+  margin-bottom: 30px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.filter-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-mid);
+}
+
+select, input {
+  padding: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-ja);
+  font-size: 14px;
+  color: var(--ink);
+  border-radius: 2px;
+}
+
+/* イベントカード */
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.event-card {
+  background: #fdf6e7;
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--gold);
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  position: relative;
+}
+
+.event-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(80, 45, 12, 0.15);
+}
+
+.event-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  border-right: 1px dashed var(--border);
+  padding-right: 20px;
+}
+
+.date-month { font-size: 11px; font-weight: 700; color: var(--ink-light); }
+.date-day { font-size: 24px; font-weight: 700; color: var(--ink); line-height: 1; margin: 4px 0; }
+.date-time { font-size: 11px; color: var(--ink-mid); }
+
+.event-info { flex: 1; }
+
+.event-type {
+  display: inline-block;
+  font-size: 9px;
+  padding: 2px 8px;
+  background: var(--gold-bg);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.event-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #1e0e06;
+}
+
+.event-details {
+  font-size: 12px;
+  color: var(--ink-mid);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item { display: flex; align-items: center; gap: 6px; }
+
+.btn-calendar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  font-size: 10px;
+  cursor: pointer;
+  color: var(--ink-mid);
+  font-family: var(--font-ja);
+}
+
+.btn-calendar:hover {
+  background: var(--gold);
+  color: #fff;
+  border-color: var(--gold);
+}
+
+@media (max-width: 600px) {
+  .event-card { flex-direction: column; gap: 10px; }
+  .event-date { flex-direction: row; border-right: none; border-bottom: 1px dashed var(--border); padding-right: 0; padding-bottom: 10px; gap: 10px; justify-content: flex-start; }
+  .btn-calendar { position: static; align-self: flex-start; margin-top: 10px; }
+}
+
+.nav-back {
+  display: inline-block;
+  margin-bottom: 20px;
+  text-decoration: none;
+  font-size: 12px;
+  color: var(--ink-mid);
+}
+
+.nav-back:hover { color: var(--ink); }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <a href="index.html" class="header-logo">PokePoLix</a>
+    <h1>全国イベント情報</h1>
+    <p style="font-size:12px; color:var(--ink-mid); margin-top:8px;">ショップデュエル・交流会のスケジュール</p>
+  </header>
+
+  <a href="index.html" class="nav-back">← トップへ戻る</a>
+
+  <div class="search-box">
+    <div class="filter-group">
+      <label>都道府県</label>
+      <select id="pref">
+        <option value="">すべて</option>
+        <optgroup label="北海道・東北">
+          <option value="北海道">北海道</option>
+          <option value="青森県">青森県</option>
+          <option value="岩手県">岩手県</option>
+          <option value="宮城県">宮城県</option>
+          <option value="秋田県">秋田県</option>
+          <option value="山形県">山形県</option>
+          <option value="福島県">福島県</option>
+        </optgroup>
+        <optgroup label="関東">
+          <option value="茨城県">茨城県</option>
+          <option value="栃木県">栃木県</option>
+          <option value="群馬県">群馬県</option>
+          <option value="埼玉県">埼玉県</option>
+          <option value="千葉県">千葉県</option>
+          <option value="東京都">東京都</option>
+          <option value="神奈川県">神奈川県</option>
+        </optgroup>
+        <optgroup label="中部">
+          <option value="新潟県">新潟県</option>
+          <option value="富山県">富山県</option>
+          <option value="石川県">石川県</option>
+          <option value="福井県">福井県</option>
+          <option value="山梨県">山梨県</option>
+          <option value="長野県">長野県</option>
+          <option value="岐阜県">岐阜県</option>
+          <option value="静岡県">静岡県</option>
+          <option value="愛知県">愛知県</option>
+        </optgroup>
+        <optgroup label="近畿">
+          <option value="三重県">三重県</option>
+          <option value="滋賀県">滋賀県</option>
+          <option value="京都府">京都府</option>
+          <option value="大阪府">大阪府</option>
+          <option value="兵庫県">兵庫県</option>
+          <option value="奈良県">奈良県</option>
+          <option value="和歌山県">和歌山県</option>
+        </optgroup>
+        <optgroup label="中国・四国">
+          <option value="鳥取県">鳥取県</option>
+          <option value="島根県">島根県</option>
+          <option value="岡山県">岡山県</option>
+          <option value="広島県">広島県</option>
+          <option value="山口県">山口県</option>
+          <option value="徳島県">徳島県</option>
+          <option value="香川県">香川県</option>
+          <option value="愛媛県">愛媛県</option>
+          <option value="高知県">高知県</option>
+        </optgroup>
+        <optgroup label="九州・沖縄">
+          <option value="福岡県">福岡県</option>
+          <option value="佐賀県">佐賀県</option>
+          <option value="長崎県">長崎県</option>
+          <option value="熊本県">熊本県</option>
+          <option value="大分県">大分県</option>
+          <option value="宮崎県">宮崎県</option>
+          <option value="鹿児島県">鹿児島県</option>
+          <option value="沖縄県">沖縄県</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>イベント種別</label>
+      <select id="type">
+        <option value="">すべて</option>
+        <option value="shop">ショップデュエル</option>
+        <option value="meetup">交流会</option>
+        <option value="large">大型大会</option>
+      </select>
+    </div>
+    <div class="filter-group" style="flex: 2;">
+      <label>キーワード</label>
+      <input type="text" placeholder="店舗名、イベント名など" id="keyword">
+    </div>
+  </div>
+
+  <div class="event-list" id="event-list">
+    <!-- モックデータ -->
+    <div class="event-card" data-pref="大阪府" data-type="meetup" onclick="location.href='https://tcg.movic.jp/harrypotter/event/489/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">30</span>
+        <span class="date-time">12:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ファンミーティング・交流会</span>
+        <div class="event-title">ブースターパック第1弾発売記念ファンミーティング・大阪</div>
+        <div class="event-details">
+          <div class="detail-item">📍 マイドームおおさか</div>
+          <div class="detail-item">👥 定員: 事前抽選制（一部当日受付）</div>
+          <div class="detail-item">💰 参加費: 無料</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="東京都" data-type="meetup" onclick="location.href='https://tcg.movic.jp/harrypotter/event/464/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">16</span>
+        <span class="date-time">12:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ファンミーティング・交流会</span>
+        <div class="event-title">ブースターパック第1弾 発売記念ファンミーティング・東京</div>
+        <div class="event-details">
+          <div class="detail-item">📍 UDXギャラリー（秋葉原）</div>
+          <div class="detail-item">👥 定員: 事前抽選制（一部当日受付）</div>
+          <div class="detail-item">💰 参加費: 無料</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 北海道エリアのイベント -->
+    <div class="event-card" data-pref="北海道" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">02</span>
+        <span class="date-time">15:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（北海道）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードショップ サード</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">砂川市東1条北2丁目1-1-27</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="北海道" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">04</span>
+        <span class="date-time">18:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（北海道）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム札幌店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">札幌市中央区南3条西4丁目12-1 アルシュ4F</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="北海道" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">09</span>
+        <span class="date-time">15:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（北海道）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードショップ サード</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">砂川市東1条北2丁目1-1-27</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="北海道" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">11</span>
+        <span class="date-time">18:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（北海道）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム札幌店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">札幌市中央区南3条西4丁目12-1 アルシュ4F</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="北海道" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">18</span>
+        <span class="date-time">18:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（北海道）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム札幌店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">札幌市中央区南3条西4丁目12-1 アルシュ4F</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="北海道" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">23</span>
+        <span class="date-time">15:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（北海道）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードショップ サード</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">砂川市東1条北2丁目1-1-27</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="北海道" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">25</span>
+        <span class="date-time">18:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（北海道）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム札幌店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">札幌市中央区南3条西4丁目12-1 アルシュ4F</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="北海道" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">30</span>
+        <span class="date-time">15:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（北海道）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードショップ サード</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">砂川市東1条北2丁目1-1-27</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 東北エリアのイベント -->
+    <div class="event-card" data-pref="福島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">02</span>
+        <span class="date-time">18:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（福島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードゲームショップりらい</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">福島市太田町14-42 尾形ビル 1F</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="福島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">03</span>
+        <span class="date-time">13:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（福島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 トレカSHOPあんりみてっど</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">相馬市塚ノ町1丁目2-1 蛯原店舗2階</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="宮城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">03</span>
+        <span class="date-time">10:15〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（宮城県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ゲオ亘理店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">亘理郡亘理町逢隈高屋字柴北100番地 G棟</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="秋田県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">09</span>
+        <span class="date-time">10:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（秋田県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 港北いわや</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">秋田市土崎港北4丁目10-25</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="福島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">09</span>
+        <span class="date-time">18:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（福島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードゲームショップりらい</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">福島市太田町14-42 尾形ビル 1F</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="宮城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">10</span>
+        <span class="date-time">10:15〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（宮城県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ゲオ亘理店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">亘理郡亘理町逢隈高屋字柴北100番地 G棟</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="秋田県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">16</span>
+        <span class="date-time">10:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（秋田県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 港北いわや</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">秋田市土崎港北4丁目10-25</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="秋田県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">23</span>
+        <span class="date-time">10:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（秋田県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 港北いわや</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">秋田市土崎港北4丁目10-25</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="福島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">23</span>
+        <span class="date-time">18:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（福島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードゲームショップりらい</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">福島市太田町14-42 尾形ビル 1F</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="宮城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">24</span>
+        <span class="date-time">10:15〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（宮城県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ゲオ亘理店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">亘理郡亘理町逢隈高屋字柴北100番地 G棟</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="秋田県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">30</span>
+        <span class="date-time">10:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（秋田県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 港北いわや</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">秋田市土崎港北4丁目10-25</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <div class="event-card" data-pref="福島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date">
+        <span class="date-month">5月</span>
+        <span class="date-day">31</span>
+        <span class="date-time">13:00〜</span>
+      </div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘（店舗大会）</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（福島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 トレカSHOPあんりみてっど</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">相馬市塚ノ町1丁目2-1 蛯原店舗2階</div>
+          <div class="detail-item">👥 定員: 各店舗の詳細をご確認ください</div>
+          <div class="detail-item">💰 参加費: 各店舗の詳細をご確認ください</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 関東エリアのイベント -->
+    <!-- 茨城県 -->
+    <div class="event-card" data-pref="茨城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">13:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（茨城県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードショップさくら</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">土浦市川口1-3-110</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <!-- ※他、茨城県の開催日分を追加... -->
+    <div class="event-card" data-pref="茨城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">13:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（茨城県）</div><div class="event-details"><div class="detail-item">📍 カードショップさくら</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="茨城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">13:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（茨城県）</div><div class="event-details"><div class="detail-item">📍 カードショップさくら</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="茨城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">24</span><span class="date-time">13:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（茨城県）</div><div class="event-details"><div class="detail-item">📍 カードショップさくら</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="茨城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">31</span><span class="date-time">13:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（茨城県）</div><div class="event-details"><div class="detail-item">📍 カードショップさくら</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    
+    <div class="event-card" data-pref="茨城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">05</span><span class="date-time">11:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（茨城県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 トレカエース下妻店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">下妻市下妻戊115-1</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="茨城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">12</span><span class="date-time">11:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（茨城県）</div><div class="event-details"><div class="detail-item">📍 トレカエース下妻店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="茨城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">19</span><span class="date-time">11:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（茨城県）</div><div class="event-details"><div class="detail-item">📍 トレカエース下妻店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="茨城県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">26</span><span class="date-time">11:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（茨城県）</div><div class="event-details"><div class="detail-item">📍 トレカエース下妻店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 群馬県 -->
+    <div class="event-card" data-pref="群馬県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">12</span><span class="date-time">18:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（群馬県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 コミかる高崎店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">高崎市江木町333-1</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="群馬県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">19</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（群馬県）</div><div class="event-details"><div class="detail-item">📍 コミかる高崎店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="群馬県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">26</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（群馬県）</div><div class="event-details"><div class="detail-item">📍 コミかる高崎店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="群馬県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">31</span><span class="date-time">13:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（群馬県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードキングダム伊勢崎店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">伊勢崎市宮前町1513-10</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 埼玉県 -->
+    <div class="event-card" data-pref="埼玉県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">14:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（埼玉県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カード&ホビーショップラグーン</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">草加市氷川町2111-13</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="埼玉県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（埼玉県）</div><div class="event-details"><div class="detail-item">📍 カード&ホビーショップラグーン</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="埼玉県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（埼玉県）</div><div class="event-details"><div class="detail-item">📍 カード&ホビーショップラグーン</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="埼玉県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">24</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（埼玉県）</div><div class="event-details"><div class="detail-item">📍 カード&ホビーショップラグーン</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <div class="event-card" data-pref="埼玉県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">07</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（埼玉県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム大宮店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">さいたま市大宮区大門町1-69</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="埼玉県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">14</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（埼玉県）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム大宮店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="埼玉県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">21</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（埼玉県）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム大宮店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="埼玉県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">28</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（埼玉県）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム大宮店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    
+    <div class="event-card" data-pref="埼玉県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">08</span><span class="date-time">17:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（埼玉県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 あけらぼイオンタウン吉川美南店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">吉川市美南3-25-1</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 東京都 -->
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 マスターズスクウェア</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">八王子市東町12-15</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 マスターズスクウェア</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 マスターズスクウェア</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">04</span><span class="date-time">18:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム吉祥寺店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">武蔵野市吉祥寺本町1-13-4</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">11</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム吉祥寺店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">18</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム吉祥寺店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">04</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム蒲田店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">大田区西蒲田7-4-3</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">11</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム蒲田店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">18</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム蒲田店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">25</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム蒲田店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">06</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム町田店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">町田市原町田6-20-10</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">13</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム町田店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">20</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム町田店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">27</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム町田店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">07</span><span class="date-time">18:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 193秋葉原店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">千代田区外神田3-2-14</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">14</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 193秋葉原店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">21</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 193秋葉原店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">28</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 193秋葉原店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">07</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム秋葉原店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">千代田区外神田1-11-6</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">14</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム秋葉原店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">21</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム秋葉原店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">28</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム秋葉原店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">07</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム立川店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">立川市柴崎町3-8-1</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">14</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム立川店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">21</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム立川店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">28</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム立川店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">08</span><span class="date-time">18:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ナゾニカ中野坂上</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">中野区中央2-8-21</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">11</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 ナゾニカ中野坂上</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">19</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 ナゾニカ中野坂上</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">29</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div><div class="event-details"><div class="detail-item">📍 ナゾニカ中野坂上</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">25</span><span class="date-time">17:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードン秋葉原本店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">千代田区外神田2-4-4</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    
+    <div class="event-card" data-pref="東京都" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">27</span><span class="date-time">19:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（東京都）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 Card&Cafe Dorim</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">調布市仙川町1-4-29</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 神奈川県 -->
+    <div class="event-card" data-pref="神奈川県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">04</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（神奈川県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム横浜店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">横浜市西区南幸1-5-39</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="神奈川県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">11</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（神奈川県）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム横浜店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="神奈川県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">18</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（神奈川県）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム横浜店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="神奈川県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">25</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（神奈川県）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム横浜店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 中部エリアのイベント -->
+    <!-- 新潟県 -->
+    <div class="event-card" data-pref="新潟県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">02</span><span class="date-time">16:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（新潟県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 トレカウィンズ</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">新発田市東新町4丁目21-17</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="新潟県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">09</span><span class="date-time">16:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（新潟県）</div><div class="event-details"><div class="detail-item">📍 トレカウィンズ</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="新潟県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">16</span><span class="date-time">16:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（新潟県）</div><div class="event-details"><div class="detail-item">📍 トレカウィンズ</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="新潟県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">23</span><span class="date-time">16:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（新潟県）</div><div class="event-details"><div class="detail-item">📍 トレカウィンズ</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 岐阜県 -->
+    <div class="event-card" data-pref="岐阜県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">12:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（岐阜県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 あさひや</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">美濃市千畝町2826-2</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="岐阜県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">12:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（岐阜県）</div><div class="event-details"><div class="detail-item">📍 あさひや</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="岐阜県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">12:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（岐阜県）</div><div class="event-details"><div class="detail-item">📍 あさひや</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="岐阜県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">24</span><span class="date-time">12:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（岐阜県）</div><div class="event-details"><div class="detail-item">📍 あさひや</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="岐阜県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">31</span><span class="date-time">12:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（岐阜県）</div><div class="event-details"><div class="detail-item">📍 あさひや</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 静岡県 -->
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">01</span><span class="date-time">19:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ゲームスペースあなーば</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">富士市本市場147-6</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">08</span><span class="date-time">19:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 マスターズギルド</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">浜松市中央区常盤町143-18</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">17:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ＴＣＧマスティー</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">静岡市葵区羽鳥6-3-15</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <!-- 他、静岡県の開催日分を追加 -->
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">15</span><span class="date-time">19:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div><div class="event-details"><div class="detail-item">📍 マスターズギルド</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">17:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div><div class="event-details"><div class="detail-item">📍 ＴＣＧマスティー</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div><div class="event-details"><div class="detail-item">📍 ゲームスペースあなーば</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">22</span><span class="date-time">19:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div><div class="event-details"><div class="detail-item">📍 マスターズギルド</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">24</span><span class="date-time">17:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div><div class="event-details"><div class="detail-item">📍 ＴＣＧマスティー</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">29</span><span class="date-time">19:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div><div class="event-details"><div class="detail-item">📍 マスターズギルド</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="静岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">30</span><span class="date-time">17:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（静岡県）</div><div class="event-details"><div class="detail-item">📍 ゲームスペースあなーば</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 愛知県 -->
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">01</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリーム大須店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">名古屋市中区大須3-30-60</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">02</span><span class="date-time">09:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ファミトレ</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">蒲郡市西浦町龍田42</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">14:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 193名駅太閤店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">名古屋市中村区太閤4-1-18</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">06</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 193大須店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">名古屋市中区大須3-26-21</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <!-- 他、愛知県の開催日分を追加 -->
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">08</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム大須店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 193名駅太閤店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">13</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 193大須店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">15</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム大須店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">16</span><span class="date-time">09:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 ファミトレ</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 193名駅太閤店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">20</span><span class="date-time">19:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 193大須店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">22</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 アメニティードリーム大須店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">23</span><span class="date-time">09:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 ファミトレ</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">24</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 193名駅太閤店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">27</span><span class="date-time">19:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 193大須店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">30</span><span class="date-time">09:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 ファミトレ</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="愛知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">31</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（愛知県）</div><div class="event-details"><div class="detail-item">📍 193名駅太閤店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 近畿エリアのイベント -->
+    <!-- 滋賀県 -->
+    <div class="event-card" data-pref="滋賀県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">02</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（滋賀県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 かまくら屋</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">草津市東矢倉2丁目1-1 磯村荘3号</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="滋賀県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">07</span><span class="date-time">17:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（滋賀県）</div><div class="event-details"><div class="detail-item">📍 ホビーショップサムサム</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="滋賀県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">14</span><span class="date-time">17:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（滋賀県）</div><div class="event-details"><div class="detail-item">📍 ホビーショップサムサム</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="滋賀県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">21</span><span class="date-time">17:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（滋賀県）</div><div class="event-details"><div class="detail-item">📍 ホビーショップサムサム</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="滋賀県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">23</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（滋賀県）</div><div class="event-details"><div class="detail-item">📍 かまくら屋</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="滋賀県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">28</span><span class="date-time">17:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（滋賀県）</div><div class="event-details"><div class="detail-item">📍 ホビーショップサムサム</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 大阪府 -->
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">14:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 GIRAFULL なんば店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">大阪市中央区難波千日前13-13</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">05</span><span class="date-time">16:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 トレカBOON</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">東大阪市小若江4-12-18</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">06</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 アメニティードリームなんば店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">大阪市浪速区難波中2-1-7</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">08</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 CartinO -カルティーノ-</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">大阪市中央区島之内2-11-23</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">12</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 GIRAFULL オタロード店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">大阪市浪速区日本橋3丁目8-16 2階</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <!-- 他、大阪府の開催日分を追加 -->
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div><div class="event-details"><div class="detail-item">📍 GIRAFULL なんば店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">11</span><span class="date-time">16:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div><div class="event-details"><div class="detail-item">📍 トレカ専門店ポップタウン</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">12</span><span class="date-time">18:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div><div class="event-details"><div class="detail-item">📍 193日本橋店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">13</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div><div class="event-details"><div class="detail-item">📍 アメニティードリームなんば店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="大阪府" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">13</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（大阪府）</div><div class="event-details"><div class="detail-item">📍 CartinO -カルティーノ-</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 兵庫県 -->
+    <div class="event-card" data-pref="兵庫県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">01</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（兵庫県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ぱんだキング元町店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">神戸市中央区下山手通4-1-17</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="兵庫県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">01</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（兵庫県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ホビーステーション神戸三宮店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">神戸市中央区三宮町2-11-1</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="兵庫県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">11:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（兵庫県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 BungBung 御影店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">神戸市東灘区御影石町2-16-16</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="兵庫県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">07</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（兵庫県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 トレカショップスペース東灘店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">神戸市東灘区本山中町4-17-21</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <!-- 他、兵庫県の開催日分を追加 -->
+    <div class="event-card" data-pref="兵庫県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">09</span><span class="date-time">13:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（兵庫県）</div><div class="event-details"><div class="detail-item">📍 アイランド</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="兵庫県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">15</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（兵庫県）</div><div class="event-details"><div class="detail-item">📍 カードショップ TAMAGO</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 和歌山県 -->
+    <div class="event-card" data-pref="和歌山県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">07</span><span class="date-time">19:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（和歌山県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 catnap</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">和歌山市黒田197-1</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="和歌山県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">08</span><span class="date-time">19:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（和歌山県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードショップすのめろ</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">和歌山市西高松2-1-1</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="和歌山県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">08</span><span class="date-time">19:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（和歌山県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 マナソース和歌山駅前店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">和歌山市太田1丁目14-11</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <!-- 他、和歌山県の開催日分を追加 -->
+    <div class="event-card" data-pref="和歌山県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">14</span><span class="date-time">19:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（和歌山県）</div><div class="event-details"><div class="detail-item">📍 catnap</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 中国・四国エリアのイベント -->
+    <!-- 香川県 -->
+    <div class="event-card" data-pref="香川県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">14:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（香川県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 スミレヤ</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">丸亀市通町24</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="香川県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（香川県）</div><div class="event-details"><div class="detail-item">📍 スミレヤ</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="香川県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（香川県）</div><div class="event-details"><div class="detail-item">📍 スミレヤ</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="香川県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">24</span><span class="date-time">14:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（香川県）</div><div class="event-details"><div class="detail-item">📍 スミレヤ</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 島根県 -->
+    <div class="event-card" data-pref="島根県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">16:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（島根県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 Play First Games</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">出雲市渡橋町366-6</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="島根県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">16:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（島根県）</div><div class="event-details"><div class="detail-item">📍 Play First Games</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="島根県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">16:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（島根県）</div><div class="event-details"><div class="detail-item">📍 Play First Games</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="島根県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">24</span><span class="date-time">16:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（島根県）</div><div class="event-details"><div class="detail-item">📍 Play First Games</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 鳥取県 -->
+    <div class="event-card" data-pref="鳥取県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">04</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（鳥取県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 CARD SHOPえうれか昭和町店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">倉吉市昭和町2丁目162</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="鳥取県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">06</span><span class="date-time">19:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（鳥取県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 CARD SHOPえうれか</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">倉吉市下田中町833北側</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="鳥取県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">11</span><span class="date-time">18:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（鳥取県）</div><div class="event-details"><div class="detail-item">📍 CARD SHOPえうれか昭和町店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="鳥取県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">13</span><span class="date-time">19:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（鳥取県）</div><div class="event-details"><div class="detail-item">📍 CARD SHOPえうれか</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+
+    <!-- 徳島県 -->
+    <div class="event-card" data-pref="徳島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">06</span><span class="date-time">17:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（徳島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 リブック徳島駅前店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">徳島市寺島本町西1-58大岸ビル3F</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="徳島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">09</span><span class="date-time">19:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（徳島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードショップ アスタリスク</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">徳島市徳島町城内6-72 ｽﾀﾝﾀﾞｰﾄﾞﾋﾞﾙ 1F</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 高知県 -->
+    <div class="event-card" data-pref="高知県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">06</span><span class="date-time">19:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（高知県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードショップ楓</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">高知市帯屋町2丁目1-24 3階</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 広島県 -->
+    <div class="event-card" data-pref="広島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">06</span><span class="date-time">19:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（広島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードボックス福山店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">福山市南本庄1丁目10-23</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 九州・沖縄エリアのイベント -->
+    <!-- 福岡県 -->
+    <div class="event-card" data-pref="福岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">03</span><span class="date-time">17:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（福岡県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 オレタン福岡天神店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">福岡市中央区天神3丁目2-22河村天神荘ビル3F</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="福岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">08</span><span class="date-time">17:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（福岡県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 カードショップわいずまん</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">大野城市下大利1-19-6 2F右手</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="福岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">11</span><span class="date-time">17:00〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（福岡県）</div><div class="event-details"><div class="detail-item">📍 カードショップわいずまん</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <div class="event-card" data-pref="福岡県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'"><div class="event-date"><span class="date-month">5月</span><span class="date-day">17</span><span class="date-time">17:30〜</span></div><div class="event-info"><span class="event-type">ショップで決闘</span><div class="event-title">ハリー・ポッターTCG 公認大会（福岡県）</div><div class="event-details"><div class="detail-item">📍 オレタン福岡天神店</div></div></div><button class="btn-calendar">カレンダーに追加</button></div>
+    <!-- 他、福岡県の開催日分を追加 -->
+
+    <!-- 長崎県 -->
+    <div class="event-card" data-pref="長崎県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">16</span><span class="date-time">15:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（長崎県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 トレカショップ シグマ</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">諫早市多良見町市布1172-1</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 宮崎県 -->
+    <div class="event-card" data-pref="宮崎県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">17:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（宮崎県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 TSUTAYA BOOKSTORE 宮交シティ</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">宮崎市大淀4-7-30 イオン南宮崎店2階</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 鹿児島県 -->
+    <div class="event-card" data-pref="鹿児島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">06</span><span class="date-time">20:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（鹿児島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 POCKET HOBBY</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">鹿児島市宇宿1丁目10-2</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="鹿児島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">09</span><span class="date-time">18:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（鹿児島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 TSUTAYA田上店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">鹿児島市広木1丁目1-10</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <div class="event-card" data-pref="鹿児島県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">10</span><span class="date-time">15:00〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（鹿児島県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 ホビーショップぼっけもん</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">出水市平和町231番地</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+
+    <!-- 沖縄県 -->
+    <div class="event-card" data-pref="沖縄県" data-type="shop" onclick="location.href='https://tcg.movic.jp/harrypotter/event/361/'">
+      <div class="event-date"><span class="date-month">5月</span><span class="date-day">04</span><span class="date-time">19:30〜</span></div>
+      <div class="event-info">
+        <span class="event-type">ショップで決闘</span>
+        <div class="event-title">ハリー・ポッターTCG 公認大会（沖縄県）</div>
+        <div class="event-details">
+          <div class="detail-item">📍 トイパラダイスBANBAN21具志川店</div>
+          <div class="detail-item" style="font-size:10px; color:var(--ink-light); margin-left:18px;">うるま市田場1772-1</div>
+        </div>
+      </div>
+      <button class="btn-calendar">カレンダーに追加</button>
+    </div>
+    <!-- 他、沖縄県の開催日分を追加 -->
+  </div>
+
+  <div style="text-align:center; margin-top:40px; color:var(--ink-light); font-size:11px;">
+    ※イベント情報は公式サイトおよび各店舗の発表に基づいています。<br>
+    参加前に必ず各店舗の公式情報をご確認ください。
+  </div>
+</div>
+
+<script>
+(function(){
+  const prefSel = document.getElementById('pref');
+  const typeSel = document.getElementById('type');
+  const keywordInp = document.getElementById('keyword');
+  const cards = document.querySelectorAll('.event-card');
+
+  function filter() {
+    const pref = prefSel.value;
+    const type = typeSel.value;
+    const keyword = keywordInp.value.toLowerCase();
+
+    cards.forEach(card => {
+      const cPref = card.getAttribute('data-pref') || "";
+      const cType = card.getAttribute('data-type') || "";
+      const text = card.textContent.toLowerCase();
+
+      const matchPref = !pref || cPref === pref;
+      const matchType = !type || cType === type;
+      const matchKeyword = !keyword || text.includes(keyword);
+
+      if (matchPref && matchType && matchKeyword) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  prefSel.addEventListener('change', filter);
+  typeSel.addEventListener('change', filter);
+  keywordInp.addEventListener('input', filter);
+})();
+</script>
+</body>
+</html>

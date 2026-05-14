@@ -350,7 +350,21 @@ html { font-size: clamp(13px, 1.6vw, 16px); }
 <div id="modal" class="modal-overlay" style="display:none" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <h3>デッキを保存</h3>
-    <input id="deck-name-input" type="text" placeholder="デッキ名を入力..." maxlength="30" onkeydown="if(event.key==='Enter')saveDeck()"/>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:11px;color:var(--ink-light);display:block;margin-bottom:4px;">デッキ名</label>
+      <input id="deck-name-input" type="text" placeholder="デッキ名を入力..." maxlength="30" onkeydown="if(event.key==='Enter')saveDeck()"/>
+    </div>
+    <div style="margin-bottom:15px;">
+      <label style="font-size:11px;color:var(--ink-light);display:block;margin-bottom:4px;">大会結果（解析・集計用）</label>
+      <select id="deck-result-input" style="width:100%;padding:10px;border:1px solid var(--border);font-family:var(--font-ja);background:#fff;border-radius:2px;font-size:13px;color:var(--ink);">
+        <option value="">（設定なし）</option>
+        <option value="優勝">🏆 優勝</option>
+        <option value="準優勝">🥈 準優勝</option>
+        <option value="ベスト4">🥉 ベスト4</option>
+        <option value="ベスト8">🏅 ベスト8</option>
+        <option value="参加">🃏 参加のみ</option>
+      </select>
+    </div>
     <div class="modal-btns">
       <button class="btn btn-outline" onclick="closeModal()">キャンセル</button>
       <button class="btn btn-primary" onclick="saveDeck()">保存する</button>
@@ -586,11 +600,13 @@ function closeModal(e){
 
 function saveDeck(){
   const name=document.getElementById('deck-name-input').value.trim();
+  const result=document.getElementById('deck-result-input').value;
   if(!name){alert('デッキ名を入力してください。');return;}
   const saved=loadSaved();
   const entry={
     id:Date.now(),
     name,
+    result,
     partner,
     deck:{...deck},
     total:getDeckTotal(),
@@ -652,7 +668,7 @@ function renderSaved(){
     return `<div class="saved-card">
       <div class="saved-card-header">
         <div>
-          <div class="saved-card-title">📋 ${d.name}</div>
+          <div class="saved-card-title">📋 ${d.name} ${d.result?`<span class="badge" style="background:#ba7517;color:#fff;font-size:9px;margin-left:5px;padding:2px 8px;border-radius:99px;vertical-align:middle;border:none;">${d.result}</span>`:''}</div>
           <div class="saved-card-meta">保存日時：${d.savedAt} ／ ${d.total}枚</div>
         </div>
         <div class="saved-card-actions">

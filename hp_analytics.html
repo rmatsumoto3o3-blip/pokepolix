@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メタ集計・解析 — PokePoLix</title>
+<link href="https://fonts.googleapis.com/css2?family=Lavishly+Yours&family=Zen+Antique+Soft&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --ink: #f0e0c0;
+  --ink-mid: rgba(240, 224, 192, 0.7);
+  --ink-light: rgba(240, 224, 192, 0.45);
+  --gold: #ba7517;
+  --bg-dark: #1e0e06;
+  --surface: rgba(80, 45, 12, 0.3);
+  --border: rgba(186, 117, 23, 0.3);
+  --font-logo: 'Lavishly Yours', cursive;
+  --font-ja: 'Zen Antique Soft', serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-ja);
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(186, 117, 23, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(186, 117, 23, 0.1) 0%, transparent 40%),
+    linear-gradient(to bottom, #1e0e06, #2a1a0e);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.header-logo {
+  font-family: var(--font-logo);
+  font-size: 32px;
+  color: var(--gold);
+  text-decoration: none;
+  display: block;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: 32px;
+  letter-spacing: 4px;
+  color: var(--ink);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+}
+
+@media (max-width: 850px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gold);
+}
+
+/* 統計リスト */
+.stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(0,0,0,0.2);
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.stat-rank {
+  font-family: var(--font-logo);
+  font-size: 24px;
+  color: var(--gold);
+  min-width: 30px;
+}
+
+.stat-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--gold);
+}
+
+.stat-info { flex: 1; }
+.stat-name { font-size: 14px; font-weight: 700; }
+.stat-meta { font-size: 11px; color: var(--ink-light); }
+
+.stat-val {
+  font-weight: 700;
+  color: var(--gold);
+  font-size: 18px;
+}
+
+/* チャート用 */
+.chart-container {
+  height: 300px;
+  position: relative;
+}
+
+.nav-back {
+  display: inline-block;
+  margin-bottom: 20px;
+  text-decoration: none;
+  font-size: 12px;
+  color: var(--ink-light);
+}
+.nav-back:hover { color: var(--gold); }
+
+.badge-trend {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 99px;
+  background: rgba(0, 200, 100, 0.2);
+  color: #00ff88;
+  margin-left: 8px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <a href="index.html" class="header-logo">PokePoLix</a>
+    <a href="index.html" class="nav-back">← トップへ戻る</a>
+    <h1>メタ集計・解析</h1>
+    <p style="font-size:12px; color:var(--ink-mid); margin-top:8px;">投稿デッキと大会結果からの動向解析</p>
+  </header>
+
+  <div class="grid">
+    <!-- パートナー使用率 -->
+    <div class="card">
+      <div class="card-title">🏆 パートナー使用率ランキング</div>
+      <div class="chart-container">
+        <canvas id="usageChart"></canvas>
+      </div>
+    </div>
+
+    <!-- 最近のトレンドカード -->
+    <div class="card">
+      <div class="card-title">✨ トレンド採用カード</div>
+      <div class="stat-list">
+        <div class="stat-item">
+          <div class="stat-rank">1</div>
+          <div class="stat-info">
+            <div class="stat-name">アロホモラ<span class="badge-trend">+12%</span></div>
+            <div class="stat-meta">Magic / 汎用ドロー</div>
+          </div>
+          <div class="stat-val">84%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-rank">2</div>
+          <div class="stat-info">
+            <div class="stat-name">杖<span class="badge-trend">+5%</span></div>
+            <div class="stat-meta">Item / 装備</div>
+          </div>
+          <div class="stat-val">72%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-rank">3</div>
+          <div class="stat-info">
+            <div class="stat-name">セブルス・スネイプ</div>
+            <div class="stat-meta">Character / スリザリン</div>
+          </div>
+          <div class="stat-val">45%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 大会結果集計（モック） -->
+    <div class="card" style="grid-column: 1 / -1;">
+      <div class="card-title">📊 優勝デッキ アーキタイプ分布</div>
+      <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:space-around; align-items:center;">
+        <div style="width:250px;"><canvas id="typeChart"></canvas></div>
+        <div style="flex:1; min-width:300px;">
+          <div class="stat-list">
+            <div class="stat-item">
+              <div style="width:12px; height:12px; background:#ba7517;"></div>
+              <div class="stat-info"><div class="stat-name">グリフィンドール・アグロ</div></div>
+              <div class="stat-val">42%</div>
+            </div>
+            <div class="stat-item">
+              <div style="width:12px; height:12px; background:#6b3a10;"></div>
+              <div class="stat-info"><div class="stat-name">スリザリン・コントロール</div></div>
+              <div class="stat-val">35%</div>
+            </div>
+            <div class="stat-item">
+              <div style="width:12px; height:12px; background:#1a3a6a;"></div>
+              <div class="stat-info"><div class="stat-name">レイブンクロー・スペル</div></div>
+              <div class="stat-val">15%</div>
+            </div>
+            <div class="stat-item">
+              <div style="width:12px; height:12px; background:#888;"></div>
+              <div class="stat-info"><div class="stat-name">その他</div></div>
+              <div class="stat-val">8%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:40px; color:var(--ink-light); font-size:11px;">
+    ※このデータは PokePoLix 内で投稿・記録されたデッキデータを元に自動集計しています。<br>
+    公式の統計データではありません。
+  </div>
+</div>
+
+<script>
+// 使用率チャート
+const ctxUsage = document.getElementById('usageChart').getContext('2d');
+new Chart(ctxUsage, {
+  type: 'bar',
+  data: {
+    labels: ['ハリー', 'ドラコ', 'ハーマイオニー', 'ロン', 'ネビル', 'スネイプ'],
+    datasets: [{
+      label: '使用率 (%)',
+      data: [35, 28, 15, 10, 7, 5],
+      backgroundColor: 'rgba(186, 117, 23, 0.6)',
+      borderColor: '#ba7517',
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#f0e0c0' } },
+      x: { grid: { display: false }, ticks: { color: '#f0e0c0' } }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// アーキタイプ分布
+const ctxType = document.getElementById('typeChart').getContext('2d');
+new Chart(ctxType, {
+  type: 'doughnut',
+  data: {
+    labels: ['アグロ', 'コントロール', 'スペル', 'その他'],
+    datasets: [{
+      data: [42, 35, 15, 8],
+      backgroundColor: ['#ba7517', '#6b3a10', '#1a3a6a', '#444'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } }
+  }
+});
+</script>
+
+</body>
+</html>
