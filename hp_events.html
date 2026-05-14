@@ -1563,39 +1563,86 @@ select, input {
   </div>
 </div>
 
-<script>
-(function(){
-  const prefSel = document.getElementById('pref');
-  const typeSel = document.getElementById('type');
-  const keywordInp = document.getElementById('keyword');
-  const cards = document.querySelectorAll('.event-card');
+  <style>
+    /* 終了済みイベントのスタイル */
+    .event-card.expired {
+      filter: grayscale(100%) opacity(0.5);
+      background: #f0f0f0;
+      border-color: #ddd;
+    }
+    .event-card.expired .event-date { background: #999; }
+    .event-card.expired .event-type { background: #bbb; color: #fff; }
+  </style>
 
-  function filter() {
-    const pref = prefSel.value;
-    const type = typeSel.value;
-    const keyword = keywordInp.value.toLowerCase();
+  <script>
+    (function(){
+      const prefSel = document.getElementById('pref');
+      const typeSel = document.getElementById('type');
+      const keywordInp = document.getElementById('keyword');
+      const grids = document.querySelectorAll('.event-grid');
+      const mainGrid = grids[0];
+      const today = new Date('2026-05-14'); // 本日の日付
 
-    cards.forEach(card => {
-      const cPref = card.getAttribute('data-pref') || "";
-      const cType = card.getAttribute('data-type') || "";
-      const text = card.textContent.toLowerCase();
+      function initEvents() {
+        const cards = Array.from(document.querySelectorAll('.event-card'));
+        
+        // 1. 各カードの日付解析と期限切れ判定
+        cards.forEach(card => {
+          const monthText = card.querySelector('.date-month').textContent;
+          const dayText = card.querySelector('.date-day').textContent;
+          const month = monthText.replace('月', '').padStart(2, '0');
+          const day = dayText.padStart(2, '0');
+          const dateStr = `2026-${month}-${day}`;
+          card.dataset.date = dateStr;
 
-      const matchPref = !pref || cPref === pref;
-      const matchType = !type || cType === type;
-      const matchKeyword = !keyword || text.includes(keyword);
+          if (new Date(dateStr) < today) {
+            card.classList.add('expired');
+          }
+        });
 
-      if (matchPref && matchType && matchKeyword) {
-        card.style.display = 'flex';
-      } else {
-        card.style.display = 'none';
+        // 2. 日付の新しい順にソート（降順）
+        cards.sort((a, b) => b.dataset.date.localeCompare(a.dataset.date));
+
+        // 3. UIの統合（地域別ヘッダーを隠し、全カードを一つのグリッドに集約）
+        grids.forEach((g, i) => { if(i>0) g.style.display='none'; });
+        document.querySelectorAll('h3').forEach(h => {
+          if(h.textContent.includes('エリア')) h.style.display = 'none';
+        });
+
+        const listHeader = document.createElement('h3');
+        listHeader.textContent = "全エリアのイベント情報（開催順）";
+        listHeader.style.marginBottom = "20px";
+        mainGrid.parentNode.insertBefore(listHeader, mainGrid);
+
+        mainGrid.innerHTML = '';
+        cards.forEach(c => mainGrid.appendChild(c));
       }
-    });
-  }
 
-  prefSel.addEventListener('change', filter);
-  typeSel.addEventListener('change', filter);
-  keywordInp.addEventListener('input', filter);
-})();
-</script>
+      function filter() {
+        const pref = prefSel.value;
+        const type = typeSel.value;
+        const keyword = keywordInp.value.toLowerCase();
+        const cards = document.querySelectorAll('.event-card');
+
+        cards.forEach(card => {
+          const cPref = card.getAttribute('data-pref') || "";
+          const cType = card.getAttribute('data-type') || "";
+          const text = card.textContent.toLowerCase();
+
+          const matchPref = !pref || cPref === pref;
+          const matchType = !type || cType === type;
+          const matchKeyword = !keyword || text.includes(keyword);
+
+          card.style.display = (matchPref && matchType && matchKeyword) ? 'flex' : 'none';
+        });
+      }
+
+      // 初期化とイベント登録
+      initEvents();
+      prefSel.addEventListener('change', filter);
+      typeSel.addEventListener('change', filter);
+      keywordInp.addEventListener('input', filter);
+    })();
+  </script>
 </body>
 </html>
