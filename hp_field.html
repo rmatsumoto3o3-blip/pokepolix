@@ -1367,8 +1367,29 @@ function autoSetMpCard(){
   if(!p1.mp.some(m=>m.data[0]===p1.mpCardId))p1.mp.push({id:nid(),data,active:true});
 }
 
+async function handleMulligan(pi, name) {
+  G.va = pi;
+  renderAll();
+  await new Promise(r => setTimeout(r, 100));
+  if (confirm(`【${name}の準備】\n手札を確認してください。\n引き直しますか？（OKですべて戻してシャッフル→7枚引き直し）`)) {
+    const p = G.players[pi];
+    p.deck.push(...p.hand); p.hand = [];
+    for (let i = p.deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [p.deck[i], p.deck[j]] = [p.deck[j], p.deck[i]];
+    }
+    for (let i = 0; i < 7; i++) {
+      if (p.deck.length) {
+        const c = p.deck.shift(); c.active = true; p.hand.push(c);
+      }
+    }
+    renderAll();
+    log(`${name}が手札を引き直しました。`);
+  }
+}
+
 // ===== ゲーム開始 =====
-function startGame(){
+async function startGame(){
   const saved=loadSaved();
   const all=[...PRESET_DECKS,...saved];
   const d0=all.find(x=>String(x.id)===selIds[0]);
@@ -1377,29 +1398,23 @@ function startGame(){
   G={turn:1,phase:'main',cur:0,va:0,players:[mkP(d0),mkP(d1)]};
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='flex';
+  await handleMulligan(0, '1P');
+  await handleMulligan(1, '2P');
+  G.va = 0;
   autoSetMpCard();
   renderAll();
   log('ゲーム開始！後攻2PのMPカードをセットしました。1P先攻。スタンバイ実行を押してください。');
 }
 
-function startStarter(){
+async function startStarter(){
   try {
   const p0=mkP(ST_GRIF),p1=mkP(ST_SLYT);
   G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1],tut:true};
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='flex';
-  if(confirm('【ゲームの準備】\n1P（グリフィンドール）手札を確認してください。\n引き直しますか？（OKで全て戻してシャッフル→7枚引き直し）')){
-    const p=G.players[0];
-    p.deck.push(...p.hand);p.hand=[];
-    for(let i=p.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];}
-    for(let i=0;i<7;i++){if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}}
-  }
-  if(confirm('【ゲームの準備】\n2P（スリザリン）手札を確認してください。\n引き直しますか？')){
-    const p=G.players[1];
-    p.deck.push(...p.hand);p.hand=[];
-    for(let i=p.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];}
-    for(let i=0;i<7;i++){if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}}
-  }
+  await handleMulligan(0, '1P（グリフィンドール）');
+  await handleMulligan(1, '2P（スリザリン）');
+  G.va = 0;
   autoSetMpCard();
   renderAll();
   log('後攻2P（スリザリン）のMPカードをセットしました。ゲーム開始！1P先攻。スタンバイ実行を押してください。');
