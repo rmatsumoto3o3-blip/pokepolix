@@ -1533,19 +1533,25 @@ function doSwitch(){
 }
 
 // ===== デスクトップ描画 =====
-function renderPartner(p,elId){
+function renderPartner(p,elId,pi){
   const el=document.getElementById(elId);if(!el)return;
   const pt=p.partner;
   if (!pt) {
     el.innerHTML = '<div style="font-size:8px;color:var(--ink-light);text-align:center;padding-top:30px;">未設定</div>';
     return;
   }
-  const eqHtml = pt.equips && pt.equips.length ? `<div class="equip-badge">${pt.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'partner',0,${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>` : '';
+  const hasEq = pt.equips && pt.equips.length;
+  if(hasEq) el.classList.add('has-equip'); else el.classList.remove('has-equip');
+
+  const eqHtml = hasEq ? `<div class="equip-badge">${pt.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'partner',0,${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>` : '';
   el.innerHTML=`<div style="position:relative;width:100%;height:100%;" oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,p.partner,'partner',0,${pi})">
     <img src="${IM}${pt.data[0]}" style="width:100%;height:80%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'">
     <div class="pt-nm" style="font-size:8px;padding:1px 2px;">${pt.data[1].substring(0,8)}</div>
     ${eqHtml}
   </div>`;
+  if(equipMode && equipMode.pi === pi) el.classList.add('target-candidate');
+  else el.classList.remove('target-candidate');
+  el.onclick = () => { if(equipMode) finishEquip('partner', 0); };
 }
 
 function renderFieldSlots(p,mId,sId,pi){
@@ -1558,13 +1564,17 @@ function renderFieldSlots(p,mId,sId,pi){
     if(p.main[i]){
       const c=p.main[i];s._cardRef=c;
       const [n,nm,,,cost,ap,dp]=c.data;
-      const eq=c.equips&&c.equips.length?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'main',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
-      s.innerHTML=`<div class="fc${c.active?'':' rest'}" onclick="togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
+      const hasEq = c.equips && c.equips.length;
+      const eq=hasEq?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'main',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
+      s.innerHTML=`<div class="fc${c.active?'':' rest'}${hasEq?' has-equip':''}${equipMode && equipMode.pi===pi ? ' target-candidate' : ''}" onclick="equipMode ? finishEquip('main', ${i}) : togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
         ${ci(n)}<div class="fc-btm"><div class="fc-nm">${nm.substring(0,8)}</div>
         <div class="fc-st">${ap!==null?`<span class="fc-ap">AP${ap}</span>`:''}${dp!==null?`<span class="fc-dp">DP${dp}</span>`:''}</div></div>
         ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}${eq}
       </div>`;
-    }else{s.textContent='空';}
+    }else{
+      s.innerHTML = '空';
+      s.onclick = null;
+    }
     mEl.appendChild(s);
   }
   const sEl=document.getElementById(sId);if(!sEl)return;
@@ -1576,12 +1586,16 @@ function renderFieldSlots(p,mId,sId,pi){
     if(p.sup[i]){
       const c=p.sup[i];s._cardRef=c;
       const [n,nm,,,cost]=c.data;
-      const eq=c.equips&&c.equips.length?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'sup',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
-      s.innerHTML=`<div class="fc${c.active?'':' rest'}" onclick="togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
+      const hasEq = c.equips && c.equips.length;
+      const eq=hasEq?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'sup',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
+      s.innerHTML=`<div class="fc${c.active?'':' rest'}${hasEq?' has-equip':''}${equipMode && equipMode.pi===pi ? ' target-candidate' : ''}" onclick="equipMode ? finishEquip('sup', ${i}) : togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
         ${ci(n)}<div class="fc-btm"><div class="fc-nm">${nm.substring(0,7)}</div></div>
         ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}${eq}
       </div>`;
-    }else{s.textContent='空';}
+    }else{
+      s.innerHTML = '空';
+      s.onclick = null;
+    }
     sEl.appendChild(s);
   }
 }
@@ -1615,7 +1629,7 @@ function renderAll(){
   if(!G)return;
   setPhaseUI();
   const p0=G.players[0],p1=G.players[1];
-  renderPartner(p0,'pt-p1');
+  renderPartner(p0,'pt-p1',0);
   const dc0=document.getElementById('dc-p1');if(dc0)dc0.textContent=p0.deck.length;
   const tc0=document.getElementById('tc-p1');if(tc0)tc0.textContent=p0.trash.length;
   const tt0=document.getElementById('tt-p1');if(tt0)tt0.textContent=p0.trash.length?p0.trash[p0.trash.length-1].data[1].substring(0,4):'-';
@@ -1623,7 +1637,7 @@ function renderAll(){
   renderFieldSlots(p0,'main-p1','sup-p1',0);
   renderMP(p0,'mp-p1',0);
   renderHand(p0,'hand-p1',0);
-  renderPartner(p1,'pt-p2');
+  renderPartner(p1,'pt-p2',1);
   const dc1=document.getElementById('dc-p2');if(dc1)dc1.textContent=p1.deck.length;
   const tc1=document.getElementById('tc-p2');if(tc1)tc1.textContent=p1.trash.length;
   const tt1=document.getElementById('tt-p2');if(tt1)tt1.textContent=p1.trash.length?p1.trash[p1.trash.length-1].data[1].substring(0,4):'-';
@@ -1646,22 +1660,19 @@ function togFC(fc){const s=fc.parentElement;const c=s._cardRef;if(!c)return;c.ac
 function togMP(pi,i){const c=G.players[pi].mp[i];if(!c)return;c.active=!c.active;log(`MPの「${c.data[1]}」を${c.active?'活動':'休息'}状態に。`);renderAll();}
 function selH(i){document.querySelectorAll('.hc').forEach((el,j)=>el.classList.toggle('sel',j===i));}
 
+let equipMode = null; // { card, handIdx, pi }
+
 // ===== 装備 =====
 function openEquipSelect(card,handIdx,pi){
-  const p=G.players[pi];
-  const targets=[];
-  if(p.partner) targets.push({card:p.partner,zone:'partner',idx:0});
-  p.main.forEach((c,i)=>{if(c)targets.push({card:c,zone:'main',idx:i});});
-  p.sup.forEach((c,i)=>{if(c)targets.push({card:c,zone:'sup',idx:i});});
-  
-  if(!targets.length){alert('装備可能なキャラがフィールドにいません。');return;}
-  if(targets.length===1){attachEquip(card,handIdx,pi,targets[0].zone,targets[0].idx);}
-  else{
-    const names=targets.map((t,i)=>` ${i+1}. [${t.zone}] ${t.card.data[1]}`).join('\n');
-    const choice=prompt(`どのキャラに装備しますか？\n${names}\n\n番号を入力してください：`);
-    const n=parseInt(choice)-1;
-    if(n>=0&&n<targets.length)attachEquip(card,handIdx,pi,targets[n].zone,targets[n].idx);
-  }
+  equipMode = { card, handIdx, pi };
+  log("装備先のキャラクターをクリックして選択してください（キャンセルは画面クリック）");
+  renderAll();
+}
+function finishEquip(zone, idx) {
+  if(!equipMode) return;
+  const { card, handIdx, pi } = equipMode;
+  equipMode = null;
+  attachEquip(card, handIdx, pi, zone, idx);
 }
 function attachEquip(eq,handIdx,pi,zone,fieldIdx){
   const p=G.players[pi];
@@ -2051,7 +2062,17 @@ function prevTut(){if(tutStep>0)showTut(tutStep-1);}
 function reopenTut(){showTut(tutStep);}
 
 // ===== 起動 =====
-document.addEventListener('click',()=>closeCtx());
+document.addEventListener('click',(e)=>{
+  if(equipMode) {
+    // ターゲット候補以外をクリックしたらキャンセル
+    if(!e.target.closest('.target-candidate')) {
+      equipMode = null;
+      log("装備をキャンセルしました。");
+      renderAll();
+    }
+  }
+  closeCtx();
+});
 initSetup();
 if(localStorage.getItem('ppx_start_tutorial')==='1'){
   localStorage.removeItem('ppx_start_tutorial');
