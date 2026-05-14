@@ -1679,9 +1679,10 @@ select, input {
       const prefSel = document.getElementById('pref');
       const typeSel = document.getElementById('type');
       const keywordInp = document.getElementById('keyword');
-      const grids = document.querySelectorAll('.event-grid');
-      const mainGrid = grids[0];
+      const mainGrid = document.getElementById('event-list');
       const today = new Date('2026-05-14'); // 本日の日付
+
+      if (!mainGrid) return;
 
       // 動的ヘッダーの作成
       const dynamicHeader = document.createElement('h3');
@@ -1695,8 +1696,12 @@ select, input {
         
         // 1. 各カードの日付解析と期限切れ判定
         cards.forEach(card => {
-          const monthText = card.querySelector('.date-month').textContent;
-          const dayText = card.querySelector('.date-day').textContent;
+          const monthEl = card.querySelector('.date-month');
+          const dayEl = card.querySelector('.date-day');
+          if (!monthEl || !dayEl) return;
+
+          const monthText = monthEl.textContent;
+          const dayText = dayEl.textContent;
           const month = monthText.replace('月', '').padStart(2, '0');
           const day = dayText.padStart(2, '0');
           const dateStr = `2026-${month}-${day}`;
@@ -1708,10 +1713,13 @@ select, input {
         });
 
         // 2. 日付の新しい順にソート（降順）
-        cards.sort((a, b) => b.dataset.date.localeCompare(a.dataset.date));
+        cards.sort((a, b) => {
+          const dateA = a.dataset.date || "";
+          const dateB = b.dataset.date || "";
+          return dateB.localeCompare(dateA);
+        });
 
-        // 3. UIのクリーンアップ（既存のエリア見出しをすべて隠す）
-        grids.forEach((g, i) => { if(i>0) g.style.display='none'; });
+        // 3. UIのクリーンアップ（既存のh3見出しをすべて隠す）
         document.querySelectorAll('h3').forEach(h => {
           if(h.id !== "dynamic-event-title") h.style.display = 'none';
         });
@@ -1737,7 +1745,6 @@ select, input {
         const keyword = keywordInp.value.toLowerCase();
         const cards = document.querySelectorAll('.event-card');
 
-        let visibleCount = 0;
         cards.forEach(card => {
           const cPref = card.getAttribute('data-pref') || "";
           const cType = card.getAttribute('data-type') || "";
@@ -1749,7 +1756,6 @@ select, input {
 
           const isVisible = matchPref && matchType && matchKeyword;
           card.style.display = isVisible ? 'flex' : 'none';
-          if(isVisible) visibleCount++;
         });
 
         updateHeader();
