@@ -1844,13 +1844,18 @@ function showTut(i){
 
   // スマホ時はモバイルビューIDに変換
   // スマホ時: actPi(=G.va)が自分サイド
+  const isP1 = G ? G.va === 0 : true;
   const MOB_MAP={
-    'pt-p1':'mob-row1-act',
-    'lp-p1':'mob-hdr-act',
-    'main-p1':'mob-row1-act',
-    'hand-p1':'mob-hand-act',
-    'sup-p1':'mob-row2-act',
-    'lp-p2':'mob-hdr-opp',
+    'pt-p1': isP1 ? 'mob-row1-act' : 'mob-row1-opp',
+    'lp-p1': isP1 ? 'mob-hdr-act' : 'mob-hdr-opp',
+    'main-p1': isP1 ? 'mob-row1-act' : 'mob-row1-opp',
+    'hand-p1': isP1 ? 'mob-hand-act' : null,
+    'sup-p1': isP1 ? 'mob-row2-act' : 'mob-row2-opp',
+    'pt-p2': !isP1 ? 'mob-row1-act' : 'mob-row1-opp',
+    'lp-p2': !isP1 ? 'mob-hdr-act' : 'mob-hdr-opp',
+    'main-p2': !isP1 ? 'mob-row1-act' : 'mob-row1-opp',
+    'hand-p2': !isP1 ? 'mob-hand-act' : null,
+    'sup-p2': !isP1 ? 'mob-row2-act' : 'mob-row2-opp',
   };
   const targetId=t.target?(isMob()&&MOB_MAP[t.target]?MOB_MAP[t.target]:t.target):null;
 
