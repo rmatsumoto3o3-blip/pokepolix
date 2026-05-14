@@ -1664,9 +1664,11 @@ let equipMode = null; // { card, handIdx, pi }
 
 // ===== 装備 =====
 function openEquipSelect(card,handIdx,pi){
-  equipMode = { card, handIdx, pi };
-  log("装備先のキャラクターをクリックして選択してください（キャンセルは画面クリック）");
-  renderAll();
+  setTimeout(()=>{
+    equipMode = { card, handIdx, pi };
+    log("装備先のキャラクターをクリックして選択してください（キャンセルは画面クリック）");
+    renderAll();
+  }, 10);
 }
 function finishEquip(zone, idx) {
   if(!equipMode) return;
