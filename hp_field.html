@@ -1775,18 +1775,19 @@ function mobEmptySlot(w,h){
 function mobCard(card,w,h,pi,zone,idx){
   if(!card)return mobEmptySlot(w,h);
   const [num,nm,,,cost]=card.data;
+  // 直接 showCtx を呼ぶように修正 (ctxFは親要素を参照するためモバイルではエラーになる)
   return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:transform .2s ease;${card.active?'':'transform:rotate(90deg) scale(0.72);'}"
-    onclick="ctxF(event,this)"
-    oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
-    <img src="${IM}${num}" style="width:100%;height:100%;object-fit:cover;display:block;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
-    ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(240,208,150,.8);">休</div>'}
-    ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:13px;height:13px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cost}</div>`:''}
+    onclick="showCtx(event, G.players[${pi}].${zone==='main'?'main':'sup'}[${idx}], '${zone}', ${idx}, ${pi})"
+    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event, G.players[${pi}].${zone==='main'?'main':'sup'}[${idx}], '${zone}', ${idx}, ${pi})">
+    <img src="${IM}${num}" style="width:100%;height:100%;object-fit:cover;display:block;-webkit-touch-callout:none;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
+    ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(240,208,150,.8);pointer-events:none;">休</div>'}
+    ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:13px;height:13px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;pointer-events:none;">${cost}</div>`:''}
   </div>`;
 }
 function mobPartner(p,w,h){
   const pt=p.partner;
   return `<div style="width:${w}px;height:${h}px;flex-shrink:0;overflow:hidden;border:2px solid rgba(90,50,15,.45);background:rgba(180,140,60,.2);">
-    ${pt?`<img src="${IM}${pt[0]}" style="width:100%;height:100%;object-fit:contain;display:block;">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-light);">?</div>'}
+    ${pt?`<img src="${IM}${pt[0]}" style="width:100%;height:100%;object-fit:contain;display:block;-webkit-touch-callout:none;">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-light);">?</div>'}
   </div>`;
 }
 function mobMpCard(card,pi,i){
@@ -1794,7 +1795,7 @@ function mobMpCard(card,pi,i){
   return `<div style="width:32px;height:44px;flex-shrink:0;overflow:hidden;border:1px solid rgba(90,50,15,.4);cursor:pointer;transition:transform .2s ease;${card.active?'':'filter:brightness(.55);transform:rotate(90deg) scale(0.72);'}"
     onclick="ctxMP(event,${pi},${i})"
     oncontextmenu="event.preventDefault();ctxMP(event,${pi},${i})">
-    <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;">
+    <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;-webkit-touch-callout:none;">
   </div>`;
 }
 function renderMobile(){
@@ -1860,7 +1861,7 @@ function renderMobile(){
       <div style="width:60px;height:86px;flex-shrink:0;overflow:hidden;border:${over&&i>=7?'2px solid rgba(180,40,20,.7)':'1px solid var(--border)'};cursor:pointer;"
         onclick="ctxH(event,${actPi},${i})"
         oncontextmenu="event.preventDefault();event.stopPropagation();ctxH(event,${actPi},${i})">
-        <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;-webkit-touch-callout:none;">
       </div>`).join('');
   }
 
