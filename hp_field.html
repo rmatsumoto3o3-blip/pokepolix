@@ -980,10 +980,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
     <div id="trash-list"></div>
 
-    <button onclick="document.getElementById('trash-modal').style.display='none'" style="margin-top:10px;width:100%;padding:7px;background:rgba(80,45,12,.6);color:#f0e0c0;border:none;cursor:pointer;font-family:var(--font-ja);font-size:12px;">閉じる</button>
+</div>
 
+<!-- マリガン（引き直し）モーダル -->
+<div id="mulligan-modal" class="mov">
+  <div class="mbox" style="width:100%;max-width:580px;text-align:center;">
+    <h3 id="mul-title" style="font-family:var(--font-ja);font-size:18px;font-weight:700;">手札の引き直し</h3>
+    <p id="mul-msg" style="font-size:11px;color:var(--ink-mid);margin-bottom:12px;">最初の手札を確認してください。引き直しますか？（1回のみ）</p>
+    <div id="mul-hand" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:10px;background:rgba(210,175,100,.3);border:1px solid var(--border);margin-bottom:15px;min-height:100px;"></div>
+    <div style="display:flex;justify-content:center;gap:12px;">
+      <button id="mul-ok" class="cb-p" style="padding:10px 24px;font-size:13px;border:none;cursor:pointer;border-radius:2px;">引き直す</button>
+      <button id="mul-cancel" class="cb-o" style="padding:10px 24px;font-size:13px;cursor:pointer;border-radius:2px;">このまま開始</button>
+    </div>
   </div>
-
 </div>
 
 <script>
@@ -1370,9 +1379,9 @@ function autoSetMpCard(){
 async function handleMulligan(pi, name) {
   G.va = pi;
   renderAll();
-  await new Promise(r => setTimeout(r, 100));
-  if (confirm(`【${name}の準備】\n手札を確認してください。\n引き直しますか？（OKですべて戻してシャッフル→7枚引き直し）`)) {
-    const p = G.players[pi];
+  const p = G.players[pi];
+  const redraw = await showMulliganModal(name, p.hand);
+  if (redraw) {
     p.deck.push(...p.hand); p.hand = [];
     for (let i = p.deck.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -1386,6 +1395,33 @@ async function handleMulligan(pi, name) {
     renderAll();
     log(`${name}が手札を引き直しました。`);
   }
+}
+
+function showMulliganModal(name, hand) {
+  return new Promise(resolve => {
+    const modal = document.getElementById('mulligan-modal');
+    const container = document.getElementById('mul-hand');
+    document.getElementById('mul-title').textContent = `【${name}】手札の引き直し`;
+    
+    container.innerHTML = hand.map(c => 
+      `<div style="width:70px;height:98px;border:1px solid var(--border);overflow:hidden;background:#fff;">
+        <img src="${IM}${c.data[0]}" style="width:100%;height:100%;object-fit:cover;">
+      </div>`
+    ).join('');
+
+    modal.style.display = 'flex';
+
+    const onOk = () => { cleanup(); resolve(true); };
+    const onCancel = () => { cleanup(); resolve(false); };
+    const cleanup = () => {
+      modal.style.display = 'none';
+      document.getElementById('mul-ok').removeEventListener('click', onOk);
+      document.getElementById('mul-cancel').removeEventListener('click', onCancel);
+    };
+
+    document.getElementById('mul-ok').addEventListener('click', onOk);
+    document.getElementById('mul-cancel').addEventListener('click', onCancel);
+  });
 }
 
 // ===== ゲーム開始 =====
