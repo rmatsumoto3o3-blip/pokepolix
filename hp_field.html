@@ -1339,7 +1339,7 @@ function mkP(d){
   for(let i=cs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cs[i],cs[j]]=[cs[j],cs[i]];}
   const hand=cs.splice(0,7);
   const life=cs.splice(0,3);
-  return{partner:d.partner?PARTNERS.find(p=>p[0]===d.partner):null,deck:cs,hand,life,trash:[],main:[null,null,null],sup:[null,null,null,null],mp:[],mpCardId:d.mpCard||null};
+  return{partner:d.partner?{id:nid(),data:PARTNERS.find(p=>p[0]===d.partner),active:true,equips:[]}:null,deck:cs,hand,life,trash:[],main:[null,null,null],sup:[null,null,null,null],mp:[],mpCardId:d.mpCard||null};
 }
 
 // ===== セットアップ =====
@@ -1536,9 +1536,16 @@ function doSwitch(){
 function renderPartner(p,elId){
   const el=document.getElementById(elId);if(!el)return;
   const pt=p.partner;
-  el.innerHTML=pt
-    ?`<img src="${IM}${pt[0]}" style="width:100%;height:80%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'"><div class="pt-nm" style="font-size:8px;padding:1px 2px;">${pt[1].substring(0,8)}</div>`
-    :'<div style="font-size:8px;color:var(--ink-light);text-align:center;padding-top:30px;">未設定</div>';
+  if (!pt) {
+    el.innerHTML = '<div style="font-size:8px;color:var(--ink-light);text-align:center;padding-top:30px;">未設定</div>';
+    return;
+  }
+  const eqHtml = pt.equips && pt.equips.length ? `<div class="equip-badge">${pt.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'partner',0,${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>` : '';
+  el.innerHTML=`<div style="position:relative;width:100%;height:100%;" oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,p.partner,'partner',0,${pi})">
+    <img src="${IM}${pt.data[0]}" style="width:100%;height:80%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'">
+    <div class="pt-nm" style="font-size:8px;padding:1px 2px;">${pt.data[1].substring(0,8)}</div>
+    ${eqHtml}
+  </div>`;
 }
 
 function renderFieldSlots(p,mId,sId,pi){
@@ -1569,9 +1576,10 @@ function renderFieldSlots(p,mId,sId,pi){
     if(p.sup[i]){
       const c=p.sup[i];s._cardRef=c;
       const [n,nm,,,cost]=c.data;
+      const eq=c.equips&&c.equips.length?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'sup',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
       s.innerHTML=`<div class="fc${c.active?'':' rest'}" onclick="togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
         ${ci(n)}<div class="fc-btm"><div class="fc-nm">${nm.substring(0,7)}</div></div>
-        ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}
+        ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}${eq}
       </div>`;
     }else{s.textContent='空';}
     sEl.appendChild(s);
@@ -1641,24 +1649,37 @@ function selH(i){document.querySelectorAll('.hc').forEach((el,j)=>el.classList.t
 // ===== 装備 =====
 function openEquipSelect(card,handIdx,pi){
   const p=G.players[pi];
-  const targets=p.main.map((c,i)=>({card:c,idx:i})).filter(x=>x.card);
-  if(!targets.length){alert('メインフィールドにキャラがいません。');return;}
-  if(targets.length===1){attachEquip(card,handIdx,pi,targets[0].idx);}
+  const targets=[];
+  if(p.partner) targets.push({card:p.partner,zone:'partner',idx:0});
+  p.main.forEach((c,i)=>{if(c)targets.push({card:c,zone:'main',idx:i});});
+  p.sup.forEach((c,i)=>{if(c)targets.push({card:c,zone:'sup',idx:i});});
+  
+  if(!targets.length){alert('装備可能なキャラがフィールドにいません。');return;}
+  if(targets.length===1){attachEquip(card,handIdx,pi,targets[0].zone,targets[0].idx);}
   else{
-    const names=targets.map((t,i)=>` ${i+1}. ${t.card.data[1]}`).join('\n');
+    const names=targets.map((t,i)=>` ${i+1}. [${t.zone}] ${t.card.data[1]}`).join('\n');
     const choice=prompt(`どのキャラに装備しますか？\n${names}\n\n番号を入力してください：`);
     const n=parseInt(choice)-1;
-    if(n>=0&&n<targets.length)attachEquip(card,handIdx,pi,targets[n].idx);
+    if(n>=0&&n<targets.length)attachEquip(card,handIdx,pi,targets[n].zone,targets[n].idx);
   }
 }
-function attachEquip(eq,handIdx,pi,fieldIdx){
-  const p=G.players[pi];const target=p.main[fieldIdx];if(!target)return;
+function attachEquip(eq,handIdx,pi,zone,fieldIdx){
+  const p=G.players[pi];
+  let target;
+  if(zone==='partner') target=p.partner;
+  else if(zone==='main') target=p.main[fieldIdx];
+  else if(zone==='sup') target=p.sup[fieldIdx];
+  if(!target)return;
   p.hand.splice(handIdx,1);if(!target.equips)target.equips=[];
   target.equips.push(eq);
   log(`「${target.data[1]}」に「${eq.data[1]}」を装備しました。`);renderAll();
 }
 function removeEquip(pi,zone,fieldIdx,equipIdx){
-  const p=G.players[pi];const arr=zone==='main'?p.main:p.sup;const card=arr[fieldIdx];
+  const p=G.players[pi];
+  let card;
+  if(zone==='partner') card=p.partner;
+  else if(zone==='main') card=p.main[fieldIdx];
+  else if(zone==='sup') card=p.sup[fieldIdx];
   if(!card||!card.equips)return;
   const eq=card.equips.splice(equipIdx,1)[0];p.trash.push(eq);
   log(`「${eq.data[1]}」を装備解除して捨て札へ。`);renderAll();
@@ -1671,6 +1692,7 @@ function showCtx(e,card,zone,idx,pi){
   if(!card || typeof card === 'string') {
     const p = G.players[pi];
     if(zone==='hand') card = p.hand[idx];
+    else if(zone==='partner') card = p.partner;
     else if(zone==='main') card = p.main[idx];
     else if(zone==='sup') card = p.sup[idx];
     else if(zone==='mp') card = p.mp[idx];
@@ -1682,18 +1704,18 @@ function showCtx(e,card,zone,idx,pi){
   document.getElementById('cx-num').textContent=card.data[0];
   document.getElementById('cx-eff').textContent=card.data[10]||'';
   const z=zone,t=card.data[2];
-  const H=z==='hand',M=z==='main',S=z==='sup',MP=z==='mp';
-  const isEquip=H&&t==='Item'&&(card.data[1].includes('杖')||card.data[1].includes('マント'));
+  const H=z==='hand',M=z==='main',S=z==='sup',MP=z==='mp',P=z==='partner';
+  const isEquip=H&&t==='Item'&&(card.data[1].includes('杖')||card.data[1].includes('マント')||(card.data[10]&&card.data[10].includes('≪装備≫')));
   document.getElementById('cx-equip').style.display=isEquip?'':'none';
   document.getElementById('cx-main').style.display=H?'':'none';
   document.getElementById('cx-sup').style.display=H?'':'none';
   document.getElementById('cx-use').style.display=(H&&(t==='Magic'||t==='Event'||t==='Item'))?'':'none';
   document.getElementById('cx-mp').style.display=H?'':'none';
-  document.getElementById('cx-tog').style.display=(M||S||MP)?'':'none';
+  document.getElementById('cx-tog').style.display=(M||S||MP||P)?'':'none';
   document.getElementById('cx-rst').style.display=S?'':'none';
   document.getElementById('cx-dwn').style.display=M?'':'none';
-  document.getElementById('cx-toh').style.display=(M||S||MP)?'':'none';
-  document.getElementById('cx-bot').style.display=(H||M||S||MP)?'':'none';
+  document.getElementById('cx-toh').style.display=(M||S||MP||P)?'':'none';
+  document.getElementById('cx-bot').style.display=(H||M||S||MP||P)?'':'none';
   const m=document.getElementById('ctx');
   m.style.display='block';
   const mw=m.offsetWidth||190,mh=m.offsetHeight||280;
@@ -1799,18 +1821,27 @@ function mobCard(card,w,h,pi,zone,idx){
   if(!card)return mobEmptySlot(w,h);
   const [num,nm,,,cost]=card.data;
   // 直接 showCtx を呼ぶように修正。card引数はnullを渡し、関数内でルックアップさせる
+  const eqHtml = card.equips && card.equips.length ? `<div class="equip-badge" style="bottom:1px;gap:2px;">${card.equips.map((eq,ei)=>`<div class="equip-icon" style="width:14px;height:20px;border-color:rgba(255,200,50,.9);" onclick="event.stopPropagation();removeEquip(${pi},'${zone}',${idx},${ei})" title="${eq.data[1]}（外す）">${ci(eq.data[0])}</div>`).join('')}</div>` : '';
   return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:transform .2s ease;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;${card.active?'':'transform:rotate(90deg) scale(0.72);'}"
     onclick="showCtx(event, null, '${zone}', ${idx}, ${pi})"
     oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event, null, '${zone}', ${idx}, ${pi})">
     <img src="${IM}${num}" style="width:100%;height:100%;object-fit:cover;display:block;-webkit-touch-callout:none;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
+    <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);font-size:7px;color:#fff;padding:0 2px;white-space:nowrap;overflow:hidden;">${nm.substring(0,8)}</div>
     ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(240,208,150,.8);pointer-events:none;">休</div>'}
     ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:13px;height:13px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;pointer-events:none;">${cost}</div>`:''}
+    ${eqHtml}
   </div>`;
 }
 function mobPartner(p,w,h){
   const pt=p.partner;
-  return `<div style="width:${w}px;height:${h}px;flex-shrink:0;overflow:hidden;border:2px solid rgba(90,50,15,.45);background:rgba(180,140,60,.2);">
-    ${pt?`<img src="${IM}${pt[0]}" style="width:100%;height:100%;object-fit:contain;display:block;-webkit-touch-callout:none;">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-light);">?</div>'}
+  if(!pt) return `<div style="width:${w}px;height:${h}px;flex-shrink:0;background:rgba(180,140,60,.1);border:1px dashed var(--border);"></div>`;
+  const pi = p === G.players[0] ? 0 : 1;
+  const eqHtml = pt.equips && pt.equips.length ? `<div class="equip-badge" style="bottom:1px;gap:2px;">${pt.equips.map((eq,ei)=>`<div class="equip-icon" style="width:14px;height:20px;border-color:rgba(255,200,50,.9);" onclick="event.stopPropagation();removeEquip(${pi},'partner',0,${ei})" title="${eq.data[1]}（外す）">${ci(eq.data[0])}</div>`).join('')}</div>` : '';
+  return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:2px solid rgba(90,50,15,.45);background:rgba(180,140,60,.2);"
+    onclick="showCtx(event,p.partner,'partner',0,${pi})"
+    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,p.partner,'partner',0,${pi})">
+    <img src="${IM}${pt.data[0]}" style="width:100%;height:100%;object-fit:contain;display:block;-webkit-touch-callout:none;">
+    ${eqHtml}
   </div>`;
 }
 function mobMpCard(card,pi,i){
