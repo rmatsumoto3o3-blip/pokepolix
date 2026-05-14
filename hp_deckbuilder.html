@@ -717,7 +717,7 @@ function renderSaved(){
 // ====== パートナー ======
 function renderPartners(){
   document.getElementById('pt-grid').innerHTML=PARTNERS.map(([n,name,rar,tags,text])=>{
-    const imgUrl=`/card-images/${n}`;
+    const imgUrl=`/card-images/${n.startsWith('T')?'S'+n.substring(1):n}`;
     return `<div class="pt-item${partner===n?' sel':''}" onclick="setPartner('${n}')" style="padding:0;overflow:hidden;display:flex;flex-direction:column">
       <div style="width:100%;aspect-ratio:63/88;overflow:hidden;background:var(--surface2);position:relative;flex-shrink:0">
         <img src="${imgUrl}" alt="${name}" style="width:100%;height:100%;object-fit:contain;display:block"
@@ -750,7 +750,7 @@ function render(){
     const full=(!isMP&&cnt>=4)||(!isMP&&getDeckTotal()>=50);
     const cls='card-item'+(cnt>0?' in-deck':'')+(full&&!cnt?' maxed':'')+(isMP?' mp-card-item':'');
     const tagList=tags?tags.split(',').filter(t=>t):[];
-    const imgUrl=`/card-images/${n}`;
+    const imgUrl=`/card-images/${n.startsWith('T')?'S'+n.substring(1):n}`;
     return `<div class="${cls}" onclick="${isMP?'openCardModal(\''+n+'\')':('isMobile()?openCardModal(\''+n+'\'):addCard(\''+n+'\')')}">
       <div class="card-img-wrap">
         <img src="${imgUrl}" alt="${name}" loading="lazy"
@@ -794,7 +794,7 @@ function renderDeck(){
     Object.entries(tc).map(([t,n])=>`<div class="pill">${TL[t]||t} <b>${n}</b></div>`).join('');
   document.getElementById('deck-list').innerHTML=Object.entries(deck).map(([n,cnt])=>{
     const c=CARDS.find(x=>x[0]===n);
-    const imgUrl=`/card-images/${n}`;
+    const imgUrl=`/card-images/${n.startsWith('T')?'S'+n.substring(1):n}`;
     return `<div class="deck-row">
       <img src="${imgUrl}" alt="${n}" style="width:24px;height:34px;object-fit:cover;border-radius:3px;flex-shrink:0"
         onerror="this.style.display='none'">
@@ -858,7 +858,7 @@ function buildPreviewBoard(){
   while(deckList.length < 50) deckList.push(null);
 
   // パートナー（プロキシ経由画像）
-  const ptImg = pt ? `<img src="/card-images/${pt[0]}" crossorigin="anonymous"
+  const ptImg = pt ? `<img src="/card-images/${pt[0].startsWith('T')?'S'+pt[0].substring(1):pt[0]}" crossorigin="anonymous"
     style="width:100%;height:100%;object-fit:contain;display:block;"
     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
     <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;padding:6px;text-align:center;font-size:12px;color:#1e0e06;background:#d4b870;">${pt[1]}</div>` : '';
@@ -875,7 +875,7 @@ function buildPreviewBoard(){
   const cells = deckList.map(n => {
     if(!n) return `<div style="width:76px;height:107px;background:rgba(180,140,60,.15);border:1px dashed rgba(90,50,15,.2);"></div>`;
     return `<div style="width:76px;height:107px;overflow:hidden;position:relative;background:rgba(180,140,60,.3);">
-      <img src="/card-images/${n}" crossorigin="anonymous"
+      <img src="/card-images/${n.startsWith('T')?'S'+n.substring(1):n}" crossorigin="anonymous"
         style="width:100%;height:100%;object-fit:cover;display:block;"
         onerror="this.style.background='#2a1a0a';this.style.display='none'">
     </div>`;
@@ -970,7 +970,7 @@ function openCardModal(n){
   const [num,name,type,rar,cost,ap,dp,mp,magicIcon,tags,text] = c;
   modalCardNum = n;
 
-  document.getElementById('cm-img').src = BASE_IMG_URL + num;
+  document.getElementById('cm-img').src = BASE_IMG_URL + (num.startsWith('T')?'S'+num.substring(1):num);
   document.getElementById('cm-img').alt = name;
   document.getElementById('cm-num').textContent = num;
   document.getElementById('cm-name').textContent = name;
