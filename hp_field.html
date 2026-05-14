@@ -406,7 +406,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* コンテキストメニュー */
 
-#ctx{position:fixed;background:#e2c882;border:1px solid rgba(90,50,15,.5);z-index:1000;display:none;min-width:165px;box-shadow:3px 3px 0 rgba(80,45,12,.2);}
+#ctx{position:fixed;background:#e2c882;border:1px solid rgba(90,50,15,.5);z-index:2000;display:none;min-width:165px;box-shadow:3px 3px 0 rgba(80,45,12,.2);}
 
 .ctx-info{padding:6px 10px;border-bottom:1px solid var(--border);}
 
@@ -1665,8 +1665,8 @@ function removeEquip(pi,zone,fieldIdx,equipIdx){
 }
 
 // ===== コンテキストメニュー =====
-// ===== コンテキストメニュー =====
 function showCtx(e,card,zone,idx,pi){
+  if(e) e.stopPropagation();
   // cardが渡されていない（または文字列"[object Object]"になっている）場合はインデックスから取得
   if(!card || typeof card === 'string') {
     const p = G.players[pi];
@@ -1698,14 +1698,16 @@ function showCtx(e,card,zone,idx,pi){
   m.style.display='block';
   const mw=m.offsetWidth||190,mh=m.offsetHeight||280;
   
-  // タップ位置の取得 (Touchイベント対応)
+  // タップ位置の取得 (座標が取れない場合は要素の位置から計算)
   let x = 0, y = 0;
-  if(e.clientX !== undefined) {
+  if(e && e.clientX > 0) {
     x = e.clientX; y = e.clientY;
-  } else if(e.touches && e.touches[0]) {
+  } else if(e && e.touches && e.touches[0]) {
     x = e.touches[0].clientX; y = e.touches[0].clientY;
-  } else if(e.pageX !== undefined) {
-    x = e.pageX - window.scrollX; y = e.pageY - window.scrollY;
+  } else if(e && e.currentTarget) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x = rect.left + rect.width / 2;
+    y = rect.top + rect.height / 2;
   }
 
   if(x+mw+4>window.innerWidth)x=window.innerWidth-mw-4;
