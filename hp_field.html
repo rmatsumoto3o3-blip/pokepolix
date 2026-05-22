@@ -266,7 +266,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* フィールドカード */
 
-.fc{width:100%;height:100%;display:flex;flex-direction:column;position:relative;cursor:pointer;border:1px solid rgba(255,255,255,.1);overflow:hidden;transition:filter .12s, transform .2s ease;}
+.fc{width:100%;height:100%;display:flex;flex-direction:column;position:relative;cursor:pointer;border:1px solid rgba(255,255,255,.1);overflow:hidden;transition:filter .12s;}
 
 .fc img{width:100%;flex:1;object-fit:cover;min-height:0;display:block;}
 
@@ -282,7 +282,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 .fc-cost{position:absolute;top:2px;right:2px;width:18px;height:18px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:monospace;}
 
-.fc.rest{filter:brightness(.55) saturate(.6);transform:rotate(90deg) scale(0.72);}
+.fc.rest{filter:brightness(.55) saturate(.6);}
 
 .fc.rest::after{content:'休';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:rgba(240,208,150,.7);pointer-events:none;}
 
@@ -290,11 +290,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 .fc.rest:hover{filter:brightness(.7);}
 
-.mp-fc{width:100%;height:100%;cursor:pointer;overflow:hidden;transition:filter .12s, transform .2s ease;}
+.mp-fc{width:100%;height:100%;cursor:pointer;overflow:hidden;}
 
 .mp-fc img{width:100%;height:100%;object-fit:cover;display:block;}
 
-.mp-fc.rest{filter:brightness(.55);transform:rotate(90deg) scale(0.72);}
+.mp-fc.rest{filter:brightness(.55);}
 
 /* 手札エリア */
 
@@ -406,7 +406,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* コンテキストメニュー */
 
-#ctx{position:fixed;background:#e2c882;border:1px solid rgba(90,50,15,.5);z-index:2000;display:none;min-width:165px;box-shadow:3px 3px 0 rgba(80,45,12,.2);}
+#ctx{position:fixed;background:#e2c882;border:1px solid rgba(90,50,15,.5);z-index:1000;display:none;min-width:165px;box-shadow:3px 3px 0 rgba(80,45,12,.2);}
 
 .ctx-info{padding:6px 10px;border-bottom:1px solid var(--border);}
 
@@ -516,7 +516,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
   </div>
 
-  <a href="index.html" class="setup-link">← トップへ戻る</a>
+  <a href="hp_deckbuilder" class="setup-link">← デッキビルダーへ戻る</a>
 
 </div>
 
@@ -980,19 +980,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
     <div id="trash-list"></div>
 
-</div>
+    <button onclick="document.getElementById('trash-modal').style.display='none'" style="margin-top:10px;width:100%;padding:7px;background:rgba(80,45,12,.6);color:#f0e0c0;border:none;cursor:pointer;font-family:var(--font-ja);font-size:12px;">閉じる</button>
 
-<!-- マリガン（引き直し）モーダル -->
-<div id="mulligan-modal" class="mov">
-  <div class="mbox" style="width:100%;max-width:580px;text-align:center;">
-    <h3 id="mul-title" style="font-family:var(--font-ja);font-size:18px;font-weight:700;">手札の引き直し</h3>
-    <p id="mul-msg" style="font-size:11px;color:var(--ink-mid);margin-bottom:12px;">最初の手札を確認してください。引き直しますか？（1回のみ）</p>
-    <div id="mul-hand" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:10px;background:rgba(210,175,100,.3);border:1px solid var(--border);margin-bottom:15px;min-height:100px;"></div>
-    <div style="display:flex;justify-content:center;gap:12px;">
-      <button id="mul-ok" class="cb-p" style="padding:10px 24px;font-size:13px;border:none;cursor:pointer;border-radius:2px;">引き直す</button>
-      <button id="mul-cancel" class="cb-o" style="padding:10px 24px;font-size:13px;cursor:pointer;border-radius:2px;">このまま開始</button>
-    </div>
   </div>
+
 </div>
 
 <script>
@@ -1211,32 +1202,6 @@ const CARDS=[
 ['S02-008','ドラコ・マルフォイ','Character','ST',2,4,3,1,0,'スリザリン,ホグワーツ,魔法使い',''],
 ['S02-009','セブルス・スネイプ','Character','ST',2,3,4,1,0,'スリザリン,ホグワーツ,教師,魔法使い',''],
 ['S02-010','上がれ！','Magic','ST',1,null,null,1,0,'','〔使用〕〔決闘中〕 決闘中の味方キャラ1枚までを、この決闘中、+3/±0する。'],
-// ===== Tカード（体験会用・Sの複製）=====
-['T01-001','ハリー・ポッター','Character','ST',4,5,5,1,0,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕〔アタック〕 カードを2枚引き、手札2枚を捨て札にする。'],
-['T01-002','ハリー・ポッター','Character','ST',2,2,2,1,0,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔自分のターン終了時〕 味方キャラ1枚までを活動状態にする。 ≪ブレイク≫味方の【グリフィンドール】カード1枚までを、活動状態にする。'],
-['T01-003','ロン・ウィーズリー','Character','ST',1,1,1,1,0,'グリフィンドール,ホグワーツ,魔法使い','≪サポーター≫ 〔宣言〕〔自分のメインフェイズ〕⤵ 味方の【グリフィンドール】カード1枚までを、ターン終了時まで、+1/+1する。 ≪ブレイク≫味方の【グリフィンドール】カード1枚までを、活動状態にする。'],
-['T01-004','ハーマイオニー・グレンジャー','Character','ST',3,3,5,1,0,'グリフィンドール,ホグワーツ,魔女','〔常時〕 Magicカードがプレイされた場合、このカードを、ターン終了時まで、+1/+1する。'],
-['T01-005','ネビル・ロングボトム','Character','ST',3,4,4,1,0,'グリフィンドール,ホグワーツ,魔法使い','〔突進〕 ※突進を持つキャラはエントリーしたターンからキャラに攻撃できる。'],
-['T01-006','シェーマス・フィネガン','Character','ST',1,3,2,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['T01-007','ディーン・トーマス','Character','ST',1,2,3,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['T01-008','フレッド・ウィーズリー','Character','ST',2,4,3,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['T01-009','ジョージ・ウィーズリー','Character','ST',2,3,4,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['T01-010','ホグワーツ魔法魔術学校','Location','ST',3,null,null,1,0,'ホグワーツ','〔宣言〕〔自分のメインフェイズ〕⤵ 味方の【ホグワーツ】カード1枚までを、ターン終了時まで、+2/+2する。 ≪ブレイク≫このカードを、サポートフィールドに出す。'],
-['T01-011','レパロ','Magic','ST',1,null,null,1,0,'','〔使用〕〔相手のターン〕〔決闘中〕 味方キャラ1枚までを活動状態にする。 ≪ブレイク≫このカードを、無償で使用できる。'],
-['T01-012','杖','Item','ST',0,null,null,1,0,'','≪装備≫〔常時〕 このカードを装備している【魔法使い】または【魔女】のカードを、+2/±0する。'],
-['T01-013','組分け儀式','Event','ST',2,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 自分のパートナーと同じ寮の味方キャラ全てを、ターン終了時まで、+2/+2する。 ≪ブレイク≫このカードを、無償で使用できる。'],
-['T01-012a','杖（スリザリン版）','Item','ST',0,null,null,1,0,'','≪装備≫〔常時〕 このカードを装備している【魔法使い】または【魔女】のカードを、+2/±0する。'],
-['T01-013a','組分け儀式（スリザリン版）','Event','ST',2,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 自分のパートナーと同じ寮の味方キャラ全てを、ターン終了時まで、+2/+2する。 ≪ブレイク≫このカードを、無償で使用できる。'],
-['T02-001','ドラコ・マルフォイ','Character','ST',4,5,5,1,0,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕〔アタック〕 相手キャラ1枚までを、ターン終了時まで、-1/-1する。'],
-['T02-002','ドラコ・マルフォイ','Character','ST',2,2,2,1,0,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔自分のターン終了時〕 味方キャラ1枚までを活動状態にする。 ≪ブレイク≫味方の【スリザリン】カード1枚までを、活動状態にする。'],
-['T02-003','ビンセント・クラッブ','Character','ST',3,4,4,1,0,'スリザリン,ホグワーツ,魔法使い','〔常時〕 味方「ドラコ・マルフォイ」のカード全てを、+1/±0する。'],
-['T02-004','グレゴリー・ゴイル','Character','ST',3,4,4,1,0,'スリザリン,ホグワーツ,魔法使い','〔常時〕 味方「ドラコ・マルフォイ」のカード全てを±0/+1する。'],
-['T02-005','パンジー・パーキンソン','Character','ST',1,1,1,1,0,'スリザリン,ホグワーツ,魔女','≪サポーター≫ 〔宣言〕〔自分のメインフェイズ〕⤵ 味方の【スリザリン】カード1枚までを、ターン終了時まで、+1/+1する。 ≪ブレイク≫味方の【スリザリン】カード1枚までを活動状態にする。'],
-['T02-006','テレンス・ヒッグス','Character','ST',1,3,2,1,0,'クィディッチ,スリザリン,ホグワーツ,魔法使い',''],
-['T02-007','エイドリアン・ピュシー','Character','ST',1,2,3,1,0,'クィディッチ,スリザリン,ホグワーツ,魔法使い',''],
-['T02-008','ドラコ・マルフォイ','Character','ST',2,4,3,1,0,'スリザリン,ホグワーツ,魔法使い',''],
-['T02-009','セブルス・スネイプ','Character','ST',2,3,4,1,0,'スリザリン,ホグワーツ,教師,魔法使い',''],
-['T02-010','上がれ！','Magic','ST',1,null,null,1,0,'','〔使用〕〔決闘中〕 決闘中の味方キャラ1枚までを、この決闘中、+3/±0する。'],
 // MPカード（スターターデッキ専用）
 
 ['MP-001','MPカード','Character','N',null,null,null,null,0,'MPカード','ゲーム開始時、後攻のプレイヤーはMPカード1枚をMPフィールドに配置する。MPカードをゲームから取り除くことで1度だけコスト1を得る。'],
@@ -1345,17 +1310,14 @@ let tutStep=0;
 // ===== ユーティリティ =====
 function loadSaved(){try{return JSON.parse(localStorage.getItem(SK)||'[]');}catch{return[];}}
 function log(m){const el=document.getElementById('log');if(el)el.textContent=m;}
-function ci(n){
-  const img = n.startsWith('T') ? 'S' + n.substring(1) : n;
-  return `<img src="${IM}${img}.jpg" class="card-img" onerror="this.src='https://placehold.jp/24/3a2008/e8c060/120x168.png?text=CARD\\nNOT\\nFOUND'">`;
-}
+function ci(n){return `<img src="${IM}${n}" alt="${n}" loading="lazy" onerror="this.style.opacity='.25'">`;}
 
 // ===== プリセットデッキ =====
 const PRESET_DECKS=[
   {id:'preset-grif',name:'グリフィンドールスターター',partner:'Pt001',total:50,mpCard:'MP-001',
-   deck:{'S01-001':4,'S01-002':4,'S01-003':4,'S01-004':4,'S01-005':4,'S01-006':4,'S01-007':4,'S01-008':4,'S01-009':4,'S01-010':3,'S01-011':4,'S01-012':4,'S01-013':3}},
+   deck:{'01-003':2,'01-004':2,'01-005':2,'01-013':3,'01-014':2,'01-015':2,'01-016':2,'01-017':2,'01-018':2,'01-009':2,'01-024':2,'01-025':2,'01-037':3,'01-038':3,'01-039':3,'01-040':2,'01-041':1,'01-042':1,'01-055':2,'01-032':3,'01-076':3,'01-035':2,'01-034':2}},
   {id:'preset-slyt',name:'スリザリンスターター',partner:'Pt002',total:50,mpCard:'MP-002',
-   deck:{'S02-001':4,'S02-002':4,'S02-003':4,'S02-004':4,'S02-005':4,'S02-006':4,'S02-007':4,'S02-008':4,'S02-009':4,'S02-010':4,'S01-012a':4,'S01-013a':4,'S01-010':2}},
+   deck:{'01-006':2,'01-007':2,'01-010':2,'01-011':2,'01-019':4,'01-020':3,'01-021':3,'01-022':3,'01-026':2,'01-027':2,'01-043':4,'01-044':4,'01-049':2,'01-056':2,'01-032':3,'01-074':3,'01-076':2,'01-079':2,'01-077':2,'01-075':1}},
 ];
 
 function mkP(d){
@@ -1368,7 +1330,7 @@ function mkP(d){
   for(let i=cs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cs[i],cs[j]]=[cs[j],cs[i]];}
   const hand=cs.splice(0,7);
   const life=cs.splice(0,3);
-  return{partner:d.partner?{id:nid(),data:PARTNERS.find(p=>p[0]===d.partner),active:true,equips:[]}:null,deck:cs,hand,life,trash:[],main:[null,null,null],sup:[null,null,null,null],mp:[],mpCardId:d.mpCard||null};
+  return{partner:d.partner?PARTNERS.find(p=>p[0]===d.partner):null,deck:cs,hand,life,trash:[],main:[null,null,null],sup:[null,null,null,null],mp:[],mpCardId:d.mpCard||null};
 }
 
 // ===== セットアップ =====
@@ -1405,56 +1367,8 @@ function autoSetMpCard(){
   if(!p1.mp.some(m=>m.data[0]===p1.mpCardId))p1.mp.push({id:nid(),data,active:true});
 }
 
-async function handleMulligan(pi, name) {
-  G.va = pi;
-  renderAll();
-  const p = G.players[pi];
-  const redraw = await showMulliganModal(name, p.hand);
-  if (redraw) {
-    p.deck.push(...p.hand); p.hand = [];
-    for (let i = p.deck.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [p.deck[i], p.deck[j]] = [p.deck[j], p.deck[i]];
-    }
-    for (let i = 0; i < 7; i++) {
-      if (p.deck.length) {
-        const c = p.deck.shift(); c.active = true; p.hand.push(c);
-      }
-    }
-    renderAll();
-    log(`${name}が手札を引き直しました。`);
-  }
-}
-
-function showMulliganModal(name, hand) {
-  return new Promise(resolve => {
-    const modal = document.getElementById('mulligan-modal');
-    const container = document.getElementById('mul-hand');
-    document.getElementById('mul-title').textContent = `【${name}】手札の引き直し`;
-    
-    container.innerHTML = hand.map(c => 
-      `<div style="width:70px;height:98px;border:1px solid var(--border);overflow:hidden;background:#fff;">
-        <img src="${IM}${c.data[0].startsWith('T')?'S'+c.data[0].substring(1):c.data[0]}" style="width:100%;height:100%;object-fit:cover;">
-      </div>`
-    ).join('');
-
-    modal.style.display = 'flex';
-
-    const onOk = () => { cleanup(); resolve(true); };
-    const onCancel = () => { cleanup(); resolve(false); };
-    const cleanup = () => {
-      modal.style.display = 'none';
-      document.getElementById('mul-ok').removeEventListener('click', onOk);
-      document.getElementById('mul-cancel').removeEventListener('click', onCancel);
-    };
-
-    document.getElementById('mul-ok').addEventListener('click', onOk);
-    document.getElementById('mul-cancel').addEventListener('click', onCancel);
-  });
-}
-
 // ===== ゲーム開始 =====
-async function startGame(){
+function startGame(){
   const saved=loadSaved();
   const all=[...PRESET_DECKS,...saved];
   const d0=all.find(x=>String(x.id)===selIds[0]);
@@ -1463,28 +1377,33 @@ async function startGame(){
   G={turn:1,phase:'main',cur:0,va:0,players:[mkP(d0),mkP(d1)]};
   document.getElementById('setup').style.display='none';
   document.getElementById('game').style.display='flex';
-  await handleMulligan(0, '1P');
-  await handleMulligan(1, '2P');
-  G.va = 0;
   autoSetMpCard();
   renderAll();
   log('ゲーム開始！後攻2PのMPカードをセットしました。1P先攻。スタンバイ実行を押してください。');
 }
 
-async function startStarter(){
+function startStarter(){
   try {
-    const p0=mkP(ST_GRIF),p1=mkP(ST_SLYT);
-    G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1],tut:true};
-    document.getElementById('setup').style.display='none';
-    document.getElementById('game').style.display='flex';
-    
-    // チュートリアル時は引き直しをスキップして、すぐに解説ポップアップを表示
-    G.va = 0;
-    autoSetMpCard();
-    renderAll();
-    log('後攻2P（スリザリン）のMPカードをセットしました。ゲーム開始！1P先攻。');
-    
-    showTut(0);
+  const p0=mkP(ST_GRIF),p1=mkP(ST_SLYT);
+  G={turn:1,phase:'main',cur:0,va:0,players:[p0,p1],tut:true};
+  document.getElementById('setup').style.display='none';
+  document.getElementById('game').style.display='flex';
+  if(confirm('【ゲームの準備】\n1P（グリフィンドール）手札を確認してください。\n引き直しますか？（OKで全て戻してシャッフル→7枚引き直し）')){
+    const p=G.players[0];
+    p.deck.push(...p.hand);p.hand=[];
+    for(let i=p.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];}
+    for(let i=0;i<7;i++){if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}}
+  }
+  if(confirm('【ゲームの準備】\n2P（スリザリン）手札を確認してください。\n引き直しますか？')){
+    const p=G.players[1];
+    p.deck.push(...p.hand);p.hand=[];
+    for(let i=p.deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.deck[i],p.deck[j]]=[p.deck[j],p.deck[i]];}
+    for(let i=0;i<7;i++){if(p.deck.length){const c=p.deck.shift();c.active=true;p.hand.push(c);}}
+  }
+  autoSetMpCard();
+  renderAll();
+  log('後攻2P（スリザリン）のMPカードをセットしました。ゲーム開始！1P先攻。スタンバイ実行を押してください。');
+  showTut(0);
     document.getElementById('tut-btn').style.display='';
   } catch(err) {
     alert('startStarter エラー: ' + err.message + '\n' + (err.stack||'').split('\n').slice(0,3).join('\n'));
@@ -1562,25 +1481,12 @@ function doSwitch(){
 }
 
 // ===== デスクトップ描画 =====
-function renderPartner(p,elId,pi){
+function renderPartner(p,elId){
   const el=document.getElementById(elId);if(!el)return;
   const pt=p.partner;
-  if (!pt) {
-    el.innerHTML = '<div style="font-size:8px;color:var(--ink-light);text-align:center;padding-top:30px;">未設定</div>';
-    return;
-  }
-  const hasEq = pt.equips && pt.equips.length;
-  if(hasEq) el.classList.add('has-equip'); else el.classList.remove('has-equip');
-
-  const eqHtml = hasEq ? `<div class="equip-badge">${pt.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'partner',0,${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>` : '';
-  el.innerHTML=`<div style="position:relative;width:100%;height:100%;" oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,p.partner,'partner',0,${pi})">
-    <img src="${IM}${pt.data[0].startsWith('T')?'S'+pt.data[0].substring(1):pt.data[0]}" style="width:100%;height:80%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'">
-    <div class="pt-nm" style="font-size:8px;padding:1px 2px;">${pt.data[1].substring(0,8)}</div>
-    ${eqHtml}
-  </div>`;
-  if(equipMode && equipMode.pi === pi) el.classList.add('target-candidate');
-  else el.classList.remove('target-candidate');
-  el.onclick = () => { if(equipMode) finishEquip('partner', 0); };
+  el.innerHTML=pt
+    ?`<img src="${IM}${pt[0]}" style="width:100%;height:80%;object-fit:contain;display:block;" onerror="this.style.opacity='.3'"><div class="pt-nm" style="font-size:8px;padding:1px 2px;">${pt[1].substring(0,8)}</div>`
+    :'<div style="font-size:8px;color:var(--ink-light);text-align:center;padding-top:30px;">未設定</div>';
 }
 
 function renderFieldSlots(p,mId,sId,pi){
@@ -1593,17 +1499,13 @@ function renderFieldSlots(p,mId,sId,pi){
     if(p.main[i]){
       const c=p.main[i];s._cardRef=c;
       const [n,nm,,,cost,ap,dp]=c.data;
-      const hasEq = c.equips && c.equips.length;
-      const eq=hasEq?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'main',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
-      s.innerHTML=`<div class="fc${c.active?'':' rest'}${hasEq?' has-equip':''}${equipMode && equipMode.pi===pi ? ' target-candidate' : ''}" onclick="equipMode ? finishEquip('main', ${i}) : togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
+      const eq=c.equips&&c.equips.length?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'main',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
+      s.innerHTML=`<div class="fc${c.active?'':' rest'}" onclick="togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
         ${ci(n)}<div class="fc-btm"><div class="fc-nm">${nm.substring(0,8)}</div>
         <div class="fc-st">${ap!==null?`<span class="fc-ap">AP${ap}</span>`:''}${dp!==null?`<span class="fc-dp">DP${dp}</span>`:''}</div></div>
         ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}${eq}
       </div>`;
-    }else{
-      s.innerHTML = '空';
-      s.onclick = null;
-    }
+    }else{s.textContent='空';}
     mEl.appendChild(s);
   }
   const sEl=document.getElementById(sId);if(!sEl)return;
@@ -1615,16 +1517,11 @@ function renderFieldSlots(p,mId,sId,pi){
     if(p.sup[i]){
       const c=p.sup[i];s._cardRef=c;
       const [n,nm,,,cost]=c.data;
-      const hasEq = c.equips && c.equips.length;
-      const eq=hasEq?`<div class="equip-badge">${c.equips.map((eq,ei)=>`<div class="equip-icon" onclick="event.stopPropagation();removeEquip(${pi},'sup',${i},${ei})" title="${eq.data[1]}（クリックで外す）">${ci(eq.data[0])}</div>`).join('')}</div>`:'';
-      s.innerHTML=`<div class="fc${c.active?'':' rest'}${hasEq?' has-equip':''}${equipMode && equipMode.pi===pi ? ' target-candidate' : ''}" onclick="equipMode ? finishEquip('sup', ${i}) : togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
+      s.innerHTML=`<div class="fc${c.active?'':' rest'}" onclick="togFC(this)" oncontextmenu="event.preventDefault();event.stopPropagation();ctxF(event,this)">
         ${ci(n)}<div class="fc-btm"><div class="fc-nm">${nm.substring(0,7)}</div></div>
-        ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}${eq}
+        ${cost!==null?`<div class="fc-cost">${cost}</div>`:''}
       </div>`;
-    }else{
-      s.innerHTML = '空';
-      s.onclick = null;
-    }
+    }else{s.textContent='空';}
     sEl.appendChild(s);
   }
 }
@@ -1658,7 +1555,7 @@ function renderAll(){
   if(!G)return;
   setPhaseUI();
   const p0=G.players[0],p1=G.players[1];
-  renderPartner(p0,'pt-p1',0);
+  renderPartner(p0,'pt-p1');
   const dc0=document.getElementById('dc-p1');if(dc0)dc0.textContent=p0.deck.length;
   const tc0=document.getElementById('tc-p1');if(tc0)tc0.textContent=p0.trash.length;
   const tt0=document.getElementById('tt-p1');if(tt0)tt0.textContent=p0.trash.length?p0.trash[p0.trash.length-1].data[1].substring(0,4):'-';
@@ -1666,7 +1563,7 @@ function renderAll(){
   renderFieldSlots(p0,'main-p1','sup-p1',0);
   renderMP(p0,'mp-p1',0);
   renderHand(p0,'hand-p1',0);
-  renderPartner(p1,'pt-p2',1);
+  renderPartner(p1,'pt-p2');
   const dc1=document.getElementById('dc-p2');if(dc1)dc1.textContent=p1.deck.length;
   const tc1=document.getElementById('tc-p2');if(tc1)tc1.textContent=p1.trash.length;
   const tt1=document.getElementById('tt-p2');if(tt1)tt1.textContent=p1.trash.length?p1.trash[p1.trash.length-1].data[1].substring(0,4):'-';
@@ -1689,39 +1586,27 @@ function togFC(fc){const s=fc.parentElement;const c=s._cardRef;if(!c)return;c.ac
 function togMP(pi,i){const c=G.players[pi].mp[i];if(!c)return;c.active=!c.active;log(`MPの「${c.data[1]}」を${c.active?'活動':'休息'}状態に。`);renderAll();}
 function selH(i){document.querySelectorAll('.hc').forEach((el,j)=>el.classList.toggle('sel',j===i));}
 
-let equipMode = null; // { card, handIdx, pi }
-
 // ===== 装備 =====
 function openEquipSelect(card,handIdx,pi){
-  setTimeout(()=>{
-    equipMode = { card, handIdx, pi };
-    log("装備先のキャラクターをクリックして選択してください（キャンセルは画面クリック）");
-    renderAll();
-  }, 10);
-}
-function finishEquip(zone, idx) {
-  if(!equipMode) return;
-  const { card, handIdx, pi } = equipMode;
-  equipMode = null;
-  attachEquip(card, handIdx, pi, zone, idx);
-}
-function attachEquip(eq,handIdx,pi,zone,fieldIdx){
   const p=G.players[pi];
-  let target;
-  if(zone==='partner') target=p.partner;
-  else if(zone==='main') target=p.main[fieldIdx];
-  else if(zone==='sup') target=p.sup[fieldIdx];
-  if(!target)return;
+  const targets=p.main.map((c,i)=>({card:c,idx:i})).filter(x=>x.card);
+  if(!targets.length){alert('メインフィールドにキャラがいません。');return;}
+  if(targets.length===1){attachEquip(card,handIdx,pi,targets[0].idx);}
+  else{
+    const names=targets.map((t,i)=>` ${i+1}. ${t.card.data[1]}`).join('\n');
+    const choice=prompt(`どのキャラに装備しますか？\n${names}\n\n番号を入力してください：`);
+    const n=parseInt(choice)-1;
+    if(n>=0&&n<targets.length)attachEquip(card,handIdx,pi,targets[n].idx);
+  }
+}
+function attachEquip(eq,handIdx,pi,fieldIdx){
+  const p=G.players[pi];const target=p.main[fieldIdx];if(!target)return;
   p.hand.splice(handIdx,1);if(!target.equips)target.equips=[];
   target.equips.push(eq);
   log(`「${target.data[1]}」に「${eq.data[1]}」を装備しました。`);renderAll();
 }
 function removeEquip(pi,zone,fieldIdx,equipIdx){
-  const p=G.players[pi];
-  let card;
-  if(zone==='partner') card=p.partner;
-  else if(zone==='main') card=p.main[fieldIdx];
-  else if(zone==='sup') card=p.sup[fieldIdx];
+  const p=G.players[pi];const arr=zone==='main'?p.main:p.sup;const card=arr[fieldIdx];
   if(!card||!card.equips)return;
   const eq=card.equips.splice(equipIdx,1)[0];p.trash.push(eq);
   log(`「${eq.data[1]}」を装備解除して捨て札へ。`);renderAll();
@@ -1729,63 +1614,35 @@ function removeEquip(pi,zone,fieldIdx,equipIdx){
 
 // ===== コンテキストメニュー =====
 function showCtx(e,card,zone,idx,pi){
-  if(e) e.stopPropagation();
-  // cardが渡されていない（または文字列"[object Object]"になっている）場合はインデックスから取得
-  if(!card || typeof card === 'string') {
-    const p = G.players[pi];
-    if(zone==='hand') card = p.hand[idx];
-    else if(zone==='partner') card = p.partner;
-    else if(zone==='main') card = p.main[idx];
-    else if(zone==='sup') card = p.sup[idx];
-    else if(zone==='mp') card = p.mp[idx];
-  }
-  if(!card) return;
-
   ctxT={card,zone,idx,pi};
-  let eff = card.data[10] || '';
-  if (card.equips && card.equips.length) {
-    card.equips.forEach(eq => {
-      eff += `\n\n【装備品】${eq.data[1]}\n${eq.data[10] || 'テキストなし'}`;
-    });
-  }
-  document.getElementById('cx-eff').textContent = eff;
+  document.getElementById('cx-nm').textContent=card.data[1];
+  document.getElementById('cx-num').textContent=card.data[0];
+  document.getElementById('cx-eff').textContent=card.data[10]||'';
   const z=zone,t=card.data[2];
-  const H=z==='hand',M=z==='main',S=z==='sup',MP=z==='mp',P=z==='partner';
-  const isEquip=H&&t==='Item'&&(card.data[1].includes('杖')||card.data[1].includes('マント')||(card.data[10]&&card.data[10].includes('≪装備≫')));
+  const H=z==='hand',M=z==='main',S=z==='sup',MP=z==='mp';
+  const isEquip=H&&t==='Item'&&(card.data[1].includes('杖')||card.data[1].includes('マント'));
   document.getElementById('cx-equip').style.display=isEquip?'':'none';
   document.getElementById('cx-main').style.display=H?'':'none';
   document.getElementById('cx-sup').style.display=H?'':'none';
   document.getElementById('cx-use').style.display=(H&&(t==='Magic'||t==='Event'||t==='Item'))?'':'none';
   document.getElementById('cx-mp').style.display=H?'':'none';
-  document.getElementById('cx-tog').style.display=(M||S||MP||P)?'':'none';
+  document.getElementById('cx-tog').style.display=(M||S||MP)?'':'none';
   document.getElementById('cx-rst').style.display=S?'':'none';
   document.getElementById('cx-dwn').style.display=M?'':'none';
-  document.getElementById('cx-toh').style.display=(M||S||MP||P)?'':'none';
-  document.getElementById('cx-bot').style.display=(H||M||S||MP||P)?'':'none';
+  document.getElementById('cx-toh').style.display=(M||S||MP)?'':'none';
+  document.getElementById('cx-bot').style.display=(H||M||S||MP)?'':'none';
   const m=document.getElementById('ctx');
   m.style.display='block';
   const mw=m.offsetWidth||190,mh=m.offsetHeight||280;
-  
-  // タップ位置の取得 (座標が取れない場合は要素の位置から計算)
-  let x = 0, y = 0;
-  if(e && e.clientX > 0) {
-    x = e.clientX; y = e.clientY;
-  } else if(e && e.touches && e.touches[0]) {
-    x = e.touches[0].clientX; y = e.touches[0].clientY;
-  } else if(e && e.currentTarget) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    x = rect.left + rect.width / 2;
-    y = rect.top + rect.height / 2;
-  }
-
+  let x=e.clientX,y=e.clientY;
   if(x+mw+4>window.innerWidth)x=window.innerWidth-mw-4;
   if(y+mh+4>window.innerHeight)y=window.innerHeight-mh-4;
   if(x<4)x=4;if(y<4)y=4;
   m.style.left=x+'px';m.style.top=y+'px';
 }
-function ctxH(e,pi,i){showCtx(e,null,'hand',i,pi);}
+function ctxH(e,pi,i){showCtx(e,G.players[pi].hand[i],'hand',i,pi);}
 function ctxF(e,fc){const s=fc.parentElement;if(!s._cardRef)return;showCtx(e,s._cardRef,s._zone,s._idx,s._pi);}
-function ctxMP(e,pi,i){showCtx(e,null,'mp',i,pi);}
+function ctxMP(e,pi,i){showCtx(e,G.players[pi].mp[i],'mp',i,pi);}
 function closeCtx(){document.getElementById('ctx').style.display='none';ctxT=null;}
 
 function ca(action){
@@ -1866,36 +1723,26 @@ function mobEmptySlot(w,h){
 function mobCard(card,w,h,pi,zone,idx){
   if(!card)return mobEmptySlot(w,h);
   const [num,nm,,,cost]=card.data;
-  // 直接 showCtx を呼ぶように修正。card引数はnullを渡し、関数内でルックアップさせる
-  const eqHtml = card.equips && card.equips.length ? `<div class="equip-badge" style="bottom:1px;gap:2px;">${card.equips.map((eq,ei)=>`<div class="equip-icon" style="width:14px;height:20px;border-color:rgba(255,200,50,.9);" onclick="event.stopPropagation();removeEquip(${pi},'${zone}',${idx},${ei})" title="${eq.data[1]}（外す）">${ci(eq.data[0])}</div>`).join('')}</div>` : '';
-  return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:transform .2s ease;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;${card.active?'':'transform:rotate(90deg) scale(0.72);'}"
-    onclick="showCtx(event, null, '${zone}', ${idx}, ${pi})"
-    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event, null, '${zone}', ${idx}, ${pi})">
-    <img src="${IM}${num.startsWith('T')?'S'+num.substring(1):num}" style="width:100%;height:100%;object-fit:cover;display:block;-webkit-touch-callout:none;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
-    <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);font-size:7px;color:#fff;padding:0 2px;white-space:nowrap;overflow:hidden;">${nm.substring(0,8)}</div>
-    ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(240,208,150,.8);pointer-events:none;">休</div>'}
-    ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:13px;height:13px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;pointer-events:none;">${cost}</div>`:''}
-    ${eqHtml}
+  return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);cursor:pointer;"
+    onclick="mobCardClick(${pi},'${zone}',${idx})"
+    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,G.players[${pi}].${zone==='main'?'main':'sup'}[${idx}],'${zone}',${idx},${pi})">
+    <img src="${IM}${num}" style="width:100%;height:100%;object-fit:cover;display:block;${card.active?'':'filter:brightness(.5) saturate(.5)'}">
+    ${card.active?'':'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(240,208,150,.8);">休</div>'}
+    ${cost!==null?`<div style="position:absolute;top:1px;right:1px;width:13px;height:13px;background:rgba(80,45,12,.85);color:#f5e8d0;font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cost}</div>`:''}
   </div>`;
 }
 function mobPartner(p,w,h){
   const pt=p.partner;
-  if(!pt) return `<div style="width:${w}px;height:${h}px;flex-shrink:0;background:rgba(180,140,60,.1);border:1px dashed var(--border);"></div>`;
-  const pi = p === G.players[0] ? 0 : 1;
-  const eqHtml = pt.equips && pt.equips.length ? `<div class="equip-badge" style="bottom:1px;gap:2px;">${pt.equips.map((eq,ei)=>`<div class="equip-icon" style="width:14px;height:20px;border-color:rgba(255,200,50,.9);" onclick="event.stopPropagation();removeEquip(${pi},'partner',0,${ei})" title="${eq.data[1]}（外す）">${ci(eq.data[0])}</div>`).join('')}</div>` : '';
-  return `<div style="width:${w}px;height:${h}px;position:relative;flex-shrink:0;overflow:hidden;border:2px solid rgba(90,50,15,.45);background:rgba(180,140,60,.2);"
-    onclick="showCtx(event,p.partner,'partner',0,${pi})"
-    oncontextmenu="event.preventDefault();event.stopPropagation();showCtx(event,p.partner,'partner',0,${pi})">
-    <img src="${IM}${pt.data[0].startsWith('T')?'S'+pt.data[0].substring(1):pt.data[0]}" style="width:100%;height:100%;object-fit:contain;display:block;-webkit-touch-callout:none;">
-    ${eqHtml}
+  return `<div style="width:${w}px;height:${h}px;flex-shrink:0;overflow:hidden;border:2px solid rgba(90,50,15,.45);background:rgba(180,140,60,.2);">
+    ${pt?`<img src="${IM}${pt[0]}" style="width:100%;height:100%;object-fit:contain;display:block;">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--ink-light);">?</div>'}
   </div>`;
 }
 function mobMpCard(card,pi,i){
   if(!card)return'';
-  return `<div style="width:32px;height:44px;flex-shrink:0;overflow:hidden;border:1px solid rgba(90,50,15,.4);cursor:pointer;transition:transform .2s ease;${card.active?'':'filter:brightness(.55);transform:rotate(90deg) scale(0.72);'}"
-    onclick="ctxMP(event,${pi},${i})"
+  return `<div style="width:32px;height:44px;flex-shrink:0;overflow:hidden;border:1px solid rgba(90,50,15,.4);cursor:pointer;${card.active?'':'filter:brightness(.55);'}"
+    onclick="togMP(${pi},${i})"
     oncontextmenu="event.preventDefault();ctxMP(event,${pi},${i})">
-    <img src="${IM}${card.data[0].startsWith('T')?'S'+card.data[0].substring(1):card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;-webkit-touch-callout:none;">
+    <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;">
   </div>`;
 }
 function renderMobile(){
@@ -1951,7 +1798,7 @@ function renderMobile(){
   const r2a=document.getElementById('mob-row2-act');
   if(r2a){let h='';for(let i=0;i<4;i++)h+=mobCard(ap.sup[i],ASW,ASH,actPi,'sup',i);r2a.innerHTML=h;}
   const mpa=document.getElementById('mob-mp-act');
-  if(mpa){mpa.innerHTML=ap.mp.length?ap.mp.map((c,i)=>mobMpCard(c,actPi,i)).join(''):'<span style="font-size:8px;color:rgba(30,14,6,.25);">タップ→MP</span>';}
+  if(mpa){mpa.innerHTML=ap.mp.length?ap.mp.map((c,i)=>mobMpCard(c,actPi,i)).join(''):'<span style="font-size:8px;color:rgba(30,14,6,.25);">手札右クリック→MP</span>';}
 
   // 自分手札（表向き）
   const handEl=document.getElementById('mob-hand-act');
@@ -1959,9 +1806,9 @@ function renderMobile(){
     const over=ap.hand.length>7;
     handEl.innerHTML=ap.hand.map((card,i)=>`
       <div style="width:60px;height:86px;flex-shrink:0;overflow:hidden;border:${over&&i>=7?'2px solid rgba(180,40,20,.7)':'1px solid var(--border)'};cursor:pointer;"
-        onclick="ctxH(event,${actPi},${i})"
+        onclick="selH(${i})"
         oncontextmenu="event.preventDefault();event.stopPropagation();ctxH(event,${actPi},${i})">
-        <img src="${IM}${card.data[0].startsWith('T')?'S'+card.data[0].substring(1):card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;-webkit-touch-callout:none;">
+        <img src="${IM}${card.data[0]}" style="width:100%;height:100%;object-fit:cover;display:block;">
       </div>`).join('');
   }
 
@@ -1997,18 +1844,13 @@ function showTut(i){
 
   // スマホ時はモバイルビューIDに変換
   // スマホ時: actPi(=G.va)が自分サイド
-  const isP1 = G ? G.va === 0 : true;
   const MOB_MAP={
-    'pt-p1': isP1 ? 'mob-row1-act' : 'mob-row1-opp',
-    'lp-p1': isP1 ? 'mob-hdr-act' : 'mob-hdr-opp',
-    'main-p1': isP1 ? 'mob-row1-act' : 'mob-row1-opp',
-    'hand-p1': isP1 ? 'mob-hand-act' : null,
-    'sup-p1': isP1 ? 'mob-row2-act' : 'mob-row2-opp',
-    'pt-p2': !isP1 ? 'mob-row1-act' : 'mob-row1-opp',
-    'lp-p2': !isP1 ? 'mob-hdr-act' : 'mob-hdr-opp',
-    'main-p2': !isP1 ? 'mob-row1-act' : 'mob-row1-opp',
-    'hand-p2': !isP1 ? 'mob-hand-act' : null,
-    'sup-p2': !isP1 ? 'mob-row2-act' : 'mob-row2-opp',
+    'pt-p1':'mob-row1-act',
+    'lp-p1':'mob-hdr-act',
+    'main-p1':'mob-row1-act',
+    'hand-p1':'mob-hand-act',
+    'sup-p1':'mob-row2-act',
+    'lp-p2':'mob-hdr-opp',
   };
   const targetId=t.target?(isMob()&&MOB_MAP[t.target]?MOB_MAP[t.target]:t.target):null;
 
@@ -2097,17 +1939,7 @@ function prevTut(){if(tutStep>0)showTut(tutStep-1);}
 function reopenTut(){showTut(tutStep);}
 
 // ===== 起動 =====
-document.addEventListener('click',(e)=>{
-  if(equipMode) {
-    // ターゲット候補以外をクリックしたらキャンセル
-    if(!e.target.closest('.target-candidate')) {
-      equipMode = null;
-      log("装備をキャンセルしました。");
-      renderAll();
-    }
-  }
-  closeCtx();
-});
+document.addEventListener('click',()=>closeCtx());
 initSetup();
 if(localStorage.getItem('ppx_start_tutorial')==='1'){
   localStorage.removeItem('ppx_start_tutorial');
