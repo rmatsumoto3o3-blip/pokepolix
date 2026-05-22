@@ -94,7 +94,7 @@ body::after{
 .c-name{font-size:11px;font-weight:700;color:var(--ink);margin:2px 0;line-height:1.3;}
 .c-stats{display:flex;gap:3px;flex-wrap:wrap;margin:3px 0;}
 .c-tags{display:flex;gap:2px;flex-wrap:wrap;margin:3px 0;}
-.c-eff{font-size:9px;color:#3a1808;line-height:1.55;margin-top:3px;display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.c-eff{font-size:9px;color:#3a1808;line-height:1.55;margin-top:3px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .in-deck-badge{font-size:10px;font-weight:700;color:var(--gold);margin-top:3px;}
 .cnt-overlay{position:absolute;top:4px;right:4px;background:rgba(80,45,12,.8);color:#f5e8d0;font-size:11px;font-weight:700;padding:2px 6px;}
 
@@ -271,6 +271,7 @@ html { font-size: clamp(13px, 1.6vw, 16px); }
   <button class="tab active" onclick="showTab('build')">デッキビルダー</button>
   <button class="tab" onclick="showTab('saved')">保存済みデッキ <span id="saved-count-badge" style="background:rgba(80,45,12,.7);color:#f0e0c0;border-radius:99px;padding:1px 7px;font-size:10px;margin-left:4px">0</span></button>
   <button class="tab" onclick="showTab('rules')">ルール参照</button>
+  <a href="hp_field" class="tab" style="text-decoration:none;margin-left:auto;">一人回し →</a>
 </div>
 
 <!-- デッキビルダー -->
@@ -341,12 +342,7 @@ html { font-size: clamp(13px, 1.6vw, 16px); }
     <a href="terms.html">利用規約</a>
     <a href="privacy.html">プライバシーポリシー</a>
   </nav>
-  <p class="footer-copy">
-    本ツールはハリー・ポッター カードゲームの非公式ファンツールです。公式サービスではありません。<br>
-    本サービスは完全な非営利目的で運営されており、広告配信等による一切の収益化を行っておりません。ファンコミュニティへの貢献のみを目的として無償で提供しています。<br>
-    本サービスは権利者（Warner Bros. Entertainment Inc.、株式会社ムービック等）からの要請があった場合、コンテンツの修正またはサービス全体を速やかに停止・削除します。権利者の意向を最大限尊重する意思のもとで運営しています。<br><br>
-    All Harry Potter characters and elements &copy; &amp; &trade; Warner Bros. Entertainment Inc. &nbsp;Publishing Rights &copy; JKR.&nbsp;&nbsp;発売・販売元：株式会社ムービック
-  </p>
+  <p class="footer-copy">本ツールはハリー・ポッター カードゲームの非公式ファンツールです。公式サービスではありません。<br>All Harry Potter characters and elements &copy; &amp; &trade; Warner Bros. Entertainment Inc. &nbsp;Publishing Rights &copy; JKR.&nbsp;&nbsp;発売・販売元：株式会社ムービック</p>
 </div>
 
 </div><!-- /wrap -->
@@ -355,21 +351,7 @@ html { font-size: clamp(13px, 1.6vw, 16px); }
 <div id="modal" class="modal-overlay" style="display:none" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <h3>デッキを保存</h3>
-    <div style="margin-bottom:12px;">
-      <label style="font-size:11px;color:var(--ink-light);display:block;margin-bottom:4px;">デッキ名</label>
-      <input id="deck-name-input" type="text" placeholder="デッキ名を入力..." maxlength="30" onkeydown="if(event.key==='Enter')saveDeck()"/>
-    </div>
-    <div style="margin-bottom:15px;">
-      <label style="font-size:11px;color:var(--ink-light);display:block;margin-bottom:4px;">大会結果（解析・集計用）</label>
-      <select id="deck-result-input" style="width:100%;padding:10px;border:1px solid var(--border);font-family:var(--font-ja);background:#fff;border-radius:2px;font-size:13px;color:var(--ink);">
-        <option value="">（設定なし）</option>
-        <option value="優勝">🏆 優勝</option>
-        <option value="準優勝">🥈 準優勝</option>
-        <option value="ベスト4">🥉 ベスト4</option>
-        <option value="ベスト8">🏅 ベスト8</option>
-        <option value="参加">🃏 参加のみ</option>
-      </select>
-    </div>
+    <input id="deck-name-input" type="text" placeholder="デッキ名を入力..." maxlength="30" onkeydown="if(event.key==='Enter')saveDeck()"/>
     <div class="modal-btns">
       <button class="btn btn-outline" onclick="closeModal()">キャンセル</button>
       <button class="btn btn-primary" onclick="saveDeck()">保存する</button>
@@ -419,7 +401,7 @@ html { font-size: clamp(13px, 1.6vw, 16px); }
 <div id="cookie-banner">
   <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
     <p style="flex:1;min-width:260px;font-size:12px;color:rgba(30,14,6,.8);line-height:1.7;margin:0;font-family:var(--font-ja);">
-      本サービスはアクセス解析（Google Analytics等）を利用しており、Cookieを使用します。
+      本サービスはGoogle AdSense・Google Analytics等のサービスを使用しており、Cookieを使用します。
       詳しくは<a href="privacy.html" style="color:rgba(30,14,6,.9);">プライバシーポリシー</a>をご確認ください。
     </p>
     <div style="display:flex;gap:8px;flex-shrink:0;">
@@ -555,32 +537,6 @@ const CARDS=[
 ['S02-008','ドラコ・マルフォイ','Character','ST',2,4,3,1,0,'スリザリン,ホグワーツ,魔法使い',''],
 ['S02-009','セブルス・スネイプ','Character','ST',2,3,4,1,0,'スリザリン,ホグワーツ,教師,魔法使い',''],
 ['S02-010','上がれ！','Magic','ST',1,null,null,1,0,'','〔使用〕〔決闘中〕 決闘中の味方キャラ1枚までを、この決闘中、+3/±0する。'],
-// ===== Tカード（体験会用・Sの複製）=====
-['T01-001','ハリー・ポッター','Character','ST',4,5,5,1,0,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔エントリー〕〔アタック〕 カードを2枚引き、手札2枚を捨て札にする。'],
-['T01-002','ハリー・ポッター','Character','ST',2,2,2,1,0,'グリフィンドール,ホグワーツ,魔法使い','〔Pリンク【グリフィンドール】〕〔自動〕〔自分のターン終了時〕 味方キャラ1枚までを活動状態にする。 ≪ブレイク≫味方の【グリフィンドール】カード1枚までを、活動状態にする。'],
-['T01-003','ロン・ウィーズリー','Character','ST',1,1,1,1,0,'グリフィンドール,ホグワーツ,魔法使い','≪サポーター≫ 〔宣言〕〔自分のメインフェイズ〕⤵ 味方の【グリフィンドール】カード1枚までを、ターン終了時まで、+1/+1する。 ≪ブレイク≫味方の【グリフィンドール】カード1枚までを、活動状態にする。'],
-['T01-004','ハーマイオニー・グレンジャー','Character','ST',3,3,5,1,0,'グリフィンドール,ホグワーツ,魔女','〔常時〕 Magicカードがプレイされた場合、このカードを、ターン終了時まで、+1/+1する。'],
-['T01-005','ネビル・ロングボトム','Character','ST',3,4,4,1,0,'グリフィンドール,ホグワーツ,魔法使い','〔突進〕'],
-['T01-006','シェーマス・フィネガン','Character','ST',1,3,2,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['T01-007','ディーン・トーマス','Character','ST',1,2,3,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['T01-008','フレッド・ウィーズリー','Character','ST',2,4,3,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['T01-009','ジョージ・ウィーズリー','Character','ST',2,3,4,1,0,'グリフィンドール,ホグワーツ,魔法使い',''],
-['T01-010','ホグワーツ魔法魔術学校','Location','ST',3,null,null,1,0,'ホグワーツ','〔宣言〕〔自分のメインフェイズ〕⤵ 味方の【ホグワーツ】カード1枚までを、ターン終了時まで、+2/+2する。 ≪ブレイク≫このカードを、サポートフィールドに出す。'],
-['T01-011','レパロ','Magic','ST',1,null,null,1,0,'','〔使用〕〔相手のターン〕〔決闘中〕 味方キャラ1枚までを活動状態にする。 ≪ブレイク≫このカードを、無償で使用できる。'],
-['T01-012','杖','Item','ST',0,null,null,1,0,'','≪装備≫〔常時〕 このカードを装備している【魔法使い】または【魔女】のカードを、+2/±0する。'],
-['T01-013','組分け儀式','Event','ST',2,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 自分のパートナーと同じ寮の味方キャラ全てを、ターン終了時まで、+2/+2する。 ≪ブレイク≫このカードを、無償で使用できる。'],
-['T01-012a','杖（スリザリン版）','Item','ST',0,null,null,1,0,'','≪装備≫〔常時〕 このカードを装備している【魔法使い】または【魔女】のカードを、+2/±0する。'],
-['T01-013a','組分け儀式（スリザリン版）','Event','ST',2,null,null,1,0,'','〔使用〕〔自分のメインフェイズ〕 自分のパートナーと同じ寮の味方キャラ全てを、ターン終了時まで、+2/+2する。 ≪ブレイク≫このカードを、無償で使用できる。'],
-['T02-001','ドラコ・マルフォイ','Character','ST',4,5,5,1,0,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔エントリー〕〔アタック〕 相手キャラ1枚までを、ターン終了時まで、-1/-1する。'],
-['T02-002','ドラコ・マルフォイ','Character','ST',2,2,2,1,0,'スリザリン,ホグワーツ,魔法使い','〔Pリンク【スリザリン】〕〔自動〕〔自分のターン終了時〕 味方キャラ1枚までを活動状態にする。 ≪ブレイク≫味方の【スリザリン】カード1枚までを、活動状態にする。'],
-['T02-003','ビンセント・クラッブ','Character','ST',3,4,4,1,0,'スリザリン,ホグワーツ,魔法使い','〔常時〕 味方「ドラコ・マルフォイ」のカード全てを、+1/±0する。'],
-['T02-004','グレゴリー・ゴイル','Character','ST',3,4,4,1,0,'スリザリン,ホグワーツ,魔法使い','〔常時〕 味方「ドラコ・マルフォイ」のカード全てを±0/+1する。'],
-['T02-005','パンジー・パーキンソン','Character','ST',1,1,1,1,0,'スリザリン,ホグワーツ,魔女','≪サポーター≫ 〔宣言〕〔自分のメインフェイズ〕⤵ 味方の【スリザリン】カード1枚までを、ターン終了時まで、+1/+1する。 ≪ブレイク≫味方の【スリザリン】カード1枚までを活動状態にする。'],
-['T02-006','テレンス・ヒッグス','Character','ST',1,3,2,1,0,'クィディッチ,スリザリン,ホグワーツ,魔法使い',''],
-['T02-007','エイドリアン・ピュシー','Character','ST',1,2,3,1,0,'クィディッチ,スリザリン,ホグワーツ,魔法使い',''],
-['T02-008','ドラコ・マルフォイ','Character','ST',2,4,3,1,0,'スリザリン,ホグワーツ,魔法使い',''],
-['T02-009','セブルス・スネイプ','Character','ST',2,3,4,1,0,'スリザリン,ホグワーツ,教師,魔法使い',''],
-['T02-010','上がれ！','Magic','ST',1,null,null,1,0,'','〔使用〕〔決闘中〕 決闘中の味方キャラ1枚までを、この決闘中、+3/±0する。'],
 ];
 
 const RULES=[
@@ -594,6 +550,7 @@ const RULES=[
   {t:'カードの種類',c:`Partner：デッキ外。パートナー置き場に1枚。\nCharacter：メイン/サポートフィールドで決闘・効果。AP/DPなしはサポートのみ。\nLocation：サポートフィールドのみ。効果はサポートでも使用可。\nMagic：使い捨て。Magicアイコンキャラ休息で無償プレイも可。\nEvent：使い捨て。\nItem：装備/使用/配置の3種。同一番号を何枚でも配置可。\nMP：後攻のみ。取り除きで1コスト取得。`},
   {t:'キーワード効果',c:`突進　　：出たターンから相手キャラへアタック可\n速攻　　：出たターンからアタック可\nサポーター：サポートフィールドでも宣言効果を使用可\n挑発　　：相手キャラアタック時、必ずこのカードを対象に\n反撃　　：アタックされた時、このキャラも勝敗判定\n連携〇〇：サポートのキャラを休息にしてAPを加算\nブレイク：ライフから公開時にブレイク効果使用可\n\n※「魔法」アイコンはキャラ固有の能力で、\n  そのキャラを休息にするとMagicカードを無償プレイできます。\n  タグの「魔法使い」とは別物です。`},
   {t:'よくある質問',c:`Q: 宣言効果は出たターンから使えますか？\nA: 使えます。\n\nQ: アタックキャラがブロックされ敗北したら？\nA: 両方そのままです。\n\nQ: ブロックは2枚以上でできますか？\nA: できません。\n\nQ: 復帰の回数制限は？\nA: ありません。`},
+{t:'一人回しフィールド',c:`デッキを保存したら一人回しフィールドで実際に動かしてみましょう。<br><br><a href="hp_field" style="display:inline-block;padding:10px 24px;background:rgba(80,45,12,.75);color:#f0e0c0;text-decoration:none;font-weight:700;border:1px solid rgba(80,45,12,.4);">一人回しフィールドへ →</a>`},
 ];
 
 // ====== 状態 ======
@@ -631,13 +588,11 @@ function closeModal(e){
 
 function saveDeck(){
   const name=document.getElementById('deck-name-input').value.trim();
-  const result=document.getElementById('deck-result-input').value;
   if(!name){alert('デッキ名を入力してください。');return;}
   const saved=loadSaved();
   const entry={
     id:Date.now(),
     name,
-    result,
     partner,
     deck:{...deck},
     total:getDeckTotal(),
@@ -699,7 +654,7 @@ function renderSaved(){
     return `<div class="saved-card">
       <div class="saved-card-header">
         <div>
-          <div class="saved-card-title">📋 ${d.name} ${d.result?`<span class="badge" style="background:#ba7517;color:#fff;font-size:9px;margin-left:5px;padding:2px 8px;border-radius:99px;vertical-align:middle;border:none;">${d.result}</span>`:''}</div>
+          <div class="saved-card-title">📋 ${d.name}</div>
           <div class="saved-card-meta">保存日時：${d.savedAt} ／ ${d.total}枚</div>
         </div>
         <div class="saved-card-actions">
@@ -722,7 +677,7 @@ function renderSaved(){
 // ====== パートナー ======
 function renderPartners(){
   document.getElementById('pt-grid').innerHTML=PARTNERS.map(([n,name,rar,tags,text])=>{
-    const imgUrl=`/card-images/${n.startsWith('T')?'S'+n.substring(1):n}`;
+    const imgUrl=`/card-images/${n}`;
     return `<div class="pt-item${partner===n?' sel':''}" onclick="setPartner('${n}')" style="padding:0;overflow:hidden;display:flex;flex-direction:column">
       <div style="width:100%;aspect-ratio:63/88;overflow:hidden;background:var(--surface2);position:relative;flex-shrink:0">
         <img src="${imgUrl}" alt="${name}" style="width:100%;height:100%;object-fit:contain;display:block"
@@ -732,7 +687,7 @@ function renderPartners(){
       <div style="padding:7px 8px;flex:1;background:#fff;color:#1a1a1a">
         <div style="font-size:11px;font-weight:600;color:var(--text-primary);margin-bottom:3px;line-height:1.3">${name}</div>
         <div class="tag-row" style="margin-bottom:3px">${tags.split(',').slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-        ${text?`<div style="font-size:9px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${text}</div>`:''}
+        ${text?`<div style="font-size:9px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${text}</div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -755,7 +710,7 @@ function render(){
     const full=(!isMP&&cnt>=4)||(!isMP&&getDeckTotal()>=50);
     const cls='card-item'+(cnt>0?' in-deck':'')+(full&&!cnt?' maxed':'')+(isMP?' mp-card-item':'');
     const tagList=tags?tags.split(',').filter(t=>t):[];
-    const imgUrl=`/card-images/${n.startsWith('T')?'S'+n.substring(1):n}`;
+    const imgUrl=`/card-images/${n}`;
     return `<div class="${cls}" onclick="${isMP?'openCardModal(\''+n+'\')':('isMobile()?openCardModal(\''+n+'\'):addCard(\''+n+'\')')}">
       <div class="card-img-wrap">
         <img src="${imgUrl}" alt="${name}" loading="lazy"
@@ -799,7 +754,7 @@ function renderDeck(){
     Object.entries(tc).map(([t,n])=>`<div class="pill">${TL[t]||t} <b>${n}</b></div>`).join('');
   document.getElementById('deck-list').innerHTML=Object.entries(deck).map(([n,cnt])=>{
     const c=CARDS.find(x=>x[0]===n);
-    const imgUrl=`/card-images/${n.startsWith('T')?'S'+n.substring(1):n}`;
+    const imgUrl=`/card-images/${n}`;
     return `<div class="deck-row">
       <img src="${imgUrl}" alt="${n}" style="width:24px;height:34px;object-fit:cover;border-radius:3px;flex-shrink:0"
         onerror="this.style.display='none'">
@@ -863,7 +818,7 @@ function buildPreviewBoard(){
   while(deckList.length < 50) deckList.push(null);
 
   // パートナー（プロキシ経由画像）
-  const ptImg = pt ? `<img src="/card-images/${pt[0].startsWith('T')?'S'+pt[0].substring(1):pt[0]}" crossorigin="anonymous"
+  const ptImg = pt ? `<img src="/card-images/${pt[0]}" crossorigin="anonymous"
     style="width:100%;height:100%;object-fit:contain;display:block;"
     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
     <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;padding:6px;text-align:center;font-size:12px;color:#1e0e06;background:#d4b870;">${pt[1]}</div>` : '';
@@ -880,7 +835,7 @@ function buildPreviewBoard(){
   const cells = deckList.map(n => {
     if(!n) return `<div style="width:76px;height:107px;background:rgba(180,140,60,.15);border:1px dashed rgba(90,50,15,.2);"></div>`;
     return `<div style="width:76px;height:107px;overflow:hidden;position:relative;background:rgba(180,140,60,.3);">
-      <img src="/card-images/${n.startsWith('T')?'S'+n.substring(1):n}" crossorigin="anonymous"
+      <img src="/card-images/${n}" crossorigin="anonymous"
         style="width:100%;height:100%;object-fit:cover;display:block;"
         onerror="this.style.background='#2a1a0a';this.style.display='none'">
     </div>`;
@@ -975,7 +930,7 @@ function openCardModal(n){
   const [num,name,type,rar,cost,ap,dp,mp,magicIcon,tags,text] = c;
   modalCardNum = n;
 
-  document.getElementById('cm-img').src = BASE_IMG_URL + (num.startsWith('T')?'S'+num.substring(1):num);
+  document.getElementById('cm-img').src = BASE_IMG_URL + num;
   document.getElementById('cm-img').alt = name;
   document.getElementById('cm-num').textContent = num;
   document.getElementById('cm-name').textContent = name;
